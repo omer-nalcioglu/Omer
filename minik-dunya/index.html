@@ -1,0 +1,401 @@
+<title>Minik Dünya</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap">
+<style>
+/* Layout: one full-screen "play mat" — a home screen of big toy tiles, each game fills the screen; single bright look on purpose (kids app) */
+:root {
+  --sky: #bfe6ff;
+  --sky-deep: #8fd0ff;
+  --grass: #7ccf6a;
+  --ink: #2b2a4a;
+  --paper: #fffaf0;
+  --sun: #ffc93c;
+  --berry: #ff5d8f;
+  --lock: #8a86b8;
+  --display: "Baloo 2", "Comic Sans MS", "Trebuchet MS", system-ui, sans-serif;
+  color-scheme: light;
+}
+html, body { height: 100%; }
+body {
+  background: var(--sky);
+  color: var(--ink);
+  font-family: var(--display);
+  overflow: hidden;
+  user-select: none; -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.screen {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.wrap {
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+button { font-family: inherit; color: inherit; border: 0; cursor: pointer; }
+button:focus-visible { outline: 4px solid var(--ink); outline-offset: 3px; }
+
+/* ---------- Home ---------- */
+#home { background: linear-gradient(var(--sky) 0 62%, var(--grass) 62%); }
+.home-top { display: flex; justify-content: space-between; align-items: center; padding-block: 14px 0; }
+.logo { font-size: clamp(2rem, 8vw, 3.4rem); font-weight: 800; line-height: 1; letter-spacing: .5px; }
+.logo span:nth-child(1){color:#ff5d5d}.logo span:nth-child(2){color:#ff9f1c}.logo span:nth-child(3){color:#f6c600}
+.logo span:nth-child(4){color:#3fb950}.logo span:nth-child(5){color:#2f9bff}.logo span:nth-child(6){color:#9b5de5}
+.logo span:nth-child(7){color:var(--ink)}
+.logo span:nth-child(8){color:#ff5d8f}.logo span:nth-child(9){color:#ff9f1c}.logo span:nth-child(10){color:#3fb950}
+.logo span:nth-child(11){color:#2f9bff}.logo span:nth-child(12){color:#9b5de5}
+.gear { width: 52px; height: 52px; border-radius: 50%; background: #ffffffb0; font-size: 1.5rem; display: grid; place-items: center; }
+.sun { position: absolute; top: calc(env(safe-area-inset-top,0px) + 70px); right: 8%; width: 70px; height: 70px; border-radius: 50%;
+  background: var(--sun); box-shadow: 0 0 0 12px #ffc93c40; animation: spin 18s linear infinite; pointer-events: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.tiles {
+  flex: 1; display: grid; gap: 14px; align-content: center;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  max-width: 620px; width: 100%; margin: 0 auto; padding-block: 16px;
+}
+.tile {
+  position: relative; border-radius: 28px; padding: 14px 10px 12px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: var(--paper);
+  box-shadow: 0 8px 0 #0000001f;
+  transition: transform .12s;
+}
+.tile:active { transform: translateY(5px) scale(.98); box-shadow: 0 3px 0 #0000001f; }
+.tile .ico { font-size: clamp(3rem, 14vw, 4.6rem); line-height: 1.1; }
+.tile .lbl { font-size: clamp(1.1rem, 4.6vw, 1.5rem); font-weight: 800; }
+.tile.t1 { background: #ffe1e6; } .tile.t2 { background: #e2f3ff; }
+.tile.locked { background: #eeedf7; color: var(--lock); }
+.tile.locked .ico { filter: grayscale(.6); opacity: .7; }
+.padlock { position: absolute; top: 8px; right: 12px; font-size: 1.3rem; }
+.hint { text-align: center; font-weight: 600; color: #ffffff; text-shadow: 0 1px 2px #0003; padding-block: 0 12px; font-size: .95rem; }
+
+/* ---------- Game header ---------- */
+.bar { display: flex; align-items: center; justify-content: space-between; padding-block: 10px; gap: 10px; }
+.back { width: 56px; height: 56px; border-radius: 50%; background: #ffffffd0; font-size: 1.8rem; font-weight: 800; box-shadow: 0 4px 0 #0000001a; }
+.bar h2 { margin: 0; font-size: clamp(1.4rem, 6vw, 2rem); font-weight: 800; }
+.score { min-width: 56px; height: 56px; border-radius: 28px; padding: 0 14px; background: #ffffffd0; font-size: 1.4rem; font-weight: 800; display: grid; place-items: center; font-variant-numeric: tabular-nums; }
+
+/* ---------- Animals ---------- */
+#animals { background: linear-gradient(#c9ecff 0 40%, #a5dc8f 40%); }
+.farm {
+  flex: 1; display: grid; gap: 12px; align-content: center;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-width: 560px; width: 100%; margin: 0 auto; padding-block: 8px 18px;
+}
+.animal {
+  aspect-ratio: 1; max-width: 100%; border-radius: 26px; background: var(--paper);
+  font-size: clamp(2.6rem, 13vw, 4.4rem); display: grid; place-items: center;
+  box-shadow: 0 6px 0 #00000018;
+}
+.animal.boing { animation: boing .5s; }
+@keyframes boing { 0%{transform:scale(1)} 30%{transform:scale(1.18) rotate(-6deg)} 60%{transform:scale(.94) rotate(4deg)} 100%{transform:scale(1)} }
+.show {
+  position: absolute; inset: 0; display: grid; place-items: center; background: #2b2a4a66; z-index: 5;
+}
+.show-card {
+  background: var(--paper); border-radius: 36px; padding: 22px 34px 26px; text-align: center;
+  box-shadow: 0 12px 0 #0000002a; animation: pop-in .35s cubic-bezier(.3,1.6,.5,1);
+  max-width: calc(100% - 32px);
+}
+@keyframes pop-in { from { transform: scale(.4); opacity: 0; } }
+.show-emoji { font-size: clamp(7rem, 38vw, 11rem); line-height: 1; animation: wiggle 1s ease-in-out infinite; }
+@keyframes wiggle { 50% { transform: rotate(-8deg) translateY(-6px); } }
+.show-name { font-size: clamp(2.4rem, 11vw, 3.6rem); font-weight: 800; line-height: 1; margin-top: 8px; }
+.show-sound { font-size: clamp(1.4rem, 6vw, 2rem); font-weight: 600; color: var(--berry); }
+
+/* ---------- Balloons ---------- */
+#balloons { background: linear-gradient(#9fd8ff, #e6f6ff); }
+#sky { position: relative; flex: 1; overflow: hidden; }
+.balloon {
+  position: absolute; width: 92px; height: 112px; border-radius: 50% 50% 48% 48% / 55% 55% 45% 45%;
+  touch-action: none; will-change: transform;
+}
+.balloon::before { /* shine */
+  content: ""; position: absolute; left: 20%; top: 14%; width: 22%; height: 26%; border-radius: 50%; background: #ffffff70;
+}
+.balloon::after { /* string */
+  content: ""; position: absolute; left: 50%; top: 100%; width: 2px; height: 46px; background: #5d5b7a80;
+}
+.knot { position: absolute; left: 50%; bottom: -7px; width: 14px; height: 10px; transform: translateX(-50%); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.burst { position: absolute; width: 12px; height: 12px; border-radius: 50%; pointer-events: none; animation: fly .6s ease-out forwards; }
+@keyframes fly { to { transform: translate(var(--dx), var(--dy)) scale(.2); opacity: 0; } }
+.word {
+  position: absolute; font-size: 2.6rem; font-weight: 800; pointer-events: none; transform: translate(-50%, -50%);
+  -webkit-text-stroke: 2px #fff; paint-order: stroke fill; animation: rise 1.1s ease-out forwards;
+}
+@keyframes rise { to { transform: translate(-50%, -140%) scale(1.2); opacity: 0; } }
+.party { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 4; }
+.party div { font-size: clamp(2.6rem, 12vw, 4rem); font-weight: 800; color: var(--berry); -webkit-text-stroke: 3px #fff; paint-order: stroke fill; animation: pop-in .4s cubic-bezier(.3,1.6,.5,1); }
+
+/* ---------- Parent gate ---------- */
+.gate { position: absolute; inset: 0; z-index: 10; background: #2b2a4acc; display: grid; place-items: center; }
+.gate-card {
+  background: #ffffff; color: var(--ink); border-radius: 24px; padding: 22px 20px; width: min(380px, calc(100% - 32px));
+  text-align: center; font-family: system-ui, sans-serif; display: grid; gap: 12px;
+}
+.gate-card h3 { margin: 0; font-family: var(--display); font-size: 1.5rem; }
+.gate-card p { margin: 0; font-size: .95rem; line-height: 1.45; color: #55537a; }
+.hold { position: relative; overflow: hidden; height: 58px; border-radius: 29px; background: #eceaf8; font-weight: 700; font-size: 1rem; touch-action: none; }
+.hold i { position: absolute; inset: 0 auto 0 0; width: 0; background: #b9f0b0; }
+.hold span { position: relative; }
+.row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.pill { border-radius: 22px; padding: 10px 16px; background: #eceaf8; font-weight: 700; font-size: .95rem; }
+.pill.primary { background: var(--berry); color: #fff; }
+.small { font-size: .8rem !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+}
+</style>
+
+<!-- HOME -->
+<section id="home" class="screen">
+  <div class="sun"></div>
+  <div class="wrap home-top">
+    <div class="logo" aria-label="Minik Dünya"><span>M</span><span>i</span><span>n</span><span>i</span><span>k</span><span>&nbsp;</span><span></span><span>D</span><span>ü</span><span>n</span><span>y</span><span>a</span></div>
+    <button class="gear" id="gearBtn" aria-label="Ebeveyn ayarları">⚙️</button>
+  </div>
+  <div class="wrap tiles">
+    <button class="tile t1" data-go="animals"><div class="ico">🐮</div><div class="lbl">Hayvanlar</div></button>
+    <button class="tile t2" data-go="balloons"><div class="ico">🎈</div><div class="lbl">Balonlar</div></button>
+    <button class="tile locked" data-locked="Boyama"><span class="padlock">🔒</span><div class="ico">🎨</div><div class="lbl">Boyama</div></button>
+    <button class="tile locked" data-locked="Sayılar"><span class="padlock">🔒</span><div class="ico">🔢</div><div class="lbl">Sayılar</div></button>
+  </div>
+  <div class="wrap hint">Sesi açın 🔊 · 2–6 yaş</div>
+</section>
+
+<!-- ANIMALS -->
+<section id="animals" class="screen" hidden>
+  <div class="wrap bar">
+    <button class="back" data-go="home" aria-label="Geri">‹</button>
+    <h2>Hayvanlar</h2>
+    <div class="score" aria-hidden="true">🐾</div>
+  </div>
+  <div class="wrap farm" id="farm"></div>
+  <div class="show" id="show" hidden>
+    <div class="show-card">
+      <div class="show-emoji" id="showEmoji"></div>
+      <div class="show-name" id="showName"></div>
+      <div class="show-sound" id="showSound"></div>
+    </div>
+  </div>
+</section>
+
+<!-- BALLOONS -->
+<section id="balloons" class="screen" hidden>
+  <div class="wrap bar">
+    <button class="back" data-go="home" aria-label="Geri">‹</button>
+    <h2>Balonlar</h2>
+    <div class="score" id="score">⭐ 0</div>
+  </div>
+  <div id="sky"></div>
+</section>
+
+<!-- PARENT GATE -->
+<div class="gate" id="gate" hidden>
+  <div class="gate-card" id="gateCard"></div>
+</div>
+
+<script>
+(() => {
+  // ---------- Audio ----------
+  let ctx = null, soundOn = true;
+  try { soundOn = localStorage.getItem("md-sound") !== "0"; } catch (e) {}
+  const ac = () => {
+    if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
+    if (ctx && ctx.state === "suspended") ctx.resume();
+    return ctx;
+  };
+  function tone(freq, dur, type = "sine", vol = .25, slideTo) {
+    const c = ac(); if (!c || !soundOn) return;
+    const o = c.createOscillator(), g = c.createGain(), t = c.currentTime;
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.001, t + dur);
+    o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur);
+  }
+  function popSound() {
+    const c = ac(); if (!c || !soundOn) return;
+    const len = c.sampleRate * .15, buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+    const s = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+    f.type = "bandpass"; f.frequency.value = 1400; g.gain.value = .9;
+    s.buffer = buf; s.connect(f).connect(g).connect(c.destination); s.start();
+    tone(900, .12, "triangle", .12, 1800);
+  }
+  const chime = () => [523, 659, 784].forEach((f, i) => setTimeout(() => tone(f, .35, "triangle", .18), i * 90));
+  const fanfare = () => [523, 659, 784, 1047, 784, 1047].forEach((f, i) => setTimeout(() => tone(f, .3, "square", .08), i * 120));
+
+  let trVoice = null;
+  const pickVoice = () => {
+    try { trVoice = speechSynthesis.getVoices().find(v => /^tr/i.test(v.lang)) || null; } catch (e) {}
+  };
+  try { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; } catch (e) {}
+  function say(text) {
+    if (!soundOn) return;
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "tr-TR"; if (trVoice) u.voice = trVoice;
+      u.rate = .85; u.pitch = 1.25;
+      speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+
+  // ---------- Navigation ----------
+  const screens = ["home", "animals", "balloons"];
+  let current = "home";
+  function go(id) {
+    ac();
+    screens.forEach(s => document.getElementById(s).hidden = s !== id);
+    current = id;
+    if (id === "balloons") startBalloons(); else stopBalloons();
+    if (id === "animals") say("Hayvanlar! Bir hayvana dokun.");
+  }
+  document.addEventListener("click", e => {
+    const b = e.target.closest("[data-go]");
+    if (b) { tone(660, .1, "triangle", .15); go(b.dataset.go); }
+    const l = e.target.closest("[data-locked]");
+    if (l) { tone(330, .15, "triangle", .15); openGate("unlock", l.dataset.locked); }
+  });
+
+  // ---------- Animals ----------
+  const ANIMALS = [
+    ["🐮", "İnek", "Möö!"], ["🐱", "Kedi", "Miyav!"], ["🐶", "Köpek", "Hav hav!"],
+    ["🐑", "Koyun", "Mee!"], ["🐔", "Tavuk", "Gıt gıdak!"], ["🦆", "Ördek", "Vak vak!"],
+    ["🐴", "At", "İhahaa!"], ["🦁", "Aslan", "Grrraaa!"], ["🐸", "Kurbağa", "Vırak vırak!"],
+  ];
+  const farm = document.getElementById("farm"), show = document.getElementById("show");
+  ANIMALS.forEach(([em, name, snd], i) => {
+    const b = document.createElement("button");
+    b.className = "animal"; b.textContent = em; b.setAttribute("aria-label", name);
+    b.addEventListener("click", () => {
+      b.classList.remove("boing"); void b.offsetWidth; b.classList.add("boing");
+      chime();
+      document.getElementById("showEmoji").textContent = em;
+      document.getElementById("showName").textContent = name;
+      document.getElementById("showSound").textContent = snd;
+      show.hidden = false;
+      setTimeout(() => say(`${name}! ${snd}`), 250);
+      clearTimeout(show._t); show._t = setTimeout(() => show.hidden = true, 3200);
+    });
+    farm.appendChild(b);
+  });
+  show.addEventListener("click", () => { show.hidden = true; });
+
+  // ---------- Balloons ----------
+  const COLORS = [
+    ["#ff4d4d", "Kırmızı"], ["#2f9bff", "Mavi"], ["#ffd23f", "Sarı"], ["#3fbf5f", "Yeşil"],
+    ["#ff8a1f", "Turuncu"], ["#9b5de5", "Mor"], ["#ff6fb1", "Pembe"],
+  ];
+  const sky = document.getElementById("sky"), scoreEl = document.getElementById("score");
+  let balloons = [], raf = 0, last = 0, spawnT = 0, score = 0;
+  function spawn() {
+    const w = sky.clientWidth, h = sky.clientHeight;
+    const [col, name] = COLORS[Math.floor(Math.random() * COLORS.length)];
+    const el = document.createElement("div");
+    el.className = "balloon"; el.style.background = col;
+    el.innerHTML = `<span class="knot" style="background:${col}"></span>`;
+    const size = w < 420 ? .85 : 1;
+    const b = { el, col, name, x: 10 + Math.random() * Math.max(10, w - 110 * size), y: h + 20,
+      v: 45 + Math.random() * 45, phase: Math.random() * 6, size };
+    el.addEventListener("pointerdown", ev => { ev.preventDefault(); pop(b); });
+    sky.appendChild(el); balloons.push(b);
+  }
+  function pop(b) {
+    if (b.dead) return; b.dead = true;
+    const r = b.el.getBoundingClientRect(), s = sky.getBoundingClientRect();
+    const cx = r.left - s.left + r.width / 2, cy = r.top - s.top + r.height / 2;
+    b.el.remove(); popSound();
+    for (let i = 0; i < 12; i++) {
+      const p = document.createElement("div"), a = i / 12 * Math.PI * 2, d = 50 + Math.random() * 40;
+      p.className = "burst"; p.style.background = b.col; p.style.left = cx + "px"; p.style.top = cy + "px";
+      p.style.setProperty("--dx", Math.cos(a) * d + "px"); p.style.setProperty("--dy", Math.sin(a) * d + "px");
+      sky.appendChild(p); setTimeout(() => p.remove(), 650);
+    }
+    const w = document.createElement("div");
+    w.className = "word"; w.textContent = b.name; w.style.color = b.col;
+    w.style.left = Math.min(Math.max(cx, 90), sky.clientWidth - 90) + "px"; w.style.top = cy + "px";
+    sky.appendChild(w); setTimeout(() => w.remove(), 1150);
+    score++; scoreEl.textContent = "⭐ " + score;
+    if (score % 10 === 0) {
+      fanfare(); say("Aferin sana! " + score + " balon!");
+      const party = document.createElement("div"); party.className = "party";
+      party.innerHTML = "<div>🎉 Aferin! 🎉</div>"; sky.appendChild(party);
+      setTimeout(() => party.remove(), 1800);
+    } else {
+      say(b.name);
+    }
+  }
+  function tick(t) {
+    const dt = Math.min(.05, (t - last) / 1000 || 0); last = t;
+    spawnT -= dt;
+    if (spawnT <= 0 && balloons.length < 7) { spawn(); spawnT = .8 + Math.random() * .7; }
+    balloons = balloons.filter(b => {
+      if (b.dead) return false;
+      b.y -= b.v * dt; b.phase += dt * 1.6;
+      const x = b.x + Math.sin(b.phase) * 14;
+      b.el.style.transform = `translate(${x}px, ${b.y}px) scale(${b.size}) rotate(${Math.sin(b.phase) * 5}deg)`;
+      if (b.y < -180) { b.el.remove(); return false; }
+      return true;
+    });
+    raf = requestAnimationFrame(tick);
+  }
+  function startBalloons() {
+    stopBalloons(); last = performance.now(); spawnT = 0;
+    for (let i = 0; i < 3; i++) { spawn(); balloons[i].y = sky.clientHeight * (.35 + i * .2); }
+    raf = requestAnimationFrame(tick);
+    say("Balonları patlat!");
+  }
+  function stopBalloons() {
+    cancelAnimationFrame(raf);
+    balloons.forEach(b => b.el.remove()); balloons = [];
+  }
+
+  // ---------- Parent gate ----------
+  const gate = document.getElementById("gate"), card = document.getElementById("gateCard");
+  function openGate(kind, name) {
+    card.innerHTML = `
+      <h3>Ebeveyn alanı</h3>
+      <p>Devam etmek için aşağıdaki düğmeye <b>3 saniye</b> basılı tutun.</p>
+      <button class="hold" id="hold"><i></i><span>Basılı tut</span></button>
+      <div class="row"><button class="pill" id="gClose">Kapat</button></div>`;
+    gate.hidden = false;
+    const hold = document.getElementById("hold"), bar = hold.querySelector("i");
+    let start = 0, rq = 0;
+    const step = t => {
+      const p = Math.min(1, (t - start) / 3000); bar.style.width = p * 100 + "%";
+      if (p >= 1) { tone(880, .2, "triangle", .15); parentPanel(kind, name); return; }
+      rq = requestAnimationFrame(step);
+    };
+    const down = e => { e.preventDefault(); start = performance.now(); rq = requestAnimationFrame(step); };
+    const up = () => { cancelAnimationFrame(rq); bar.style.width = "0"; };
+    hold.addEventListener("pointerdown", down);
+    ["pointerup", "pointerleave", "pointercancel"].forEach(ev => hold.addEventListener(ev, up));
+    document.getElementById("gClose").onclick = () => gate.hidden = true;
+  }
+  function parentPanel(kind, name) {
+    const unlock = kind === "unlock";
+    card.innerHTML = `
+      <h3>${unlock ? "Tam sürüm" : "Ayarlar"}</h3>
+      ${unlock ? `<p><b>${name}</b> ve diğer tüm bölümler tam sürümde: Boyama, Sayılar, Harfler, Şekiller.<br>Tek seferlik ödeme, reklam yok.</p>
+      <div class="row"><button class="pill primary" id="buy">Kilidi aç · 79 TL</button></div>
+      <p class="small">Bu bir prototip. Gerçek ödeme alınmaz.</p>` : ""}
+      <div class="row"><button class="pill" id="snd">Ses: ${soundOn ? "Açık 🔊" : "Kapalı 🔇"}</button>
+      <button class="pill" id="gClose">Kapat</button></div>`;
+    document.getElementById("snd").onclick = e => {
+      soundOn = !soundOn;
+      try { localStorage.setItem("md-sound", soundOn ? "1" : "0"); } catch (er) {}
+      e.target.textContent = "Ses: " + (soundOn ? "Açık 🔊" : "Kapalı 🔇");
+    };
+    const buy = document.getElementById("buy");
+    if (buy) buy.onclick = () => { buy.textContent = "Prototip: ödeme yok ✓"; };
+    document.getElementById("gClose").onclick = () => gate.hidden = true;
+  }
+  document.getElementById("gearBtn").addEventListener("click", () => openGate("settings"));
+})();
+</script>
