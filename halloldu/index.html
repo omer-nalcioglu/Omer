@@ -238,6 +238,17 @@ nav.tabs {
 .newjob { display: grid; gap: 10px; }
 .newjob input, .newjob select { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface-2); }
 .newjob label { font-size: .8rem; font-weight: 700; color: var(--ink-2); }
+.badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.ed-name { display: grid; grid-template-columns: 64px minmax(0,1fr); gap: 8px; }
+.ed-name select, .ed-name input, .ed-row input, .ed-row select { width: 100%; min-width: 0; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); }
+.ed-list { display: flex; flex-direction: column; gap: 10px; }
+.ed-row { background: var(--surface-2); border-radius: 14px; padding: 10px; display: grid; gap: 8px; }
+.ed-top { display: grid; grid-template-columns: 26px minmax(0,1fr) 34px 34px 34px; gap: 6px; align-items: center; }
+.ed-n { width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: var(--surface); display: grid; place-items: center; font-size: .78rem; font-weight: 700; }
+.ed-b { height: 38px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); font-weight: 700; }
+.ed-b.del { color: var(--late); }
+.ed-b:disabled { opacity: .35; }
+.ed-bot { display: grid; grid-template-columns: minmax(0,1fr) 96px; gap: 8px; }
 .toast {
   position: fixed; z-index: 30; left: 50%; transform: translateX(-50%);
   top: calc(12px + env(safe-area-inset-top, 0px));
@@ -255,7 +266,7 @@ nav.tabs {
   <header class="gut">
     <div class="brand">
       <div class="logo"><i>✓</i>Halloldu</div>
-      <div class="who"><b>Usta Kerem</b>Kerem Tadilat · 5 kişi</div>
+      <div class="who" id="who"></div>
     </div>
     <div class="summary" id="summary"></div>
     <div class="chips" id="chips" role="toolbar" aria-label="Filtre"></div>
@@ -316,51 +327,57 @@ nav.tabs {
   const SEED = () => ({
     me: "Kerem",
     team: [
-      { name: "Ahmet", color: COLORS[0] }, { name: "Elif", color: COLORS[4] },
-      { name: "Mehmet", color: COLORS[1] }, { name: "Ayşe", color: COLORS[2] }, { name: "Kerem", color: COLORS[3] },
+      { name: "Kerem", dept: "Patron", color: COLORS[3] }, { name: "Ayşe", dept: "Satış", color: COLORS[2] },
+      { name: "Hasan", dept: "Üretim planlama", color: COLORS[6] }, { name: "Mehmet", dept: "İmalat", color: COLORS[1] },
+      { name: "Zeynep", dept: "Kalite kontrol", color: COLORS[5] }, { name: "Burak", dept: "Sevkiyat", color: "#475569" },
+      { name: "Ahmet", dept: "Montaj", color: COLORS[0] }, { name: "Elif", dept: "Muhasebe", color: COLORS[4] },
     ],
     tasks: [
-      { id: 1, who: "Ahmet", text: "Kadıköy'deki daireye boya malzemesi götür", date: at(-1, 15), hasTime: true, done: false, seen: true, code: "k4d9" },
-      { id: 2, who: "Elif", text: "Haftalık malzeme faturalarını topla", date: at(0, 17), hasTime: true, done: false, seen: true, code: "e7f2" },
-      { id: 6, who: "Elif", text: "Depodaki boş kutuları ayır", date: at(-1), hasTime: false, done: true, seen: true, doneAt: at(-1, 18), code: "e1z5" },
-      { id: 7, who: "Mehmet", text: "Matkap uçlarını yenile", date: at(0, 9), hasTime: true, done: true, seen: true, doneAt: at(0, 9, 40), code: "m8r3" },
+      { id: 1, who: "Ahmet", text: "Can Bey'i arayıp montaj saatini teyit et", date: at(-1, 15), hasTime: true, done: false, seen: true, code: "k4d9" },
+      { id: 2, who: "Elif", text: "Tedarikçi faturalarını topla", date: at(0, 17), hasTime: true, done: false, seen: true, code: "e7f2" },
+      { id: 6, who: "Elif", text: "Depodaki boş paletleri ayır", date: at(-1), hasTime: false, done: true, seen: true, doneAt: at(-1, 18), code: "e1z5" },
+      { id: 7, who: "Mehmet", text: "CNC kesim bıçaklarını değiştir", date: at(0, 9), hasTime: true, done: true, seen: true, doneAt: at(0, 9, 40), code: "m8r3" },
     ],
     nextId: 8,
     flows: [
-      { id: "tadilat", ico: "🧱", name: "Tadilat işi", stages: [
-        { name: "Keşif", owner: "Kerem", type: "task", checklist: ["Ölçüleri al", "Fotoğraf çek", "Müşterinin isteklerini not et"] },
-        { name: "Teklif", owner: "Ayşe", type: "task", checklist: ["Malzeme maliyetini çıkar", "İşçiliği hesapla", "Teklifi müşteriye gönder"] },
-        { name: "Müşteri onayı", owner: "Kerem", type: "approval", checklist: ["Müşteri teklifi kabul etti", "Ön ödeme alındı"] },
-        { name: "Malzeme", owner: "Elif", type: "task", checklist: ["Malzemeleri sipariş et", "Teslim alındı"] },
-        { name: "Uygulama", owner: "Ahmet", type: "task", checklist: ["İş bitti", "Alan temizlendi", "Bitmiş işin fotoğrafı"] },
-        { name: "Son kontrol", owner: "Kerem", type: "approval", checklist: ["Müşteriyle birlikte kontrol edildi"] },
-        { name: "Tahsilat", owner: "Ayşe", type: "task", checklist: ["Fatura kesildi", "Kalan ödeme alındı"] },
+      { id: "uretim", ico: "🏭", name: "Sipariş → Teslim", stages: [
+        { name: "Satış", owner: "Ayşe", type: "task", checklist: ["Ölçü ve çizim alındı", "Fiyat müşteriye verildi", "Kapora alındı"] },
+        { name: "Patron onayı", owner: "Kerem", type: "approval", checklist: ["Fiyat ve termin uygun"] },
+        { name: "Üretim planlama", owner: "Hasan", type: "task", checklist: ["Malzeme listesi çıkarıldı", "Eksik malzeme sipariş edildi", "Üretim sırasına alındı"] },
+        { name: "İmalat", owner: "Mehmet", type: "task", checklist: ["Kesim", "Bantlama", "Delik ve birleştirme hazırlığı"] },
+        { name: "Kalite kontrol", owner: "Zeynep", type: "approval", checklist: ["Ölçüler kontrol edildi", "Yüzey ve renk kontrolü", "Fotoğrafı çekildi"] },
+        { name: "Sevkiyat", owner: "Burak", type: "task", checklist: ["Paketlendi", "Araç ve gün planlandı", "İrsaliye kesildi"] },
+        { name: "Montaj", owner: "Ahmet", type: "task", checklist: ["Montaj tamamlandı", "Teslim tutanağı imzalatıldı", "Bitmiş işin fotoğrafı"] },
+        { name: "Tahsilat", owner: "Elif", type: "task", checklist: ["Fatura kesildi", "Kalan ödeme alındı"] },
       ] },
       { id: "satinalma", ico: "🛒", name: "Satın alma talebi", stages: [
         { name: "Talep", owner: "Mehmet", type: "task", checklist: ["Ne lazım, kaç adet yaz"] },
         { name: "Yönetici onayı", owner: "Kerem", type: "approval", checklist: [] },
         { name: "Sipariş", owner: "Elif", type: "task", checklist: ["En uygun fiyatı bul", "Siparişi ver"] },
-        { name: "Teslim alındı", owner: "Mehmet", type: "task", checklist: ["Ürünler sayıldı", "Depoya yerleştirildi"] },
+        { name: "Teslim alındı", owner: "Hasan", type: "task", checklist: ["Ürünler sayıldı", "Depoya yerleştirildi"] },
       ] },
       { id: "izin", ico: "🌴", name: "İzin talebi", stages: [
         { name: "Talep", owner: "Ahmet", type: "task", checklist: ["Tarihleri yaz"] },
         { name: "Yönetici onayı", owner: "Kerem", type: "approval", checklist: [] },
-        { name: "Planlama", owner: "Ayşe", type: "task", checklist: ["İş takvimine işle", "Yerine bakacak kişiyi belirle"] },
+        { name: "Planlama", owner: "Hasan", type: "task", checklist: ["İş takvimine işle", "Yerine bakacak kişiyi belirle"] },
       ] },
     ],
     jobs: [
-      { id: 1, flowId: "tadilat", title: "Banyo yenileme", customer: "Selin Hanım · Moda", stage: 0, days: 1, checks: [true] },
-      { id: 2, flowId: "tadilat", title: "Mutfak dolabı", customer: "Murat Bey · Ataşehir", stage: 1, days: 1 },
-      { id: 3, flowId: "tadilat", title: "Salon boyası", customer: "Deniz Hanım · Bostancı", stage: 2, days: 2 },
-      { id: 4, flowId: "tadilat", title: "Balkon kapatma", customer: "Kaya Apt. · Kozyatağı", stage: 3, days: 4, checks: [true] },
-      { id: 5, flowId: "tadilat", title: "Ofis zemin kaplama", customer: "Nova Yazılım", stage: 3, days: 3 },
-      { id: 6, flowId: "tadilat", title: "Daire komple tadilat", customer: "Ergin Bey · Kadıköy", stage: 4, days: 2, checks: [false, true] },
-      { id: 7, flowId: "tadilat", title: "Kombi dolabı", customer: "Lale Hanım · Göztepe", stage: 6, days: 1, checks: [true] },
-      { id: 8, flowId: "satinalma", title: "20 kova iç cephe boyası", customer: "Depo", stage: 1, days: 1 },
-      { id: 9, flowId: "satinalma", title: "Yeni darbeli matkap", customer: "Ekipman", stage: 2, days: 2 },
-      { id: 10, flowId: "izin", title: "Ahmet · 2–4 Aralık izin", customer: "Yıllık izin", stage: 1, days: 0 },
+      { id: 1, flowId: "uretim", title: "Mutfak dolabı · 14 modül", customer: "Selin Hanım · Moda", stage: 0, days: 1, checks: [true, true], dueIn: 21 },
+      { id: 2, flowId: "uretim", title: "Sürgülü gardırop", customer: "Murat Bey · Ataşehir", stage: 1, days: 1, dueIn: 18 },
+      { id: 3, flowId: "uretim", title: "Otel odası mobilyası · 24 oda", customer: "Mavi Otel · Bodrum", stage: 2, days: 2, dueIn: 30, urgent: true },
+      { id: 4, flowId: "uretim", title: "Banyo dolabı · 6 adet", customer: "Kaya İnşaat", stage: 3, days: 5, checks: [true], dueIn: 4 },
+      { id: 5, flowId: "uretim", title: "Ofis masası · 12 adet", customer: "Nova Yazılım", stage: 3, days: 3, dueIn: 9 },
+      { id: 6, flowId: "uretim", title: "Vestiyer ve ayakkabılık", customer: "Deniz Hanım · Bostancı", stage: 3, days: 1, dueIn: 12 },
+      { id: 7, flowId: "uretim", title: "TV ünitesi", customer: "Ergin Bey · Kadıköy", stage: 4, days: 1, dueIn: 6 },
+      { id: 8, flowId: "uretim", title: "Mutfak dolabı · 9 modül", customer: "Lale Hanım · Göztepe", stage: 5, days: 2, checks: [true], dueIn: 2 },
+      { id: 9, flowId: "uretim", title: "Yatak odası takımı", customer: "Can Bey · Kadıköy", stage: 6, days: 1, checks: [true], dueIn: 1 },
+      { id: 10, flowId: "uretim", title: "Çocuk odası", customer: "Aslı Hanım · Maltepe", stage: 7, days: 3, checks: [true], dueIn: -3 },
+      { id: 11, flowId: "satinalma", title: "Suntalam 18 mm · 40 plaka", customer: "Depo", stage: 1, days: 1 },
+      { id: 12, flowId: "satinalma", title: "Bantlama makinesi bakımı", customer: "Atölye", stage: 2, days: 2 },
+      { id: 13, flowId: "izin", title: "Ahmet · 2–4 Aralık izin", customer: "Yıllık izin", stage: 1, days: 0 },
     ],
-    nextJob: 11,
+    nextJob: 14,
   });
   function seedJobs(st) {
     st.jobs.forEach(j => {
@@ -368,6 +385,7 @@ nav.tabs {
       j.stageAt = Date.now() - j.days * DAY - 3600000; j.createdAt = j.stageAt - (j.stage * 2 + 1) * DAY;
       const c = j.checks || []; j.checks = {}; j.checks[j.stage] = stg.checklist.map((_, i) => !!c[i]);
       j.history = f.stages.slice(0, j.stage).map((x, i) => ({ stage: i, by: x.owner, at: j.createdAt + i * 2 * DAY, act: "done" }));
+      if (j.dueIn != null) j.due = startOfDay(new Date()).getTime() + j.dueIn * DAY; delete j.dueIn;
       delete j.days;
       st.tasks.push({ id: st.nextId++, who: stg.owner, text: `${j.title} · ${stg.name}`, date: startOfDay(j.stageAt).getTime() + 2 * DAY, hasTime: false,
         done: false, seen: true, code: code(), jobId: j.id, stageIdx: j.stage });
@@ -375,18 +393,19 @@ nav.tabs {
     return st;
   }
   let S;
-  try { S = JSON.parse(localStorage.getItem("halloldu-v2")); } catch (e) {}
+  try { S = JSON.parse(localStorage.getItem("halloldu-v3")); } catch (e) {}
   if (!S || !S.tasks || !S.flows) S = seedJobs(SEED());
-  const save = () => { try { localStorage.setItem("halloldu-v2", JSON.stringify(S)); } catch (e) {} };
+  const save = () => { try { localStorage.setItem("halloldu-v3", JSON.stringify(S)); } catch (e) {} };
   const person = n => S.team.find(p => p.name === n) || { name: n, color: COLORS[5] };
   const initials = n => n === S.me ? "Ben" : n.slice(0, 1).toLocaleUpperCase("tr");
   const avatar = n => `<div class="av" style="background:${person(n).color}" aria-hidden="true">${esc(initials(n))}</div>`;
   const displayName = n => n === S.me ? "Ben" : n;
 
-  let tab = "isler", filter = "all", curFlow = "tadilat";
+  let tab = "isler", filter = "all", curFlow = "uretim";
 
   // ---------- render ----------
   function render() {
+    $("#who").innerHTML = `<b>Kerem · Patron</b>Kerem Mobilya · ${S.team.length} kişi`;
     document.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === tab));
     $("#fab").hidden = tab !== "isler";
     const counts = { late: 0, today: 0, upcoming: 0, done: 0 };
@@ -444,7 +463,7 @@ nav.tabs {
     const rows = S.team.map(p => {
       const mine = S.tasks.filter(t => t.who === p.name), done = mine.filter(t => t.done).length;
       const late = mine.filter(t => status(t) === "late").length, pct = mine.length ? Math.round(done / mine.length * 100) : 0;
-      return `<div class="row">${avatar(p.name)}<div style="min-width:0"><b>${esc(displayName(p.name))}</b>
+      return `<div class="row">${avatar(p.name)}<div style="min-width:0"><b>${esc(displayName(p.name))}</b>${p.dept ? ` <span class="sm">· ${esc(p.dept)}</span>` : ""}
         <div class="sm">${mine.length - done} açık iş${late ? ` · <span style="color:var(--late);font-weight:600">${late} gecikmiş</span>` : ""}</div>
         <div class="bar"><i style="width:${pct}%"></i></div></div><div class="num">%${pct}</div></div>`;
     }).join("");
@@ -609,7 +628,7 @@ nav.tabs {
       <div class="browser">
         <div class="url">🔒 halloldu.app/i/${esc(t.code)}</div>
         <div class="guest">
-          <div class="from"><b>Usta Kerem</b> sana bir iş verdi</div>
+          <div class="from"><b>Kerem (Patron)</b> sana bir iş verdi</div>
           <div class="task">${esc(t.text)}</div>
           <div class="due">🕑 ${esc(fmtDue(t))} ${status(t) === "late" ? `<span class="pill late">Gecikti</span>` : ""}</div>
           <label class="upload" for="photo"><span id="upIco">📷</span><span id="upTxt">Fotoğraf ekle (isteğe bağlı)</span><input id="photo" type="file" accept="image/*"></label>
@@ -654,6 +673,14 @@ nav.tabs {
   const flowById = id => S.flows.find(f => f.id === id);
   const jobById = id => S.jobs.find(j => j.id === id);
   const flowOf = jobId => { const j = jobById(jobId); if (!j) return ""; const f = flowById(j.flowId); return f ? `${f.name} · ${j.title}` : j.title; };
+  const ownerLabel = n => { const p = S.team.find(x => x.name === n); return p && p.dept ? `${displayName(n)} · ${p.dept}` : displayName(n); };
+  function dueBadge(j) {
+    if (!j.due || j.done) return j.urgent && !j.done ? `<span class="pill late">Acil</span>` : "";
+    const d = Math.round((j.due - startOfDay(new Date()).getTime()) / DAY);
+    const txt = d < 0 ? `Termin ${-d} gün geçti` : d === 0 ? "Termin bugün" : `Termin ${d} gün`;
+    const cls = d < 0 ? "late" : d <= 3 ? "today" : "seen";
+    return `${j.urgent ? `<span class="pill late">Acil</span> ` : ""}<span class="pill ${cls}">${txt}</span>`;
+  }
   const daysIn = j => Math.floor((Date.now() - j.stageAt) / DAY);
   const ago = d => d <= 0 ? "bugün" : d === 1 ? "1 gündür" : `${d} gündür`;
 
@@ -710,10 +737,10 @@ nav.tabs {
     const cols = f.stages.map((st, i) => {
       const js = active.filter(j => j.stage === i).sort((a, b) => a.stageAt - b.stageAt);
       return `<div class="col${i === jam && worst >= 3 ? " jam" : ""}">
-        <div class="col-h">${avatar(st.owner)}<b>${esc(st.name)}<small>${esc(displayName(st.owner))}${st.type === "approval" ? ` · <span class="tag-appr">Onay</span>` : ""}</small></b><span class="num">${js.length}</span></div>
+        <div class="col-h">${avatar(st.owner)}<b>${esc(st.name)}<small>${esc(ownerLabel(st.owner))}${st.type === "approval" ? ` · <span class="tag-appr">Onay</span>` : ""}</small></b><span class="num">${js.length}</span></div>
         ${js.length ? js.map(j => { const d = daysIn(j), ck = j.checks[i] || [], n = ck.filter(Boolean).length;
           return `<button class="job ${d >= 3 ? "slow" : d >= 2 ? "mid" : ""}" data-job="${j.id}"><b>${esc(j.title)}</b><span class="sm" style="display:block">${esc(j.customer || "")}</span>
-            <span class="sm"><span>${ago(d)}</span>${ck.length ? `<span>☑ ${n}/${ck.length}</span>` : ""}</span></button>`; }).join("") : `<div class="col-empty">Bekleyen iş yok</div>`}
+            <span class="sm"><span>${ago(d)}</span>${ck.length ? `<span>☑ ${n}/${ck.length}</span>` : ""}</span>${dueBadge(j) ? `<span class="badges">${dueBadge(j)}</span>` : ""}</button>`; }).join("") : `<div class="col-empty">Bekleyen iş yok</div>`}
       </div>`;
     }).join("") + `<div class="col"><div class="col-h"><div class="av" style="background:var(--accent)">✓</div><b>Tamamlandı<small>${f.stages.length} aşama</small></b><span class="num">${finished.length}</span></div>
       ${finished.slice(-4).reverse().map(j => `<button class="job" data-job="${j.id}"><b>${esc(j.title)}</b><span class="sm" style="display:block">${esc(j.customer || "")}</span></button>`).join("") || `<div class="col-empty">Henüz yok</div>`}</div>`;
@@ -722,7 +749,8 @@ nav.tabs {
       <div class="chips flow-chips">${chips}</div>
       ${alert}
       <div class="board-wrap" role="region" aria-label="${esc(f.name)} panosu" tabindex="0"><div class="board">${cols}</div></div>
-      <button class="btn block" id="newJob">＋ Yeni “${esc(f.name)}” başlat</button>
+      <button class="btn block" id="newJob">＋ Yeni iş aç · ${esc(f.name)}</button>
+      <div class="btnrow"><button class="btn ghost" id="editFlow">✎ Bu akışı düzenle</button><button class="btn ghost" id="makeFlow">＋ Yeni akış oluştur</button></div>
       <h3 class="section-title" style="font-size:1.1rem;margin-top:8px">Sektöre göre hazır akışlar</h3>
       <div class="panel">${GALLERY.map((g, i) => { const has = S.flows.some(x => x.id === g.id);
         return `<div class="tpl"><div class="ico">${g.ico}</div><div style="min-width:0"><b>${esc(g.name)}</b><div class="sm">${g.stages.map(s => esc(s.name)).join(" → ")}</div></div>
@@ -760,13 +788,74 @@ nav.tabs {
     toast(g.ico, `${g.name} akışı eklendi`, "Aşama sorumluları şimdilik sensin. Gerçek uygulamada her aşamaya kişi atanır.");
   }
 
+  // ---------- flow editor ----------
+  let draft = null;
+  const ICONS = ["🏭", "🪚", "🚚", "🧱", "🔧", "📦", "🛒", "🧾", "🌴", "⭐"];
+  function openEditor(id, still) {
+    if (!still) {
+      const src = id ? flowById(id) : null;
+      draft = src ? JSON.parse(JSON.stringify(src)) : { id: null, ico: "⭐", name: "", stages: [
+        { name: "Sipariş", owner: S.me, type: "task", checklist: [] }, { name: "Teslim", owner: S.me, type: "task", checklist: [] } ] };
+    }
+    const owners = S.team.map(p => p.name);
+    const rows = draft.stages.map((st, i) => `<div class="ed-row">
+      <div class="ed-top"><span class="ed-n">${i + 1}</span>
+        <input data-i="${i}" data-f="name" value="${esc(st.name)}" placeholder="Aşama adı (ör: Boya)" aria-label="${i + 1}. aşamanın adı">
+        <button class="ed-b" data-mv="${i}:-1" aria-label="Yukarı taşı"${i === 0 ? " disabled" : ""}>↑</button>
+        <button class="ed-b" data-mv="${i}:1" aria-label="Aşağı taşı"${i === draft.stages.length - 1 ? " disabled" : ""}>↓</button>
+        <button class="ed-b del" data-del="${i}" aria-label="Aşamayı sil"${draft.stages.length <= 1 ? " disabled" : ""}>✕</button></div>
+      <div class="ed-bot">
+        <select data-i="${i}" data-f="owner" aria-label="Sorumlu">${owners.map(n => `<option value="${esc(n)}"${n === st.owner ? " selected" : ""}>${esc(ownerLabel(n))}</option>`).join("")}</select>
+        <select data-i="${i}" data-f="type" aria-label="Aşama tipi"><option value="task"${st.type === "task" ? " selected" : ""}>İş</option><option value="approval"${st.type === "approval" ? " selected" : ""}>Onay</option></select>
+      </div>
+      <input data-i="${i}" data-f="checklist" value="${esc(st.checklist.join(", "))}" placeholder="Kontrol listesi, virgülle ayır (isteğe bağlı)" aria-label="Kontrol listesi">
+    </div>`).join("");
+    sheet(`<div class="stack">
+      <div><h2>${draft.id ? "Akışı düzenle" : "Yeni akış oluştur"}</h2><div class="sm">Aşamaları işletmenin gerçek sırasına göre diz. Her aşamaya bir sorumlu ata.</div></div>
+      <div class="ed-name"><select id="edIco" aria-label="Simge">${ICONS.map(x => `<option${x === draft.ico ? " selected" : ""}>${x}</option>`).join("")}</select>
+        <input id="edName" value="${esc(draft.name)}" placeholder="Akışın adı (ör: Kapı üretimi)" aria-label="Akışın adı"></div>
+      <div class="ed-list">${rows}</div>
+      <button class="btn ghost block" id="edAdd">＋ Aşama ekle</button>
+      <div class="sm" id="edMsg"></div>
+      <div class="btnrow"><button class="btn ghost" id="edCancel">Vazgeç</button><button class="btn" id="edSave">Kaydet</button></div>
+    </div>`, () => {
+      layer.querySelectorAll("[data-f]").forEach(el => el.addEventListener(el.tagName === "SELECT" ? "change" : "input", () => {
+        const st = draft.stages[+el.dataset.i], f = el.dataset.f;
+        st[f] = f === "checklist" ? el.value.split(",").map(x => x.trim()).filter(Boolean) : el.value;
+      }));
+      $("#edIco").onchange = e => draft.ico = e.target.value;
+      $("#edName").oninput = e => draft.name = e.target.value;
+      layer.querySelectorAll("[data-mv]").forEach(b => b.onclick = () => {
+        const [i, d] = b.dataset.mv.split(":").map(Number); const a = draft.stages; [a[i], a[i + d]] = [a[i + d], a[i]]; openEditor(id, true); });
+      layer.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { draft.stages.splice(+b.dataset.del, 1); openEditor(id, true); });
+      $("#edAdd").onclick = () => { draft.stages.push({ name: "", owner: S.me, type: "task", checklist: [] }); openEditor(id, true);
+        const ins = layer.querySelectorAll('[data-f="name"]'); ins[ins.length - 1].focus(); };
+      $("#edCancel").onclick = close;
+      $("#edSave").onclick = () => {
+        draft.name = draft.name.trim();
+        if (!draft.name) { $("#edMsg").textContent = "Akışa bir ad ver."; $("#edName").focus(); return; }
+        if (draft.stages.some(x => !x.name.trim())) { $("#edMsg").textContent = "Her aşamanın bir adı olmalı."; return; }
+        draft.stages.forEach(x => x.name = x.name.trim());
+        if (draft.id) {
+          const i = S.flows.findIndex(f => f.id === draft.id); S.flows[i] = draft;
+          S.jobs.filter(j => j.flowId === draft.id && !j.done).forEach(j => { if (j.stage >= draft.stages.length) j.stage = draft.stages.length - 1;
+            j.checks[j.stage] = draft.stages[j.stage].checklist.map((_, k) => !!(j.checks[j.stage] || [])[k]); });
+        } else { draft.id = "f" + Date.now().toString(36); S.flows.push(draft); }
+        curFlow = draft.id; save(); close(); render(); window.scrollTo(0, 0);
+        toast(draft.ico, `${draft.name} kaydedildi`, `${draft.stages.length} aşama: ${draft.stages.map(x => x.name).join(" → ")}`);
+      };
+    }, still);
+  }
+
   function openNewJob() {
     const f = flowById(curFlow);
     sheet(`<div class="newjob">
-      <div><h2>Yeni iş başlat</h2><div class="sm">İş, ilk aşama olan “${esc(f.stages[0].name)}” ile başlar ve ${esc(dat(displayName(f.stages[0].owner)))} düşer.</div></div>
+      <div><h2>Yeni iş aç</h2><div class="sm">İş, ilk aşama olan “${esc(f.stages[0].name)}” ile başlar ve ${esc(dat(displayName(f.stages[0].owner)))} düşer.</div></div>
       <label for="njFlow">Akış</label><select id="njFlow">${S.flows.map(x => `<option value="${x.id}"${x.id === f.id ? " selected" : ""}>${x.ico} ${esc(x.name)}</option>`).join("")}</select>
-      <label for="njTitle">İşin adı</label><input id="njTitle" placeholder="Ör: Mutfak tezgâhı değişimi" autocomplete="off">
-      <label for="njCust">Müşteri veya not (isteğe bağlı)</label><input id="njCust" placeholder="Ör: Hakan Bey · Üsküdar" autocomplete="off">
+      <label for="njTitle">Ürün / iş</label><input id="njTitle" placeholder="Ör: Mutfak dolabı · 10 modül" autocomplete="off">
+      <label for="njCust">Müşteri (isteğe bağlı)</label><input id="njCust" placeholder="Ör: Hakan Bey · Üsküdar" autocomplete="off">
+      <label for="njDue">Teslim tarihi (termin)</label><input id="njDue" type="date">
+      <label class="ck"><input type="checkbox" id="njUrgent"> Acil iş</label>
       <button class="btn block" id="njGo">Başlat</button>
     </div>`, () => {
       setTimeout(() => $("#njTitle").focus(), 50);
@@ -774,8 +863,9 @@ nav.tabs {
         const title = $("#njTitle").value.trim(); if (!title) { $("#njTitle").focus(); $("#njTitle").placeholder = "İşin adını yaz"; return; }
         const fl = flowById($("#njFlow").value);
         const j = { id: S.nextJob++, flowId: fl.id, title, customer: $("#njCust").value.trim(), stage: 0, stageAt: Date.now(), createdAt: Date.now(),
-          checks: { 0: fl.stages[0].checklist.map(() => false) }, history: [] };
-        S.jobs.push(j); makeStageTask(j, 0); curFlow = fl.id; save(); close(); render();
+          checks: { 0: fl.stages[0].checklist.map(() => false) }, history: [], urgent: $("#njUrgent").checked };
+        const dv = $("#njDue").value; if (dv) { const [y, m, d] = dv.split("-").map(Number); j.due = new Date(y, m - 1, d).getTime(); }
+        S.jobs.push(j); const t0 = makeStageTask(j, 0); if (j.urgent) t0.text = "ACİL · " + t0.text; curFlow = fl.id; save(); close(); render();
         toast(fl.ico, `${title} başladı`, `${fl.stages[0].name} · ${fl.stages[0].owner === S.me ? "sıra sende" : dat(fl.stages[0].owner) + " iletildi"}`);
       };
     });
@@ -803,7 +893,7 @@ nav.tabs {
     }).join("");
     const backs = j.history.filter(h => h.act === "back");
     sheet(`<div class="stack">
-      <div><div class="sm">${f.ico} ${esc(f.name)}</div><h2>${esc(j.title)}</h2><div class="sm">${esc(j.customer || "")}</div></div>
+      <div><div class="sm">${f.ico} ${esc(f.name)}</div><h2>${esc(j.title)}</h2><div class="sm">${esc(j.customer || "")}</div>${dueBadge(j) ? `<div class="badges">${dueBadge(j)}</div>` : ""}</div>
       ${j.done ? `<div class="alert ok"><span>🏁</span><div><b>Tamamlandı</b><br>${f.stages.length} aşamanın hepsi bitti.</div></div>` : ""}
       <div class="steps">${steps}</div>
       ${backs.length ? `<div class="hist">${backs.map(h => `<div>↩ ${esc(f.stages[h.stage].name)} aşamasından geri gönderildi${h.note ? `: “${esc(h.note)}”` : ""}</div>`).join("")}</div>` : ""}
@@ -835,6 +925,8 @@ nav.tabs {
     else if (el.dataset.job) openJob(+el.dataset.job);
     else if (el.dataset.gallery) addFromGallery(+el.dataset.gallery);
     else if (el.id === "newJob") openNewJob();
+    else if (el.id === "editFlow") openEditor(curFlow);
+    else if (el.id === "makeFlow") openEditor(null);
     else if (el.dataset.tpl) {
       const tp = TEMPLATES[+el.dataset.tpl];
       tp.items.forEach(text => S.tasks.push({ id: S.nextId++, who: S.me, text, date: at(0), hasTime: false, done: false, seen: true, code: code() }));
