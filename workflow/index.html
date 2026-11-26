@@ -473,6 +473,39 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
 .mcard.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .mcard .mh { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 4px; }
 .mcard b { font-weight: 600; } .mcard .req { color: var(--warn); }
+.btn svg { width: 18px; height: 18px; flex: none; }
+/* Kurulum (onboarding) */
+body.ob .band { display: none; }
+main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
+.ob-prog { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; font-size: .68rem; font-weight: 600; color: var(--ink-2); text-align: center; }
+.ob-prog span { border-top: 3px solid var(--line); padding-top: 6px; } .ob-prog span.on { border-color: var(--accent); color: var(--accent); }
+.ob-hero { display: grid; gap: 12px; padding: 40px 0 12px; }
+.ob-hero h1 { font-size: 2.4rem; line-height: 1.05; }
+.ob-hero p { font-size: 1.08rem; color: var(--ink-2); margin: 0; }
+.ob-logo { width: 56px; height: 56px; border-radius: 16px; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; }
+.ob-logo svg { width: 30px; height: 30px; }
+.ob h2 { font-size: 1.5rem; }
+.ob label.f { display: grid; gap: 6px; font-weight: 600; font-size: .9rem; }
+.ob-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.ob-top button { font-size: .85rem; color: var(--ink-2); text-decoration: underline; }
+.obst { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 10px; display: grid; gap: 8px; }
+.obst .r { display: grid; grid-template-columns: 26px minmax(0, 1fr) 36px 36px 36px; gap: 6px; align-items: center; }
+.obst .r input { width: 100%; min-width: 0; padding: 9px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); font-weight: 600; }
+.obst .n { width: 26px; height: 26px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-weight: 700; font-size: .8rem; }
+.obst .ed-b { height: 36px; }
+.obst.par { margin-left: 18px; border-left: 3px solid var(--accent); }
+.obwho { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: grid; gap: 8px; }
+.obwho .add { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 6px; }
+.obwho .add input { min-width: 0; width: 100%; padding: 9px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); }
+.inv { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: grid; gap: 8px; }
+.inv .h { display: flex; gap: 10px; align-items: center; }
+.bubble { background: var(--ok-soft); color: var(--ink); border-radius: 12px 12px 12px 4px; padding: 10px 12px; font-size: .88rem; }
+.bubble .lnk { color: var(--accent); font-weight: 600; word-break: break-all; }
+.obsum { display: grid; gap: 6px; }
+.obsum div { display: flex; justify-content: space-between; gap: 10px; font-size: .9rem; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.obsum div:last-child { border-bottom: 0; }
+.join { display: grid; gap: 14px; padding-top: 32px; }
+.custok { background: var(--warn-soft); border-radius: 14px; padding: 12px; display: grid; gap: 10px; }
 /* Workflow Forms */
 .form { background: var(--surface-2); border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: grid; gap: 12px; }
 .form .fh, .frec .fh { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
@@ -509,7 +542,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
 <div class="band"><div class="band-in gut">
   <span>Prototip · Görünüm</span>
   <select id="who" aria-label="Kimin ekranını görmek istiyorsun"></select>
-  <button id="reset">Sıfırla</button>
+  <button id="reset">Baştan başla</button>
 </div></div>
 <div class="app" id="app"></div>
 <div id="nav"></div>
@@ -589,7 +622,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
   ];
   // ---- sector templates: designed from scratch; dept names map to (or create) the business's departments ----
   const H = 1, MN = 1 / 60, DY = 24;
-  const T = (name, dept, type = "task", o = {}) => ({ name, dept, type, par: !!o.par, sla: o.sla ?? 8, photo: !!o.photo, pub: o.pub || name, checklist: o.cl || [] });
+  const T = (name, dept, type = "task", o = {}) => ({ name, dept, type, par: !!o.par, sla: o.sla ?? 8, photo: !!o.photo, pub: o.pub || name, checklist: o.cl || [], cust: !!o.cust });
   const TEMPLATES = [
     // ---- core templates: shaped by the kind of work, not the sector; every business starts from one of these ----
     { id: "gorev", core: true, ico: "✅", name: "Görev ve kontrol", desc: "En sade başlangıç: işi birine ver, bitince sen kontrol et. Sonra ihtiyaç oldukça aşama eklersin.", who: "Her işletme, her ekip",
@@ -606,7 +639,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
       prefs: { signReq: false },
       stages: [T("Talep", "Müşteri hizmetleri", "task", { sla: 1, pub: "Talebiniz alındı", cl: ["Adres ve iletişim alındı"] }),
         T("Keşif ve fiyat", "Ustabaşı / yönetim", "task", { sla: 24, photo: true, pub: "İnceleniyor" }),
-        T("Müşteri onayı", "Patron", "approval", { sla: 24, pub: "Onayınız bekleniyor", cl: ["Müşteri fiyatı onayladı"] }),
+        T("Müşteri onayı", "Patron", "approval", { sla: 24, pub: "Onayınız bekleniyor", cl: ["Müşteri fiyatı onayladı"], cust: true }),
         T("Yerinde iş", "Saha ekibi", "task", { sla: 8, photo: true, pub: "Çalışılıyor", cl: ["Önce fotoğrafı", "Sonra fotoğrafı"] }),
         T("Ödeme", "Muhasebe", "task", { sla: 24, pub: "Tamamlandı", cl: ["Ödeme alındı"] })] },
     { id: "gonderim", core: true, ico: "📦", name: "Sipariş hazırlama ve gönderim", desc: "Sipariş gelir; ödeme kontrolü ve ürün toplama aynı anda yürür, paketlenip gönderilir.", who: "Ürün satıp gönderen herkes: mağaza, toptancı, e-ticaret, dağıtım",
@@ -631,7 +664,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     { id: "mobilya", ico: "🪑", name: "Mobilya", desc: "Ölçüye özel mutfak, dolap ve ofis mobilyası; tasarım onayı ve yerinde montaj.", who: "Mobilya atölyesi, mutfak ve dolap üreticisi",
       stages: [T("Ölçü alma", "Teknik / ölçüm", "task", { sla: 24, photo: true, pub: "Ölçü", cl: ["Duvar ölçüleri", "Tesisat yerleri", "Mekân fotoğrafları"] }),
         T("Tasarım ve çizim", "Tasarım", "task", { sla: 48, pub: "Tasarım", cl: ["3D çizim", "Malzeme ve renk seçimi"] }),
-        T("Müşteri onayı", "Patron", "approval", { sla: 48, pub: "Tasarım onayı", cl: ["Müşteri tasarımı onayladı", "Kapora alındı"] }),
+        T("Müşteri onayı", "Patron", "approval", { sla: 48, pub: "Tasarım onayı", cl: ["Müşteri tasarımı onayladı", "Kapora alındı"], cust: true }),
         T("Kesim ve bantlama", "Kesim", "task", { sla: 16, pub: "Üretim" }),
         T("Gövde montajı", "Montaj", "task", { sla: 16, pub: "Üretim" }),
         T("Kulp ve aksesuar", "Depo ve sevkiyat", "task", { par: true, sla: 8, pub: "Üretim" }),
@@ -643,7 +676,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
       prefs: { signReq: false },
       stages: [T("Araç kabul", "Müşteri hizmetleri", "task", { sla: 30 * MN, photo: true, pub: "Kabul edildi", cl: ["Kilometre yazıldı", "Hasar fotoğrafları", "Şikâyet not edildi"] }),
         T("Arıza tespiti", "Usta / teknisyen", "task", { sla: 2, pub: "İnceleniyor", cl: ["Arıza kodu okundu", "Parça ve işçilik listesi"] }),
-        T("Fiyat onayı", "Müşteri hizmetleri", "approval", { sla: 4, pub: "Onayınız bekleniyor", cl: ["Müşteri fiyatı onayladı"] }),
+        T("Fiyat onayı", "Müşteri hizmetleri", "approval", { sla: 4, pub: "Onayınız bekleniyor", cl: ["Müşteri fiyatı onayladı"], cust: true }),
         T("Parça tedarik", "Satın alma", "task", { sla: 24, pub: "Parça bekleniyor" }),
         T("Onarım", "Usta / teknisyen", "task", { sla: 6, photo: true, pub: "Onarımda", cl: ["Parça değişti", "Eski parça müşteriye ayrıldı"] }),
         T("Test ve kontrol", "Kalite kontrol", "approval", { sla: 1, pub: "Kontrolde", cl: ["Test sürüşü", "Arıza kodu temiz"] }),
@@ -688,7 +721,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     { id: "temizlik", ico: "🧽", name: "Temizlik hizmeti", desc: "Talepten ödemeye: keşif, müşteri onayı, ekip atama, önce-sonra fotoğraflı hizmet.", who: "Temizlik, ilaçlama, bakım ekipleri",
       prefs: { signReq: false },
       stages: [T("Talep", "Müşteri hizmetleri", "task", { sla: 30 * MN }), T("Keşif ve fiyat", "Ustabaşı / yönetim", "task", { sla: 24 }),
-        T("Müşteri onayı", "Müşteri hizmetleri", "approval", { sla: 24 }), T("Ekip ve malzeme", "Ustabaşı / yönetim", "task", { sla: 8 }),
+        T("Müşteri onayı", "Müşteri hizmetleri", "approval", { sla: 24, pub: "Onayınız bekleniyor", cust: true }), T("Ekip ve malzeme", "Ustabaşı / yönetim", "task", { sla: 8 }),
         T("Hizmet", "Temizlik ekibi", "task", { sla: 6, photo: true, cl: ["Önce fotoğrafı", "Sonra fotoğrafı"] }),
         T("Kontrol", "Ustabaşı / yönetim", "approval", { sla: 2 }), T("Ödeme", "Muhasebe", "task", { sla: 24 })] },
     { id: "eticaret", ico: "📦", name: "E-ticaret", desc: "Siparişten kargoya: ödeme kontrolü, toplama, barkodlu paketleme ve kargo.", who: "Online mağaza, pazaryeri satıcısı",
@@ -823,7 +856,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     if (o.at > 8) { j.done = true; j.doneAt = t; }
     return j;
   }
-  function defaultOwner(skill) { const L = PEOPLE.length ? PEOPLE : PEOPLE_SEED; return (L.find(p => (p.skills || []).includes(skill)) || L.find(p => p.role === "ustabasi")).id; }
+  function defaultOwner(skill) { const L = PEOPLE.length ? PEOPLE : PEOPLE_SEED; return (L.find(p => (p.skills || []).includes(skill)) || L.find(p => p.role === "ustabasi") || L.find(p => p.role === "patron") || L[0]).id; }
   const flowById = id => (D && D.flows.find(f => f.id === id)) || (D && D.flows[0]);
   const flowOf = j => flowById(j.flowId) || D.flows[0];
 
@@ -911,7 +944,8 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
 
   let D;
   try { D = JSON.parse(localStorage.getItem("wf-proto-4")); } catch (e) {}
-  if (!D || !D.jobs || !D.flows || !D.people) D = seed();
+  let firstRun = false;
+  if (!D || !D.jobs || !D.flows || !D.people) { D = seed(); firstRun = true; }
   D.mods = { chat: true, planning: true, rules: true, scan: true, reports: true, ...D.mods };
   if (D.formsV) { delete D.formsV; D.mods.forms = false; }   // forms are opt-in: earlier preview turned them on with sample data
   if (!D.chat) D.chat = seedChat();
@@ -919,9 +953,12 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
   syncPeople();
   const save = () => { try { localStorage.setItem("wf-proto-4", JSON.stringify(D)); } catch (e) {} };
 
+  const BIZ = () => (D.biz && D.biz.name) || "Demirtaş Metal";
+  const PAT = () => (PEOPLE.find(p => p.role === "patron") || PEOPLE[0]).id;
+  const FORE = () => { const f = PEOPLE.filter(p => p.role === "ustabasi").map(p => p.id); return f.length ? f : [PAT()]; };
   const ROLE_TXT = { patron: "Patron", ustabasi: "Ustabaşı", uretim: "Üretim", depo: "Depo", sofor: "Şoför" };
   const views = () => [...PEOPLE.filter(p => p.role !== "sofor" || D.mods.fleet).map(p => [p.id, `${first(p.id)} · ${p.title}`]),
-    ...(D.mods.customers ? [...new Set(D.jobs.map(j => j.customer))].filter(c => ["Ekin Lojistik", "Kaya İnşaat"].includes(c)).map(c => ["c:" + c, `${c} · Müşteri`]) : [])];
+    ...(D.mods.customers ? [...new Set(D.jobs.map(j => j.customer))].filter(c => c && (D.biz ? D.jobs.some(j => j.customer === c && !j.done) : ["Ekin Lojistik", "Kaya İnşaat"].includes(c))).map(c => ["c:" + c, `${c} · Müşteri`]) : [])];
   let me = "selim", tab = "panel", jobFilter = "aktif";
 
   // ---------------- engine ----------------
@@ -934,10 +971,11 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     if (j.done) return { label: "Tamamlandı", cls: "ok" };
     const act = activeSteps(j), blk = act.find(s => s.status === "blocked");
     if (blk) return { label: blk.issue?.type === "Malzeme eksik" ? "Malzeme bekliyor" : `Sorun: ${blk.issue?.type || "bildirildi"}`, cls: "bad" };
+    if (act.some(s => s.type === "approval" && s.status === "ready" && s.cust)) return { label: "Müşteri onayı bekliyor", cls: "warn" };
     if (act.some(s => s.type === "approval" && s.status === "ready")) return { label: "Onay bekliyor", cls: "warn" };
     if (act.some(s => s.type === "pack")) return { label: "Sevkiyata hazırlanıyor", cls: "info" };
     if (act.some(s => s.type === "delivery")) return { label: act.some(s => s.status === "working") ? "Yolda" : "Teslimata hazır", cls: "info" };
-    const names = act.map(s => s.name.split(" ")[0]).join(" + ");
+    const names = act.map(s => s.name).join(" + ");
     return { label: `${names} aşamasında`, cls: "mute" };
   }
   const overSla = s => s.sla && ["ready", "working"].includes(s.status) && s.readyAt && (Date.now() - s.readyAt) > s.sla * HOUR;
@@ -997,7 +1035,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
   function logRule(j, r, extra) { const t = ruleText(r, flowOf(j)) + (extra ? ` (${extra})` : ""); (j.rules = j.rules || []).push({ text: t, at: Date.now() }); return t; }
   function doNotify(j, act, what) {
     if (act === "notify_patron") notify(`Kural: #${j.id} ${what} · patrona bildirildi`, "⚙️", ["selim"]);
-    if (act === "notify_foreman") notify(`Kural: #${j.id} ${what} · ustabaşına bildirildi`, "⚙️", ["kadir"]);
+    if (act === "notify_foreman") notify(`Kural: #${j.id} ${what} · ustabaşına bildirildi`, "⚙️", FORE());
     if (act === "notify_customer") notify(`Kural: müşteriye mesaj gitti · #${j.id} ${what}`, "📲");
   }
   function normalize(j) {
@@ -1027,7 +1065,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
       if (r.act === "reassign_idle") {
         const alt = PEOPLE.filter(p => p.id !== s.owner && (p.skills || []).includes(s.skill) && loadOf(p.id) === 0)[0];
         if (alt && s.status === "ready") { const from = s.owner; s.owner = alt.id; notify(`Kural: #${j.id} ${what} · ${first(from)} yerine boştaki ${dat(first(alt.id))} aktarıldı`, "⚙️", [alt.id, "kadir"]); logRule(j, r, `${first(alt.id)} devraldı`); }
-        else { notify(`Kural: #${j.id} ${what} · aktarılacak boşta kişi yok, ustabaşına bildirildi`, "⚙️", ["kadir"]); logRule(j, r, "boşta kişi yoktu, ustabaşına bildirildi"); }
+        else { notify(`Kural: #${j.id} ${what} · aktarılacak boşta kişi yok, ustabaşına bildirildi`, "⚙️", FORE()); logRule(j, r, "boşta kişi yoktu, ustabaşına bildirildi"); }
       } else { doNotify(j, r.act, what); logRule(j, r); }
     });
   }
@@ -1128,8 +1166,158 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     return { label: "Boşta", cls: "mute" };
   }
 
+  // ---------- Kurulum: a business sets up its own system in about two minutes ----------
+  let OB = null;
+  const CORE_IDS = ["gorev", "uretim", "hizmet", "gonderim"];
+  const OB_EX = ["Klima montajı yapıyoruz", "Demir kapı imal ediyoruz", "Online kıyafet satıyoruz", "Oto servisiz", "Mobilya üretiyoruz", "Ofis temizliği yapıyoruz"];
+  function guessTpl(what) {
+    const l = lower(what || "");
+    const SECT = [["servis", /oto|araç|araba|lastik|kaporta/], ["mobilya", /mobilya|dolap|marangoz|ahşap/], ["metal", /metal|demir|çelik|kaynak|korkuluk/],
+      ["insaat", /inşaat|tadilat|müteahhit|şantiye/], ["lojistik", /lojistik|nakliye|taşımacılık/], ["tekstil", /tekstil|konfeksiyon|dikim|terzi|kıyafet üret/],
+      ["restoran", /restoran|kafe|lokanta/], ["emlak", /emlak|gayrimenkul/], ["temizlik", /temizlik|ilaçlama/], ["eticaret", /e-?ticaret|online|internetten|pazaryeri/]];
+    const CORE = [["hizmet", /montaj|tamir|servis|bakım|tesisat|kurulum|klima|badana|elektrik/], ["gonderim", /satış|satıyor|mağaza|toptan|dağıtım|kargo|market/],
+      ["uretim", /imal|üret|atölye|kapı|matbaa|pasta|fırın|cam|döküm|baskı/]];
+    for (const [id, re] of SECT) if (re.test(l)) return id;
+    for (const [id, re] of CORE) if (re.test(l)) return id;
+    return "gorev";
+  }
+  const obStages = id => TEMPLATES.find(t => t.id === id).stages.map(x => ({ name: x.name, type: x.type === "approval" ? "approval" : "task", par: !!x.par, sla: x.sla, photo: x.photo, pub: x.pub, checklist: [...(x.checklist || [])], cust: !!x.cust }));
+  const obWho = (o, i) => o.who[i] == null ? null : o.who[i] === "me" ? o.name.split(" ")[0] + " (sen)" : o.team[o.who[i]].name;
+  function renderOb() {
+    const o = OB; setNav(null); document.body.classList.add("ob");
+    const pi = [null, 0, 1, 2, 3, 3, 4][o.step];
+    const prog = pi != null ? `<div class="ob-prog">${["Giriş", "İşletme", "Akış", "Ekip", "İlk iş"].map((x, i) => `<span class="${i <= pi ? "on" : ""}">${x}</span>`).join("")}</div>` : "";
+    const quit = o.canQuit ? `<button data-ob="quit">Vazgeç</button>` : "";
+    let h = "";
+    if (o.step === 0) h = `<div class="ob-hero"><div class="ob-logo">${ico("core")}</div><h1>Workflow</h1>
+        <p>İş kimde, hangi aşamada, ne zaman biter? Ekibine görev ver; biri işini bitirince iş kendiliğinden sıradakine geçsin.</p></div>
+      <button class="btn xl block" data-ob="start">Kendi işletmeni kur</button>
+      <button class="btn line xl block" data-ob="demo">Örnek işletmeyi gez</button>
+      <p class="sm" style="margin:0;text-align:center">Kurulum 2 dakika sürer. Örnek işletme 11 kişilik bir metal atölyesi; üstteki menüden patron, usta, şoför ya da müşteri gözüyle bakabilirsin.</p>${quit ? `<div style="text-align:center">${quit}</div>` : ""}`;
+    if (o.step === 1) h = `<div class="ob-top"><h2>Giriş</h2>${quit}</div><p class="sm" style="margin:0">Şifre yok. Telefonuna gelen kodla girersin.</p>
+      <label class="f">Adın soyadın<input class="in" id="obName" value="${esc(o.name)}" autocomplete="name" placeholder="Ör: Ayten Yılmaz"></label>
+      <label class="f">Telefon numaran<input class="in" id="obPhone" value="${esc(o.phone)}" inputmode="tel" autocomplete="tel" placeholder="0532 123 45 67"></label>
+      ${o.codeSent ? `<label class="f">SMS kodu<input class="in mono" id="obCode" inputmode="numeric" maxlength="4" autocomplete="one-time-code" placeholder="••••"></label><div class="sm">Prototipte SMS gitmez; herhangi 4 rakam yaz.</div>` : ""}
+      <div class="sm" id="obMsg" style="color:var(--bad)"></div>
+      <button class="btn xl block" data-ob="${o.codeSent ? "login" : "code"}">${o.codeSent ? "Giriş yap" : "Kod gönder"}</button>`;
+    if (o.step === 2) h = `<div class="ob-top"><h2>İşletmen</h2>${quit}</div>
+      <label class="f">İşletmenin adı<input class="in" id="obBiz" value="${esc(o.biz)}" placeholder="Ör: Yılmaz Klima"></label>
+      <label class="f">Ne iş yapıyorsun?<input class="in" id="obWhat" value="${esc(o.what)}" placeholder="Ör: Klima montajı yapıyoruz"></label>
+      <div class="chips">${OB_EX.map(x => `<button class="chip" data-obex="${esc(x)}">${esc(x)}</button>`).join("")}</div>
+      <div class="sm">Cevabına göre sana uygun bir iş akışı önereceğiz. Sonra istediğin gibi değiştirirsin.</div>
+      <div class="sm" id="obMsg" style="color:var(--bad)"></div>
+      <button class="btn xl block" data-ob="biz">Devam</button>`;
+    if (o.step === 3) { const alt = [...new Set([o.guess, ...CORE_IDS])];
+      h = `<div class="ob-top"><h2>İşin böyle ilerliyor mu?</h2>${quit}</div>
+      <p class="sm" style="margin:0">“${esc(o.what)}” dedin, buna göre hazırladık. Aşamaların adını ve sırasını kendi işine göre düzelt.</p>
+      <div class="chips">${alt.map(id => { const t = TEMPLATES.find(x => x.id === id); return `<button class="chip" data-obtpl="${id}" aria-pressed="${o.tpl === id}">${t.ico} ${esc(t.name)}</button>`; }).join("")}</div>
+      <div style="display:grid;gap:8px">${o.stages.map((x, i) => `<div class="obst${x.par && i ? " par" : ""}"><div class="r"><span class="n">${i + 1}</span><input data-obs="${i}" value="${esc(x.name)}" aria-label="${i + 1}. aşamanın adı">
+          <button class="ed-b" data-obmv="${i}:-1" aria-label="Yukarı"${i ? "" : " disabled"}>↑</button><button class="ed-b" data-obmv="${i}:1" aria-label="Aşağı"${i < o.stages.length - 1 ? "" : " disabled"}>↓</button><button class="ed-b del" data-obdel="${i}" aria-label="Sil">✕</button></div>
+          <div class="chips"><button class="chip" data-obap="${i}" aria-pressed="${x.type === "approval"}">✓ Onay adımı</button>${x.type === "approval" ? `<button class="chip" data-obcu="${i}" aria-pressed="${!!x.cust}">Müşteri onaylar</button>` : ""}${x.par && i ? `<span class="sm" style="align-self:center">∥ öncekiyle aynı anda</span>` : ""}</div></div>`).join("")}</div>
+      <div class="obwho"><b style="font-size:.9rem">Aşama ekle</b><div class="chips">${QUICK.filter(q => !o.stages.some(x => lower(x.name) === lower(q))).map(q => `<button class="chip" data-obq="${esc(q)}">＋ ${esc(q)}</button>`).join("")}</div>
+        <div class="add" style="grid-template-columns:minmax(0,1fr) auto"><input id="obNew" placeholder="Başka bir aşama yaz" aria-label="Yeni aşama adı"><button class="btn dark" data-ob="add">Ekle</button></div></div>
+      <div class="sm" id="obMsg" style="color:var(--bad)"></div>
+      <button class="btn xl block" data-ob="flow">Bu akışla devam</button>`; }
+    if (o.step === 4) h = `<div class="ob-top"><h2>Bunu kim yapıyor?</h2>${quit}</div>
+      <p class="sm" style="margin:0">Her aşamaya bir kişi seç. Eklediğin kişiye davet linki gider, uygulama indirmesi gerekmez. Boş bıraktıkların sende kalır.</p>
+      ${o.stages.map((x, i) => `<div class="obwho"><div style="display:flex;justify-content:space-between;gap:8px"><b>${i + 1}. ${esc(x.name)}</b>${x.type === "approval" ? `<span class="pill warn">${x.cust ? "Müşteri onayı" : "Onay"}</span>` : ""}</div>
+        <div class="chips"><button class="chip" data-obw="${i}:me" aria-pressed="${o.who[i] === "me"}">Ben</button>${o.team.map((t, ti) => `<button class="chip" data-obw="${i}:${ti}" aria-pressed="${o.who[i] === ti}">${esc(t.name.split(" ")[0])}</button>`).join("")}<button class="chip" data-obadd="${i}">＋ Yeni kişi</button></div>
+        ${o.adding === i ? `<div class="add"><input id="obPn" placeholder="Ad soyad" aria-label="Ad soyad" autocomplete="off"><input id="obPp" placeholder="Telefon" inputmode="tel" aria-label="Telefon" autocomplete="off"><button class="btn dark" data-ob="addp">Ekle</button></div>` : ""}</div>`).join("")}
+      <div class="sm" id="obMsg" style="color:var(--bad)"></div>
+      <button class="btn xl block" data-ob="team">${o.team.some((t, ti) => Object.values(o.who).includes(ti)) ? "Davetleri gönder" : "Devam"}</button>`;
+    if (o.step === 5) { const used = o.team.filter((t, ti) => Object.values(o.who).includes(ti));
+      h = `<div class="ob-top"><h2>${used.length ? "Davetler gitti" : "Ekip sonra eklenebilir"}</h2>${quit}</div>
+      ${used.length ? used.map(t => { const ti = o.team.indexOf(t), st = o.stages.filter((x, i) => o.who[i] === ti).map(x => x.name);
+        return `<div class="inv"><div class="h"><span class="av" style="background:var(--accent)">${esc(t.name.split(" ").map(w => w[0]).slice(0, 2).join(""))}</span><div style="min-width:0"><b>${esc(t.name)}</b><div class="sm">${esc(t.phone || "telefon yok")} · ${esc(st.join(", "))}</div></div><span class="pill ok" style="margin-left:auto">Gönderildi</span></div>
+          <div class="bubble">Merhaba ${esc(t.name.split(" ")[0])}, ${esc(o.name.split(" ")[0])} seni Workflow'da <b>${esc(o.biz)}</b> ekibine ekledi. Sana düşen işleri buradan görürsün: <span class="lnk">workflow.app/k/${esc(t.code)}</span></div></div>`; }).join("")
+        + `<div class="sm">Davet WhatsApp ya da SMS ile gider. Kişi linke dokununca doğrudan kendi görev ekranına düşer. Prototipte mesaj gönderilmez.</div>`
+        : `<div class="empty" style="background:var(--surface)">Şimdilik bütün aşamalar sende. Çalışanlarını sonra Ekip sekmesinden ekleyip davet edebilirsin.</div>`}
+      <button class="btn xl block" data-ob="next">İlk işini aç</button>`; }
+    if (o.step === 6) h = `<div class="ob-top"><h2>İlk işini aç</h2>${quit}</div>
+      <p class="sm" style="margin:0">İş açılınca ilk aşamanın sahibine bildirim gider. Her aşama bitince iş kendiliğinden sıradakine geçer.</p>
+      <label class="f">İş<input class="in" id="obJob" value="${esc(o.job)}" placeholder="Ör: Ahmet Bey'in klima montajı"></label>
+      <label class="f">Müşteri<input class="in" id="obCust" value="${esc(o.cust)}" placeholder="Ör: Ahmet Bey"></label>
+      <label class="f">Termin<input class="in" id="obDue" type="date" value="${esc(o.due)}"></label>
+      <section><h2 style="font-size:1rem">Akış ve sorumlular</h2><div class="list obsum" style="padding:4px 14px">${o.stages.map((x, i) => `<div><span>${i + 1}. ${esc(x.name)}</span><b>${esc(obWho(o, i) || o.name.split(" ")[0] + " (sen)")}</b></div>`).join("")}</div></section>
+      <div class="sm" id="obMsg" style="color:var(--bad)"></div>
+      <button class="btn ok xl block" data-ob="go">İşi oluştur ve dağıt</button>`;
+    $("#app").innerHTML = `<main class="gut ob">${prog}${h}</main>`;
+    const keep = (id, k) => { const el = $("#" + id); if (el) el.oninput = () => o[k] = el.value; };
+    keep("obName", "name"); keep("obPhone", "phone"); keep("obBiz", "biz"); keep("obWhat", "what"); keep("obJob", "job"); keep("obCust", "cust"); keep("obDue", "due");
+    document.querySelectorAll("[data-obs]").forEach(el => el.oninput = () => o.stages[+el.dataset.obs].name = el.value);
+    const nw = $("#obNew"); if (nw) nw.onkeydown = e => { if (e.key === "Enter") obAct("add"); };
+    const pp = $("#obPp"); if (pp) pp.onkeydown = e => { if (e.key === "Enter") obAct("addp"); };
+    $("#obPn")?.focus();
+  }
+  const obMsg = t => { const m = $("#obMsg"); if (m) m.textContent = t; };
+  function obGo(step) { OB.step = step; renderOb(); window.scrollTo(0, 0); }
+  function obAct(a, el) {
+    const o = OB, d = el ? el.dataset : {};
+    if (a === "quit") { OB = null; document.body.classList.remove("ob"); render(); return; }
+    if (a === "demo") { D = seed(); D.chat = seedChat(); syncPeople(); save(); OB = null; me = "selim"; tab = "panel"; document.body.classList.remove("ob"); render(); window.scrollTo(0, 0);
+      toast("👋", "Örnek işletme: Demirtaş Metal", "Üstteki menüden kimin gözüyle bakacağını seç"); return; }
+    if (a === "start") return obGo(1);
+    if (a === "code") { if (!o.name.trim()) return obMsg("Adını yaz."); if (o.phone.replace(/\D/g, "").length < 10) return obMsg("Telefon numaranı 10 haneli yaz (ör: 0532 123 45 67)."); o.codeSent = true; renderOb(); $("#obCode")?.focus(); return; }
+    if (a === "login") { if (($("#obCode")?.value || "").replace(/\D/g, "").length !== 4) return obMsg("Telefonuna gelen 4 haneli kodu yaz."); return obGo(2); }
+    if (a === "biz") { if (!o.biz.trim()) return obMsg("İşletmenin adını yaz."); if (!o.what.trim()) return obMsg("Ne iş yaptığını birkaç kelimeyle yaz.");
+      const g = guessTpl(o.what); if (g !== o.guess) { o.guess = g; o.tpl = g; o.stages = obStages(g); } return obGo(3); }
+    if (a === "add") { const v = ($("#obNew")?.value || "").trim(); if (!v) return; o.stages.push({ name: v, type: /onay/i.test(v) ? "approval" : "task", sla: 8, checklist: [] }); renderOb(); $("#obNew")?.focus(); return; }
+    if (a === "flow") { o.stages = o.stages.map(x => ({ ...x, name: x.name.trim() })).filter(x => x.name); if (!o.stages.length) return obMsg("En az bir aşama olmalı.");
+      o.stages[0].par = false; o.stages.forEach((x, i) => { if (o.who[i] === undefined && x.type === "approval" && !x.cust) o.who[i] = "me"; }); return obGo(4); }
+    if (a === "addp") { const n = ($("#obPn")?.value || "").trim(), ph = ($("#obPp")?.value || "").trim(); if (!n) return obMsg("Kişinin adını yaz.");
+      o.team.push({ name: n, phone: ph, code: Math.random().toString(36).slice(2, 6).toUpperCase() }); o.who[o.adding] = o.team.length - 1; o.adding = null; renderOb(); return; }
+    if (a === "team") return obGo(5);
+    if (a === "next") return obGo(6);
+    if (a === "go") { if (!o.job.trim()) return obMsg("İşe bir ad ver."); if (!o.cust.trim()) return obMsg("Müşterinin adını yaz; iç işse “İç iş” yazabilirsin."); finishOb(); }
+  }
+  function finishOb() {
+    const o = OB, pal = ["#2a64c9", "#0f8a6a", "#b45309", "#7c3aed", "#be185d", "#0e7490", "#4d7c0f"];
+    const people = [{ id: "selim", name: o.name.trim(), role: "patron", title: "Patron", skills: ["patron"], color: "#12161d", phone: o.phone }];
+    o.team.forEach((t, i) => people.push({ id: "u" + (i + 1), name: t.name, role: "uretim", title: "", skills: [], color: pal[i % pal.length], phone: t.phone, joined: false }));
+    const depts = { patron: "Patron" };
+    const stages = o.stages.map((x, i) => { const key = "a" + (i + 1), w = o.who[i], pid = w == null || w === "me" ? "selim" : "u" + (w + 1);
+      depts[key] = x.name; const pp = people.find(p => p.id === pid); if (!pp.skills.includes(key)) pp.skills.push(key);
+      return { key, name: x.name, skill: key, fixed: pid, type: x.type, par: !!x.par && i > 0, sla: x.sla || 8, photo: !!x.photo, pub: x.pub || x.name, checklist: [...(x.checklist || [])], cust: !!x.cust }; });
+    people.forEach(p => { if (p.role !== "patron") p.title = stages.filter(x => x.fixed === p.id).map(x => x.name).join(", "); });
+    let g = -1; stages.forEach((x, i) => { if (!i) x.par = false; g += x.par ? 0 : 1; x.g = g; });
+    const tp = TEMPLATES.find(t => t.id === o.tpl), w = o.what.trim();
+    const flow = { id: "f1", ico: tp ? tp.ico : "⭐", name: w.length <= 32 ? w.charAt(0).toLocaleUpperCase("tr-TR") + w.slice(1) : tp.name, from: tp && tp.name, prefs: { ...DEFAULT_PREFS, signReq: false },
+      rules: [{ id: "r1", cond: "urgent", act: "front", on: true }, { id: "r2", cond: "sla_over", act: "notify_foreman", on: true }], stages };
+    D = { biz: { name: o.biz.trim(), what: w }, people, depts, flows: [flow], defaultFlow: "f1", jobs: [], feed: [], stock: [], nextId: 1001,
+      mods: { chat: true, planning: true, rules: true, fleet: false, stock: false, scan: false, finance: false, customers: true, forms: false, reports: true },
+      privacy: { loc: true, perf: true, quiet: true }, chat: { nextId: 1, threads: [{ id: "t-duyuru", kind: "announce", title: "Duyurular", msgs: [], read: {} }] } };
+    syncPeople();
+    const [y, m, dd] = o.due.split("-").map(Number);
+    const j = mkJob({ flow, id: D.nextId++, title: o.job.trim(), customer: o.cust.trim(), qty: "1 iş", due: new Date(y, m - 1, dd, 17).getTime(), at: 0, waiting: 0, createdAt: Date.now() });
+    j.steps.filter(x => x.status === "ready").forEach(x => x.readyAt = Date.now());
+    D.jobs.push(j);
+    const g0 = j.steps.filter(x => x.g === 0);
+    notify(`${first("selim")} yeni iş açtı: #${j.id} ${j.title} (${j.customer}) · ${g0.map(x => first(x.owner)).join(" ve ")} bilgilendirildi`, "🆕", g0.map(x => x.owner));
+    OB = null; me = "selim"; tab = "panel"; document.body.classList.remove("ob"); save(); render(); window.scrollTo(0, 0);
+    toast("🎉", `${D.biz.name} hazır`, `#${j.id} açıldı · ilk aşama ${g0.map(x => first(x.owner)).join(" ∥ ")} kişisinde. Üstteki menüden onun gözüyle bak.`);
+  }
+  function startOb(canQuit) {
+    const due = new Date(sod() + 7 * DAY);
+    OB = { step: 0, canQuit, name: "", phone: "", codeSent: false, biz: "", what: "", guess: null, tpl: null, stages: [], who: {}, team: [], adding: null,
+      job: "", cust: "", due: `${due.getFullYear()}-${pad(due.getMonth() + 1)}-${pad(due.getDate())}` };
+    renderOb(); window.scrollTo(0, 0);
+  }
+  function renderJoin(p) {
+    setNav(null);
+    const mine = D.flows.flatMap(f => f.stages.filter(x => x.fixed === p.id || (!x.fixed && (p.skills || []).includes(x.skill))).map(x => x.name));
+    const ready = myTasks(p.id).length;
+    $("#app").innerHTML = `<main class="gut join"><div class="ob-logo">${ico("core")}</div>
+      <h1 style="font-size:1.9rem">${esc(first(PAT()))} seni ${esc(BIZ())} ekibine ekledi</h1>
+      <p style="margin:0;color:var(--ink-2)">Merhaba ${esc(first(p.id))}. Sana düşen işler: <b style="color:var(--ink)">${esc([...new Set(mine)].join(", ") || "henüz yok")}</b>. Bir işin sırası sana geldiğinde telefonuna bildirim gelir.</p>
+      ${ready ? `<div class="note info"><b>Şu an ${ready} görevin hazır</b><span>Katıldıktan sonra Görevlerim ekranında görürsün.</span></div>` : ""}
+      <button class="btn xl block" data-join="${p.id}">Katıl</button>
+      <p class="sm" style="margin:0;text-align:center">Şifre ve uygulama indirme yok. Bu ekranı davet linkine dokunan çalışan bir kez görür.</p></main>`;
+  }
+
   // ---------------- render ----------------
   function render() {
+    if (OB) return renderOb();
+    document.body.classList.remove("ob");
     runEventRules(); SIM = simulate();
     const sel = $("#who");
     sel.innerHTML = views()
@@ -1141,6 +1329,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     }
     if (me.startsWith("c:")) { if (tab === "chat" && D.mods.customers) { setNav(roleNav("Siparişlerim")); $("#app").innerHTML = chatList(); return; } return renderCustomer(me.slice(2)); }
     const p = person(me);
+    if (p.joined === false) return renderJoin(p);
     if (p.role === "patron") return renderBoss();
     if (p.role === "ustabasi") return renderForeman();
     if (p.role === "sofor") return renderDriver();
@@ -1204,7 +1393,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
   function threadTitle(t) {
     if (t.kind === "dm") { const o = t.members.find(x => x !== me) || t.members[0]; return person(o).name; }
     if (t.kind === "dept") return `# ${t.title}`;
-    if (t.kind === "customer" && me.startsWith("c:")) { const j = jobById(t.jobId); return `Demirtaş Metal · #${t.jobId}${j ? " " + j.title : ""}`; }
+    if (t.kind === "customer" && me.startsWith("c:")) { const j = jobById(t.jobId); return `${BIZ()} · #${t.jobId}${j ? " " + j.title : ""}`; }
     return t.title;
   }
   function threadAvatar(t) {
@@ -1220,7 +1409,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
       .sort((a, b) => (b.kind === "announce" && unreadOf(b, me) ? 1 : 0) - (a.kind === "announce" && unreadOf(a, me) ? 1 : 0) || sortAt(b) - sortAt(a));
     const preview = t => { const m = t.msgs[t.msgs.length - 1]; if (!m) return "Henüz mesaj yok"; const who = m.by === "system" ? "" : m.by === me ? "Sen: " : whoName(m.by) + ": ";
       return who + (m.kind === "photo" ? "📷 Fotoğraf" : m.kind === "voice" ? "🎙 Sesli mesaj" : m.text); };
-    return head(me.startsWith("c:") ? "Demirtaş Metal ile" : "İletişim", me.startsWith("c:") ? "Mesajlar" : "Sohbet") + `<main class="gut">
+    return head(me.startsWith("c:") ? `${BIZ()} ile` : "İletişim", me.startsWith("c:") ? "Mesajlar" : "Sohbet") + `<main class="gut">
       ${me.startsWith("c:") ? "" : `<div class="chips">${F.map(([k, l]) => `<button class="chip" data-cf="${k}" aria-pressed="${chatFilter === k}">${l}</button>`).join("")}</div>`}
       ${list.length ? `<div class="list">${list.map(t => { const u = unreadOf(t, me);
         return `<button class="cr${u ? " unread" : ""}" data-thread="${t.id}">${threadAvatar(t)}<div style="min-width:0"><div class="ct"><b>${esc(threadTitle(t))}</b><time>${lastAt(t) ? ago(lastAt(t)) : ""}</time></div>
@@ -1284,7 +1473,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     layer.querySelectorAll("[data-toissue]").forEach(b => b.onclick = () => { const [, mid] = b.dataset.toissue.split(":"), m = t.msgs.find(x => x.id === mid), s = activeSteps(j).find(x => x.status !== "blocked");
       if (!s) { toast("ℹ️", "Açık aşama yok", "Bu iş şu an sorunlu ya da bitmiş"); return; }
       s.status = "blocked"; s.issue = { type: "Sohbetten bildirildi", note: m.text, at: Date.now(), by: m.by };
-      notify(`${whoName(me)} bir mesajı soruna çevirdi: #${j.id} ${s.name} · “${m.text}”`, "⚠️", [s.owner, "kadir", "selim"]); eventRules(j, "issue", s); save(); openThread(id);
+      notify(`${whoName(me)} bir mesajı soruna çevirdi: #${j.id} ${s.name} · “${m.text}”`, "⚠️", [s.owner, ...FORE(), PAT()]); eventRules(j, "issue", s); save(); openThread(id);
       toast("⚠️", "Soruna çevrildi", `#${j.id} ${s.name} aşaması sorunlu olarak işaretlendi`); });
     const oj = layer.querySelector("[data-openjob]"); if (oj) oj.onclick = () => { layer.innerHTML = ""; openJob(+oj.dataset.openjob); };
   }
@@ -1321,7 +1510,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     const deliveriesToday = D.jobs.filter(j => j.steps.some(s => s.type === "delivery" && ((s.status !== "locked" && s.status !== "done") || (s.status === "done" && sod(s.doneAt) === sod())))).length
       + active.filter(j => sod(j.due) === sod() && !j.steps.some(s => s.type === "delivery" && s.status !== "locked")).length;
     const order = j => (jobState(j).cls === "bad" || isLate(j) ? 0 : 1) * 1e13 + j.due;
-    return head("Demirtaş Metal · " + new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" }), "Kontrol merkezi") + `<main class="gut">
+    return head(BIZ() + " · " + new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" }), "Kontrol merkezi") + `<main class="gut">
       <div class="kpis">
         <button class="kpi" data-goto="isler:aktif"><div class="v">${active.length}</div><div class="l">Aktif işler</div></button>
         <button class="kpi" data-goto="ekip"><div class="v">${staff}</div><div class="l">Çalışan personel</div></button>
@@ -1507,7 +1696,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     </section>`;
   }
   function bossSettings() {
-    return head("Demirtaş Metal", "Sistemin") + `<main class="gut">
+    return head(BIZ(), "Sistemin") + `<main class="gut">
       ${systemMap()}
       <button class="btn block xl" id="rebuild">Sistemi baştan kur</button>
       ${depotHtml()}
@@ -1706,7 +1895,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
   function fromTemplate(t) {
     return { id: null, ico: t.ico, name: `${t.name} akışı`, from: t.name, prefs: { ...DEFAULT_PREFS, ...(t.prefs || {}) },
       rules: [{ id: newKey(), cond: "urgent", act: "front", on: true }, { id: newKey(), cond: "sla_over", act: "notify_foreman", on: true }],
-      stages: t.stages.map(x => ({ key: newKey(), name: x.name, skill: deptKey(x.dept), type: (x.type === "delivery" && !D.mods.fleet) || (x.type === "pack" && !D.mods.scan) ? "task" : x.type, par: x.par, sla: x.sla, photo: x.photo, pub: x.pub, checklist: [...x.checklist] })) };
+      stages: t.stages.map(x => ({ key: newKey(), name: x.name, skill: deptKey(x.dept), type: (x.type === "delivery" && !D.mods.fleet) || (x.type === "pack" && !D.mods.scan) ? "task" : x.type, par: x.par, sla: x.sla, photo: x.photo, pub: x.pub, checklist: [...x.checklist], cust: !!x.cust })) };
   }
   let edOpenF = new Set();
   function formEd(st, i) {
@@ -2005,7 +2194,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
         j.steps.filter(s => s.status === "ready").forEach(s => s.readyAt = Date.now());
         D.jobs.push(j);
         const g0 = j.steps.filter(s => s.g === 0);
-        notify(`Selim yeni iş açtı: #${j.id} ${title} (${customer}) · ${g0.map(s => first(s.owner)).join(" ve ")} bilgilendirildi`, "🆕", g0.map(s => s.owner));
+        notify(`${first(PAT())} yeni iş açtı: #${j.id} ${title} (${customer}) · ${g0.map(s => first(s.owner)).join(" ve ")} bilgilendirildi`, "🆕", g0.map(s => s.owner));
         save(); closeSheet(); tab = "panel"; render(); window.scrollTo(0, 0);
         toast("🆕", `#${j.id} iş emri dağıtıldı`, `${j.steps.length} aşama · ilk aşama: ${g0.map(s => first(s.owner)).join(" ∥ ")}`);
       };
@@ -2015,12 +2204,12 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
   // ----- foreman -----
   function renderForeman() {
     setNav(roleNav("Panel"));
-    const approvals = D.jobs.flatMap(j => j.done ? [] : j.steps.filter(s => s.type === "approval" && s.status === "ready" && s.owner !== "kadir").map(s => ({ j, s })));
+    const approvals = D.jobs.flatMap(j => j.done ? [] : j.steps.filter(s => s.type === "approval" && s.status === "ready" && s.owner !== me).map(s => ({ j, s })));
     const issues = D.jobs.flatMap(j => j.done ? [] : j.steps.filter(s => s.status === "blocked").map(s => ({ j, s })));
     const workers = PEOPLE.filter(p => ["uretim", "depo"].includes(p.role));
     const inProd = D.jobs.filter(j => !j.done).sort((a, b) => a.due - b.due);
-    $("#app").innerHTML = head("Ustabaşı paneli", `Günaydın Kadir Usta`, bellCount("kadir")) + `<main class="gut">
-      ${mineHtml("kadir")}
+    $("#app").innerHTML = head("Ustabaşı paneli", `Günaydın ${esc(first(me))}`, bellCount(me)) + `<main class="gut">
+      ${mineHtml(me)}
       <section><div class="sec-h"><h2>Sorun bildirimleri</h2><span class="pill ${issues.length ? "bad" : "ok"}">${issues.length}</span></div>
         ${issues.length ? issues.map(({ j, s }) => `<div class="task blocked"><div class="task-top"><span class="wo">İŞ EMRİ #${j.id} · ${esc(s.name.toUpperCase())}</span><span class="pill bad">${ago(s.issue.at)}</span></div>
           <div class="issue"><b>${esc(s.issue.type)}</b> · ${esc(s.issue.note)}<div class="sm">Bildiren: ${esc(person(s.issue.by || s.owner).name)}</div></div>
@@ -2065,7 +2254,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
         <button class="tool" data-issue="${k}"><span class="i">⚠️</span>Sorun bildir</button></div>`;
     let body = "";
     if (s.status === "blocked") body = `<div class="issue"><b>${esc(s.issue.type)}</b> · ${esc(s.issue.note)}<div class="sm">Ustabaşı ve patron bilgilendirildi. Çözülünce bildirim gelecek.</div></div>`;
-    else if (s.type === "approval") body = `${formHtml(j, s, k, true)}${tools}<div class="${flowOf(j).prefs.sendBack ? "grid2" : ""}"><button class="btn ok xl${flowOf(j).prefs.sendBack ? "" : " block"}" data-approve="${k}"${gate(s).block ? " disabled" : ""}>${gate(s).fails ? "Sapmayla onayla" : "Onayla ✓"}</button>${flowOf(j).prefs.sendBack ? `<button class="btn bad xl" data-back="${k}">Geri gönder</button>` : ""}</div><div class="sm fhint" data-fhint="${k}">${gate(s).hint}</div>`;
+    else if (s.type === "approval") body = `${s.cust && D.mods.customers ? `<div class="note info"><b>Müşteri onayı</b><span>${esc(j.customer)} takip ekranından kendisi onaylayabilir. Telefonda onay aldıysan sen de onaylayabilirsin.</span></div>` : ""}${formHtml(j, s, k, true)}${tools}<div class="${flowOf(j).prefs.sendBack ? "grid2" : ""}"><button class="btn ok xl${flowOf(j).prefs.sendBack ? "" : " block"}" data-approve="${k}"${gate(s).block ? " disabled" : ""}>${gate(s).fails ? "Sapmayla onayla" : "Onayla ✓"}</button>${flowOf(j).prefs.sendBack ? `<button class="btn bad xl" data-back="${k}">Geri gönder</button>` : ""}</div><div class="sm fhint" data-fhint="${k}">${gate(s).hint}</div>`;
     else if (s.type === "pack" && D.mods.scan) {
       const items = s.items || [{ name: j.title, code: `UR-${j.id}`, n: parseInt(j.qty) || 1, scanned: false }]; s.items = items;
       const doneN = items.filter(i => i.scanned).length;
@@ -2109,8 +2298,8 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
       $("#closeS").onclick = closeSheet;
       $("#issGo").onclick = () => {
         s.status = "blocked"; s.issue = { type: pick, note: $("#issNote").value.trim() || "Ayrıntı yazılmadı", at: Date.now(), by: me };
-        notify(`${first(me)} sorun bildirdi: #${j.id} ${pick.toLowerCase()}`, "⚠️", ["kadir", "selim"]); eventRules(j, "issue", s); save(); closeSheet(); render();
-        toast("⚠️", "Sorun bildirildi", "Kadir Usta ve Selim Bey'e bildirim gitti");
+        notify(`${first(me)} sorun bildirdi: #${j.id} ${pick.toLowerCase()}`, "⚠️", [...FORE(), PAT()]); eventRules(j, "issue", s); save(); closeSheet(); render();
+        toast("⚠️", "Sorun bildirildi", "Ustabaşı ve patron bilgilendirildi");
       };
     });
   }
@@ -2183,17 +2372,19 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
   function renderCustomer(name) {
     setNav(roleNav("Siparişlerim"));
     const jobs = D.jobs.filter(j => j.customer === name).sort((a, b) => a.done - b.done || a.due - b.due);
-    const pubsOf = j => ["Sipariş alındı", ...[...new Set(j.steps.slice().sort((a, b) => a.g - b.g).map(x => x.pub || x.name))]];
+    const pubsOf = j => { const P = [...new Set(j.steps.slice().sort((a, b) => a.g - b.g).map(x => x.pub || x.name))]; return /alındı/i.test(P[0] || "") ? P : ["Sipariş alındı", ...P]; };
     const stageIdx = j => { const P = pubsOf(j); if (j.done) return P.length; const act = activeSteps(j)[0]; return act ? P.indexOf(act.pub || act.name) : 0; };
     const visible = jobs.filter(j => flowOf(j).prefs.custVisible);
     $("#app").innerHTML = head("Müşteri takip ekranı", esc(name)) + `<main class="gut">
-      <p class="sm" style="margin:0">Demirtaş Metal'in sizinle paylaştığı sipariş durumları. İç notlar, maliyetler ve çalışan bilgileri gösterilmez.</p>
+      <p class="sm" style="margin:0">${esc(BIZ())} sizinle paylaştığı sipariş durumları. İç notlar, maliyetler ve çalışan bilgileri gösterilmez.</p>
       ${visible.map(j => { const PUB = pubsOf(j), si = stageIdx(j), del = j.steps.find(s => s.type === "delivery") || { status: "locked" };
         const eta = j.done ? `Teslim edildi · ${when(j.doneAt)}` : del.status === "working" ? `Yolda · tahmini varış ${hm(Date.now() + 40 * MIN)}` : `Tahmini teslim: ${when(j.due)}`;
         return `<div class="track"><div class="task-top"><span class="wo">SİPARİŞ #${j.id}</span>${j.done ? `<span class="pill ok">Teslim edildi</span>` : del.status === "working" ? `<span class="pill acc">Yolda</span>` : `<span class="pill info">${esc(PUB[Math.min(si, PUB.length - 1)])}</span>`}</div>
           <div><h2 style="font-size:1.25rem">${esc(j.title)}</h2><div class="sm">${esc(j.qty)}</div></div>
           <div class="eta">${esc(eta)}</div>
           <div class="tsteps" style="grid-template-columns:repeat(${PUB.length},minmax(0,1fr))">${PUB.map((n, i) => `<div class="ts ${i < si ? "on" : i === si ? "cur" : ""}"><i></i>${esc(n)}</div>`).join("")}</div>
+          ${(() => { const ca = j.steps.find(x => x.cust && x.type === "approval" && x.status === "ready"); return ca ? `<div class="custok"><b>Onayınız bekleniyor</b><span class="sm">${esc(ca.checklist?.[0] || "İşin devam etmesi için onayınız gerekiyor.")}${j.price && D.mods.finance ? ` · Tutar ${tl(j.price)}` : ""} · Termin ${esc(when(j.due))}</span>
+            <div class="grid2"><button class="btn ok" data-capprove="${j.id}:${ca.key}">Onaylıyorum</button><button class="btn line" data-custmsg="${j.id}">Görüşelim</button></div></div>` : ""; })()}
           ${del.status === "working" ? `<div class="note info"><b>🚚 Aracınız yolda</b><span>Teslimat aracı yola çıktı. Konum yalnızca teslimat süresince paylaşılır.</span></div>` : ""}
           ${j.done && del.signature ? `<div class="sm">Teslim belgesi imzalı olarak kayıtlı.</div>` : ""}
           ${D.mods.chat ? `<button class="btn line block" data-custmsg="${j.id}">${ico("chat")} Bu sipariş hakkında mesaj yaz</button>` : ""}
@@ -2222,7 +2413,24 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
   document.addEventListener("click", e => {
     const el = e.target.closest("button, a"); if (!el || el.tagName === "A") return;
     const d = el.dataset;
-    if (el.id === "reset") { D = seed(); D.chat = seedChat(); syncPeople(); save(); closeSheet(); render(); toast("↺", "Prototip sıfırlandı", "Örnek veriler geri yüklendi"); return; }
+    if (el.id === "reset") { closeSheet(); startOb(true); return; }
+    if (OB) {
+      if (d.ob) { obAct(d.ob, el); return; }
+      if (d.obex) { OB.what = d.obex; const w = $("#obWhat"); if (w) w.value = d.obex; return; }
+      if (d.obtpl) { OB.tpl = d.obtpl; OB.stages = obStages(d.obtpl); OB.who = {}; renderOb(); return; }
+      if (d.obmv) { const [i, k] = d.obmv.split(":").map(Number), a = OB.stages; [a[i], a[i + k]] = [a[i + k], a[i]]; a[0].par = false; renderOb(); return; }
+      if (d.obdel) { OB.stages.splice(+d.obdel, 1); if (OB.stages[0]) OB.stages[0].par = false; renderOb(); return; }
+      if (d.obap) { const x = OB.stages[+d.obap]; x.type = x.type === "approval" ? "task" : "approval"; if (x.type === "task") x.cust = false; renderOb(); return; }
+      if (d.obcu) { const x = OB.stages[+d.obcu]; x.cust = !x.cust; renderOb(); return; }
+      if (d.obq) { const st = quickStage(d.obq); OB.stages.push({ name: st.name, type: st.type === "approval" ? "approval" : "task", sla: st.sla, photo: st.photo, checklist: [] }); renderOb(); return; }
+      if (d.obw) { const [i, v] = d.obw.split(":"); OB.who[+i] = v === "me" ? "me" : +v; OB.adding = null; renderOb(); return; }
+      if (d.obadd) { OB.adding = +d.obadd; renderOb(); return; }
+      return;
+    }
+    if (d.join) { person(d.join).joined = true; notify(`${first(d.join)} ekibe katıldı`, "👋", [PAT()]); save(); tab = "panel"; render(); window.scrollTo(0, 0); toast("👋", "Ekibe katıldın", "Görevlerin burada; sıra sana gelince bildirim gelir"); return; }
+    if (d.capprove) { const { j, s } = parseK(d.capprove); if (s.status !== "ready") return; const r = completeStep(j, s, me, "approved");
+      notify(`${j.customer} #${j.id} için onay verdi${r.next ? ` · ${r.next.map(x => `${x.name} (${first(x.owner)})`).join(", ")} başladı` : ""}`, "✅", [PAT(), ...(r.next || []).map(x => x.owner)]);
+      save(); render(); toast("✅", "Onayınız alındı", `${BIZ()} bilgilendirildi, iş devam ediyor`); return; }
     if (d.tab) { tab = d.tab; render(); window.scrollTo(0, 0); return; }
     if (d.goto) { const [t, f] = d.goto.split(":"); tab = t; if (f) jobFilter = f; render(); window.scrollTo(0, 0); return; }
     if (d.filter) { jobFilter = d.filter; render(); return; }
@@ -2282,7 +2490,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
       if (c && c.dataset.inked) s.signature = c.toDataURL("image/png"); afterComplete(j, s, completeStep(j, s, me)); return; }
   });
 
-  render();
-  setInterval(() => { if (!layer.innerHTML && !document.querySelector(".sig") && !document.activeElement?.dataset?.fin) render(); }, 60000);
+  if (firstRun) startOb(false); else render();
+  setInterval(() => { if (!OB && !layer.innerHTML && !document.querySelector(".sig") && !document.activeElement?.dataset?.fin) render(); }, 60000);
 })();
 </script>
