@@ -1,0 +1,316 @@
+<title>Workflow Ekran Haritası</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one long blueprint, role by role; each screen = a phone wireframe beside its purpose, sections and where each button leads. Uses the app's own tokens. */
+:root {
+  --bg: #f5f6f8; --surface: #ffffff; --surface-2: #eef1f5; --ink: #111827; --ink-2: #5b6472; --line: #e1e4ea;
+  --accent: #1f3b73; --on-accent: #ffffff; --accent-soft: #e9eef8;
+  --ok: #157a5c; --ok-soft: #e6f4ee; --warn: #a35b06; --warn-soft: #fdf3e4; --bad: #c2372c; --bad-soft: #fcebe9;
+  --display: "Instrument Sans", "Inter", system-ui, sans-serif; --text: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1115; --surface: #171a20; --surface-2: #1e222a; --ink: #e8eaee; --ink-2: #9aa3b2; --line: #2a2f38;
+  --accent: #9db4ec; --on-accent: #0f1115; --accent-soft: #1b2337;
+  --ok: #6fd3ad; --ok-soft: #142a22; --warn: #f0b765; --warn-soft: #2e2414; --bad: #f08176; --bad-soft: #321a18; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0f1115; --surface: #171a20; --surface-2: #1e222a; --ink: #e8eaee; --ink-2: #9aa3b2; --line: #2a2f38;
+  --accent: #9db4ec; --on-accent: #0f1115; --accent-soft: #1b2337;
+  --ok: #6fd3ad; --ok-soft: #142a22; --warn: #f0b765; --warn-soft: #2e2414; --bad: #f08176; --bad-soft: #321a18; color-scheme: dark }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--text); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-block: 40px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 56px; }
+h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
+h1 { font-size: clamp(2rem, 5vw, 2.9rem); line-height: 1.1; }
+h2 { font-size: 1.55rem; }
+h3 { font-size: 1.12rem; }
+p { margin: 0; max-width: 68ch; }
+.eyebrow { font-size: .74rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+.muted { color: var(--ink-2); }
+header { display: grid; gap: 14px; }
+.jump { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+.jump a { padding: 7px 13px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); text-decoration: none; font-size: .86rem; font-weight: 500; }
+.jump a:hover, .jump a:focus-visible { border-color: var(--accent); color: var(--accent); outline: none; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: .84rem; color: var(--ink-2); align-items: center; }
+.badge { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px; border-radius: 999px; font-size: .74rem; font-weight: 600; white-space: nowrap; }
+.b-have { background: var(--ok-soft); color: var(--ok); }
+.b-part { background: var(--warn-soft); color: var(--warn); }
+.b-plan { border: 1px dashed var(--ink-2); color: var(--ink-2); }
+.b-mod { background: var(--accent-soft); color: var(--accent); }
+section { display: grid; gap: 20px; scroll-margin-top: 16px; }
+.sec-head { display: grid; gap: 6px; }
+.rolehead { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px; }
+.navbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: .82rem; }
+.navbar span.t { padding: 3px 10px; border-radius: 8px; background: var(--surface); border: 1px solid var(--line); }
+
+/* main loop */
+.loop { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; counter-reset: st; }
+.lstep { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: grid; gap: 4px; align-content: start; position: relative; }
+.lstep b { font-family: var(--display); font-size: 1rem; }
+.lstep .who { font-size: .76rem; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; }
+.lstep:not(:last-child)::after { content: "→"; position: absolute; right: -10px; top: 50%; transform: translate(50%, -50%); color: var(--ink-2); font-weight: 700; z-index: 1; }
+.branches { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.br { border: 1px dashed var(--line); border-radius: 12px; padding: 12px 14px; font-size: .88rem; display: grid; gap: 2px; }
+.br b { font-weight: 600; }
+
+/* screens */
+.screens { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.scr { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px; display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 18px; align-items: start; }
+.info { display: grid; gap: 10px; min-width: 0; }
+.info .top { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.info .goal { font-size: .92rem; }
+.acts { display: grid; gap: 4px; font-size: .84rem; margin: 0; padding: 0; list-style: none; }
+.acts li { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: 6px; align-items: baseline; }
+.acts .k { font-weight: 600; } .acts .arr { color: var(--ink-2); } .acts .to { color: var(--accent); font-weight: 500; }
+
+/* phone wireframe */
+.phone { width: 100%; max-width: 200px; border: 1.5px solid var(--line); border-radius: 22px; padding: 12px 9px 8px; background: var(--surface-2); display: grid; gap: 5px; align-content: start; font-size: 9.5px; line-height: 1.3; color: var(--ink-2); }
+.phone::before { content: ""; width: 44px; height: 4px; border-radius: 4px; background: var(--line); justify-self: center; margin-bottom: 3px; }
+.wb { background: var(--surface); border: 1px solid var(--line); border-radius: 7px; padding: 6px 7px; min-width: 0; overflow-wrap: anywhere; }
+.wb.bar { background: none; border: 0; padding: 0 2px 2px; font-family: var(--display); font-weight: 700; font-size: 11px; color: var(--ink); }
+.wb.btn { background: var(--accent); border-color: var(--accent); color: var(--on-accent); text-align: center; font-weight: 600; }
+.wb.bad { background: var(--bad-soft); border-color: transparent; color: var(--bad); font-weight: 600; }
+.wb.mod { border-style: dashed; border-color: var(--accent); color: var(--accent); }
+.wb.input { background: var(--surface-2); border-style: solid; }
+.wb.timer { font-family: var(--mono); font-size: 15px; text-align: center; color: var(--ink); }
+.wb.list { display: grid; gap: 3px; } .wb.list i { display: block; height: 5px; border-radius: 3px; background: var(--line); } .wb.list i:nth-child(3) { width: 80%; } .wb.list i:nth-child(4) { width: 60%; }
+.wrow { display: grid; gap: 4px; } .wrow.k4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } .wrow.k3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } .wrow.k2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.wrow .wb { text-align: center; padding: 5px 2px; }
+.wrow.k4 .wb { font-size: 7.5px; overflow-wrap: normal; word-break: keep-all; }
+.wrow.k2 .wb:first-child { background: var(--ok); border-color: var(--ok); color: var(--on-accent); font-weight: 600; }
+.wrow.k2 .wb:last-child { color: var(--bad); font-weight: 600; }
+.wchips { display: flex; flex-wrap: wrap; gap: 3px; } .wchips span { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 2px 6px; }
+.wchips span:first-child { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.wsteps { display: flex; gap: 3px; align-items: center; flex-wrap: wrap; } .wsteps span { display: inline-flex; align-items: center; gap: 3px; } .wsteps span::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.wsteps span:nth-child(n+3)::before { background: var(--line); }
+.wnav { display: flex; justify-content: space-around; border-top: 1px solid var(--line); padding-top: 6px; margin-top: 3px; font-size: 8.5px; }
+.wnav span.on { color: var(--accent); font-weight: 700; }
+.mtag { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin-right: 3px; }
+
+.sheets { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px 18px; display: grid; gap: 10px; }
+.sheets dl { margin: 0; display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr); gap: 8px 18px; font-size: .9rem; }
+.sheets dt { font-weight: 600; } .sheets dd { margin: 0; color: var(--ink-2); }
+
+/* tables */
+.tbl { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: .9rem; }
+th, td { text-align: left; padding: 11px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: .74rem; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-2); font-weight: 600; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; }
+
+.states { display: flex; flex-wrap: wrap; gap: 10px; }
+.state { display: grid; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; font-size: .82rem; color: var(--ink-2); min-width: 0; flex: 1 1 150px; }
+.pill { justify-self: start; padding: 2px 9px; border-radius: 999px; font-size: .76rem; font-weight: 600; }
+.p-mute { background: var(--surface-2); color: var(--ink-2); } .p-warn { background: var(--warn-soft); color: var(--warn); } .p-acc { background: var(--accent); color: var(--on-accent); }
+.p-bad { background: var(--bad-soft); color: var(--bad); } .p-ok { background: var(--ok-soft); color: var(--ok); }
+.rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.rule { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; display: grid; gap: 4px; font-size: .9rem; }
+.rule b { font-family: var(--display); font-size: 1rem; }
+
+@media (max-width: 980px) { .screens { grid-template-columns: minmax(0, 1fr); } .loop { grid-template-columns: minmax(0, 1fr); } .lstep:not(:last-child)::after { content: "↓"; right: 50%; top: auto; bottom: -10px; transform: translate(50%, 50%); } .branches, .rules { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 520px) { .scr { grid-template-columns: minmax(0, 1fr); } .phone { max-width: 240px; } .sheets dl { grid-template-columns: minmax(0, 1fr); gap: 2px 0; } .sheets dd { margin-bottom: 8px; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Tasarım şablonu · Workflow</div>
+    <h1>Ekran haritası</h1>
+    <p class="muted">Uygulamanın bütün ekranları, rol rol. Her ekranda ne olduğu, düğmelerin nereye götürdüğü ve kime ne zaman bildirim gittiği. Geliştiriciye ya da tasarımcıya verilecek plan budur; sektörden bağımsızdır, akışı her işletme kendisi kurar.</p>
+    <div class="legend">
+      <span class="badge b-have">Prototipte var</span>
+      <span class="badge b-part">Kısmen var</span>
+      <span class="badge b-plan">Planlanan</span>
+      <span class="badge b-mod">Modül</span><span>yalnızca o modül açıksa görünür</span>
+    </div>
+    <nav class="jump" aria-label="Bölümler" id="jump"></nav>
+  </header>
+
+  <section id="dongu">
+    <div class="sec-head"><div class="eyebrow">Uygulamanın kalbi</div><h2>Ana döngü</h2>
+      <p class="muted">Her sektörde aynı. Akış ne kadar uzun olursa olsun bir iş bu beş adımla ilerler; ekranların hepsi bu döngüyü desteklemek için var.</p></div>
+    <div class="loop">
+      <div class="lstep"><span class="who">Patron</span><b>İş açar</b><span class="muted">Akışı seçer, iş adı, müşteri, termin. Aşamalara kişi önerilir.</span></div>
+      <div class="lstep"><span class="who">Sistem</span><b>Sorumluya bildirim</b><span class="muted">İlk aşamanın sahibinin telefonuna düşer.</span></div>
+      <div class="lstep"><span class="who">Çalışan</span><b>Başla → Bitir</b><span class="muted">Görevlerim ekranında iki dokunuş. İsterse fotoğraf, not.</span></div>
+      <div class="lstep"><span class="who">Sistem</span><b>Sıradakine geçer</b><span class="muted">Kimse aramadan, sıradaki aşamanın sahibine bildirim. Paralelse hepsine.</span></div>
+      <div class="lstep"><span class="who">Patron</span><b>İzler</b><span class="muted">Kontrol merkezinde canlı durum. Son aşama bitince rapor.</span></div>
+    </div>
+    <div class="branches">
+      <div class="br"><b>Sorun çıkarsa</b><span class="muted">Çalışan “Sorun bildir” der → ustabaşı ve patron haberdar → çözülünce aynı kişi devam eder.</span></div>
+      <div class="br"><b>Kontrolde hata varsa</b><span class="muted">Onaylayan “Geri gönder” der → iş, not ile önceki aşamanın sahibine döner.</span></div>
+      <div class="br"><b>Süre aşılırsa</b><span class="muted">Hedef süreyi geçen aşama için ustabaşı ve patrona uyarı. Kural varsa boştaki kişiye aktarılır.</span></div>
+    </div>
+  </section>
+
+  <div id="roles" style="display:grid;gap:56px"></div>
+
+  <section id="bildirim">
+    <div class="sec-head"><div class="eyebrow">Kim, ne zaman haberdar olur</div><h2>Bildirim kuralları</h2>
+      <p class="muted">Bildirim yalnızca işi ilgilendiren kişiye gider. Herkese her şeyi gönderen bir sistem kısa sürede sessize alınır.</p></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Olay</th><th>Kime gider</th><th>Hangi ekrana götürür</th></tr></thead>
+      <tbody id="notif"></tbody>
+    </table></div>
+  </section>
+
+  <section id="durumlar">
+    <div class="sec-head"><div class="eyebrow">Ortak dil</div><h2>Aşama durumları</h2>
+      <p class="muted">Her ekranda aynı renk aynı anlama gelir. Kırmızı yalnızca müdahale gereken şeyler için kullanılır.</p></div>
+    <div class="states" id="states"></div>
+  </section>
+
+  <section id="moduller">
+    <div class="sec-head"><div class="eyebrow">İsteğe bağlı parçalar</div><h2>Modüller ekranlara ne ekler</h2>
+      <p class="muted">Çekirdek (iş emirleri, akış motoru, ekip) her işletmede vardır. Modüller kapalıyken ilgili ekran ve alanlar hiç görünmez; böylece küçük bir işletme sade bir uygulama görür.</p></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Modül</th><th>Eklediği</th><th>Göründüğü yer</th></tr></thead>
+      <tbody id="mods"></tbody>
+    </table></div>
+  </section>
+
+  <section id="ilkeler">
+    <div class="sec-head"><div class="eyebrow">Tasarım kuralları</div><h2>Her ekranda geçerli ilkeler</h2></div>
+    <div class="rules">
+      <div class="rule"><b>Rolü kadar ekran</b><span class="muted">Çalışan yalnızca kendi görevini görür; menüsünde iki sekme vardır. Patronun gördüğü ayrıntı çalışanı yormaz.</span></div>
+      <div class="rule"><b>Tek ana düğme</b><span class="muted">Her görev kartında o an yapılacak tek bir büyük düğme: Başla, Tamamla, Onayla, Teslim edildi.</span></div>
+      <div class="rule"><b>Ayrıntı alttan açılır</b><span class="muted">Detaylar ayrı sayfa değil, alttan açılan pencerede. Kapatınca kullanıcı kaldığı yere döner.</span></div>
+      <div class="rule"><b>Önce dikkat gerektiren</b><span class="muted">Panellerde sıralama: sorunlar, gecikenler, onay bekleyenler, sonra geri kalanı.</span></div>
+      <div class="rule"><b>Kendi kelimeleri</b><span class="muted">Aşama adları, departmanlar ve müşterinin gördüğü adlar işletmenin kendi dilindedir; uygulama sektör terimi dayatmaz.</span></div>
+      <div class="rule"><b>Müşteriye sadece durum</b><span class="muted">Müşteri ekranında maliyet, iç not ve çalışan adı yoktur. Hangi aşamanın görüneceğini işletme seçer.</span></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const ST = { have: ["b-have", "Prototipte var"], part: ["b-part", "Kısmen var"], plan: ["b-plan", "Planlanan"] };
+
+  // wireframe blocks: [kind, text, flag]
+  function block([k, t = "", f], nav, tab) {
+    const mod = f === "mod" ? `<span class="mtag">Modül</span>` : "";
+    const cls = f === "mod" ? " mod" : f === "bad" ? " bad" : "";
+    if (k === "bar") return `<div class="wb bar">${esc(t)}</div>`;
+    if (k === "btn") return `<div class="wb btn">${esc(t)}</div>`;
+    if (k === "input") return `<div class="wb input">${esc(t)}</div>`;
+    if (k === "timer") return `<div class="wb timer">${esc(t)}</div>`;
+    if (k === "list") return `<div class="wb list${cls}">${mod}${esc(t)}<i></i><i></i><i></i></div>`;
+    if (k === "kpi") return `<div class="wrow k4">${t.split(" · ").map(x => `<div class="wb">${esc(x)}</div>`).join("")}</div>`;
+    if (k === "tools") { const p = t.split(" · "); return `<div class="wrow k${Math.min(p.length, 3)}" style="${p.length === 1 ? "grid-template-columns:1fr" : ""}">${p.map(x => `<div class="wb" style="background:var(--surface);color:var(--ink-2);font-weight:500">${esc(x)}</div>`).join("")}</div>`; }
+    if (k === "two") return `<div class="wrow k2">${t.split(" | ").map(x => `<div class="wb">${esc(x)}</div>`).join("")}</div>`;
+    if (k === "chips") return `<div class="wchips">${t.split(" · ").map(x => `<span>${esc(x)}</span>`).join("")}</div>`;
+    if (k === "steps") return `<div class="wb wsteps">${t.split(" → ").map(x => `<span>${esc(x)}</span>`).join("")}</div>`;
+    if (k === "nav") return nav ? `<div class="wnav">${nav.map(n => `<span class="${n === tab ? "on" : ""}">${esc(n)}</span>`).join("")}</div>` : "";
+    return `<div class="wb${cls}">${mod}${esc(t)}</div>`;
+  }
+
+  const ROLES = [
+    { id: "kurulum", name: "Kurulum", who: "Patron · ilk gün, bir kez", desc: "İşletmenin kendi sistemini iki dakikada kurduğu akış. Boş sayfa yok: her şey hazır bir öneriyle başlar, kullanıcı yalnızca düzeltir.", screens: [
+      { n: "Giriş", st: "plan", goal: "Telefon numarası ve SMS kodu ile giriş. Şifre yok.", wf: [["bar", "Workflow"], ["input", "Telefon numarası"], ["btn", "Kod gönder"], ["input", "SMS kodu"]], acts: [["Kod gönder", "SMS kodu alanı"], ["Devam", "İşletme"]] },
+      { n: "İşletme", st: "plan", goal: "İşletme adı ve tek soru: Ne iş yapıyorsun? Cevap, önerilecek şablonu belirler.", wf: [["bar", "1 / 4 · İşletmen"], ["input", "İşletme adı"], ["input", "Ne iş yapıyorsun? (ör: kapı yapıyoruz)"], ["btn", "Devam"]], acts: [["Devam", "İlk akış"]] },
+      { n: "İlk akış", st: "part", goal: "Cevaba göre dört temel şablondan biri önerilir. Aşamaların adı ve sırası değiştirilir, gerekirse eklenir.", wf: [["bar", "2 / 4 · İşin böyle ilerliyor"], ["steps", "Sipariş → Hazırlık → Üretim → Kontrol → Teslim"], ["list", "Aşamalar: sürükle, adlandır, sil"], ["chips", "＋ Onay · ＋ Teslimat · ＋ Ödeme"], ["btn", "Bu akışla devam"]], acts: [["Başka şablon", "Şablon galerisi"], ["Devam", "Ekip"]] },
+      { n: "Ekip", st: "plan", goal: "Her aşama için “Bunu kim yapıyor?” Ad ve telefon yazılır; davet WhatsApp ya da SMS ile gider.", wf: [["bar", "3 / 4 · Kim yapıyor?"], ["wb", "Üretim → Hüseyin · 0532 …"], ["wb", "Kontrol → Ben"], ["btn", "Davetleri gönder"]], acts: [["Davetleri gönder", "Çalışana davet linki"], ["Sonra eklerim", "İlk iş"]] },
+      { n: "İlk iş", st: "have", goal: "Yeni iş formu. İş açılınca ilk aşamanın sahibine bildirim gider; kurulum biter.", wf: [["bar", "4 / 4 · İlk işini aç"], ["input", "İş adı"], ["input", "Müşteri"], ["input", "Termin"], ["list", "Aşamalar ve sorumlular"], ["btn", "İşi oluştur ve dağıt"]], acts: [["Oluştur", "Kontrol merkezi"]] },
+      { n: "Davet (çalışanın gördüğü)", st: "plan", goal: "Çalışan linke dokunur, adını onaylar ve doğrudan Görevlerim ekranına düşer.", wf: [["bar", "Demirtaş Metal seni ekibe ekledi"], ["wb", "Görevin: Üretim"], ["btn", "Katıl"]], acts: [["Katıl", "Görevlerim"]] },
+    ] },
+    { id: "patron", name: "Patron", who: "İşletme sahibi, yönetici", nav: ["Panel", "İşler", "Sohbet", "Ekip", "Raporlar", "Sistem"], desc: "Her şeyi görür. İş açar, ekibi ve akışları yönetir. Sistemi kuran ve değiştiren tek kişidir.", screens: [
+      { n: "Kontrol merkezi", tab: "Panel", st: "have", goal: "Telefon açmadan, işler nerede? Tek bakışta.", wf: [["bar", "Kontrol merkezi · 🔔"], ["kpi", "Aktif · Ekip · Geciken · Teslimat"], ["wb", "Bugün dikkat gerektirenler", "bad"], ["wb", "Darboğaz radarı", "mod"], ["list", "Devam eden işler"], ["btn", "＋ Yeni iş oluştur"], ["list", "Canlı akış"], ["nav"]], acts: [["Sayı kutuları", "İşler (filtreli)"], ["İş satırı", "İş detayı"], ["＋ Yeni iş", "Yeni iş"], ["🔔", "Bildirimler"]] },
+      { n: "İşler", tab: "İşler", st: "have", goal: "Bütün iş emirleri, duruma göre süzülür.", wf: [["bar", "İş emirleri"], ["chips", "Aktif · Geciken · Sorunlu · Onay · Biten"], ["list", "İş: ilerleme, durum, termin"], ["list", "İş: ilerleme, durum, termin"], ["btn", "＋ Yeni iş oluştur"], ["nav"]], acts: [["İş satırı", "İş detayı"], ["＋ Yeni iş", "Yeni iş"]] },
+      { n: "Ekip", tab: "Ekip", st: "have", goal: "Kim çalışıyor, kim boşta, kimde sorun var. Departmanlar ve yetkiler.", wf: [["bar", "Ekip ve departmanlar"], ["list", "Kişi · Çalışıyor / Boşta / Sorun"], ["btn", "＋ Çalışan ekle"], ["list", "Departmanlar"], ["wb", "Gizlilik ve yetki"], ["nav"]], acts: [["Kişi", "Kişi kartı"], ["＋ Çalışan ekle", "Kişi kartı"]] },
+      { n: "Raporlar", tab: "Raporlar", st: "have", mod: "Performans ve raporlar", goal: "Zamanında teslim oranı, ortalama iş süresi, en uzun süren aşama.", wf: [["bar", "Raporlar"], ["kpi", "Zamanında · Süre · Ciro · Kâr"], ["wb", "Aşamalarda ortalama süre"], ["list", "Tamamlanan işler"], ["nav"]], acts: [["İş satırı", "İş detayı"]] },
+      { n: "Sistem", tab: "Sistem", st: "have", goal: "Uygulamanın nasıl çalışacağı burada belirlenir: akışlar, şablonlar, modüller.", wf: [["bar", "Sistem"], ["wb", "Senin sistemin: çekirdek + modüller"], ["list", "İş akışların"], ["btn", "＋ Kendi akışını kur"], ["wb", "Şablon galerisi"], ["wb", "Modül deposu"], ["nav"]], acts: [["Akışı düzenle", "Akış düzenleyici"], ["＋ Kendi akışını kur", "Başlangıç seçimi"], ["Şablon", "Şablon önizleme"], ["Modül", "Modül kartı"]] },
+    ], sheets: [
+      ["Yeni iş", "Akış seçilir; iş adı, müşteri, termin, acil. Her aşamaya en erken boşalacak kişi önerilir, değiştirilebilir. Tahmini bitiş canlı hesaplanır."],
+      ["İş detayı", "Aşama aşama ilerleme: kim yapıyor, ne zamandır bekliyor, fotoğraf ve notlar. Başkasına ata, sorunu çöz, onayla."],
+      ["Başkasına ata", "Aynı departmandan kişi seçilir; her kişinin yükü yanında görünür."],
+      ["Kişi kartı", "Ad, unvan, rol ve departmanlar."],
+      ["Başlangıç seçimi", "Sıfırdan, şablondan ya da mevcut bir akışı kopyalayarak başla."],
+      ["Akış düzenleyici", "Aşama ekle, sırala, aynı anda yürüt; sorumlu, hedef süre, müşterinin gördüğü ad. Kurallar ve tercihler."],
+      ["Şablon önizleme", "Aşama grafiği, eksik departmanlar ve “Bu şablonla başla”."],
+      ["Modül kartı", "Ne ekler, nerede görünür, neyi gerektirir. Ekle ya da çıkar."],
+      ["Bildirimler", "Sana gelenler, en yenisi üstte. Her satır ilgili işe götürür."],
+    ] },
+    { id: "ustabasi", name: "Ustabaşı", who: "Atölye şefi, ekip lideri", nav: ["Panel", "Sohbet"], desc: "Takılan işleri çözer, onay verir, yükü dengeler. Patronun sahadaki eli.", screens: [
+      { n: "Ustabaşı paneli", tab: "Panel", st: "have", goal: "Önce sorunlar, sonra onaylar, sonra ekibin yükü.", wf: [["bar", "Günaydın Kadir Usta · 🔔"], ["wb", "Sorun bildirimleri", "bad"], ["two", "Çözüldü | Başkasına ata"], ["list", "Onay bekleyenler"], ["list", "Ekip yükü"], ["list", "Üretimdeki işler"], ["nav"]], acts: [["Çözüldü, devam", "Sorumluya bildirim"], ["Onayla", "Sıradaki aşama"], ["İş satırı", "İş detayı"]] },
+    ] },
+    { id: "calisan", name: "Çalışan", who: "Usta, üretim, kontrol, depo", nav: ["Görevlerim", "Sohbet"], desc: "Yalnızca kendine düşen işi görür. Ekranın tamamı üç şey içindir: başla, bitir, sorun bildir.", screens: [
+      { n: "Görevlerim", tab: "Görevlerim", st: "have", goal: "Bugün ne yapacağım? En acil görev en üstte.", wf: [["bar", "Görevlerim · 🔔"], ["wb", "İŞ EMRİ #1042 · Kaynak · Bekliyor"], ["btn", "▶ İşe başla"], ["tools", "Fotoğraf · Sesli not · Sorun"], ["list", "Sırada gelecek"], ["nav"]], acts: [["İşe başla", "Görev: çalışıyor"], ["Sorun bildir", "Sorun bildir"], ["Dosya", "Çizim / belge"]] },
+      { n: "Görev: çalışıyor", st: "have", goal: "Süre sayacı işler. Bitirince iş sıradaki kişiye kendiliğinden geçer.", wf: [["bar", "Kaynak · Metal konstrüksiyon"], ["timer", "01:24:09"], ["wb", "Form", "mod"], ["tools", "Fotoğraf · Sesli not · Sorun"], ["btn", "İşi tamamla ✓"]], acts: [["İşi tamamla", "Sıradakine bildirim"]] },
+      { n: "Görev: onay", st: "have", goal: "Kontrol aşamaları için. Onaylar ya da not yazıp geri gönderir.", wf: [["bar", "Kontrol · Bahçe kapısı"], ["list", "Kontrol listesi"], ["tools", "Fotoğraf · Sesli not · Sorun"], ["two", "Onayla ✓ | Geri gönder"]], acts: [["Onayla", "Sıradaki aşama"], ["Geri gönder", "Önceki aşamaya, not ile"]] },
+      { n: "Depo: sevkiyat", st: "have", mod: "Barkod ve QR", goal: "Ürünler okutularak sayılır; eksik varken araç yüklenemez.", wf: [["bar", "Sevkiyat · Çelik kapı"], ["list", "Okutulan: 2 / 4"], ["input", "Barkod / QR"], ["input", "Araç seç"], ["btn", "Araca yüklendi ✓"]], acts: [["Araca yüklendi", "Şoföre teslimat görevi"]] },
+    ], sheets: [
+      ["Sorun bildir", "Hazır seçenekler (malzeme eksik, arıza, ölçü hatası…) ve kısa not. Ustabaşı ve patron anında haberdar olur."],
+      ["Geri gönder", "Ne düzeltilmeli? İş, önceki aşamanın sahibine bu notla döner."],
+      ["Çizim / belge", "İşe eklenmiş teknik çizim ya da dosya."],
+    ] },
+    { id: "sofor", name: "Şoför", who: "Teslimat, saha ekibi", mod: "Saha ve teslimat", nav: ["Teslimatlar", "Sohbet"], desc: "Teslimatlarını görür, yola çıkar, imza ve fotoğrafla teslim eder.", screens: [
+      { n: "Teslimatlarım", tab: "Teslimatlar", st: "have", goal: "Bugünkü teslimatlar: adres, yük, müşteri.", wf: [["bar", "Teslimatlarım · 34 ABC 123"], ["wb", "#1047 · Ekin Lojistik · Tuzla"], ["two", "Navigasyon | Yola çıktım"], ["list", "Hazırlanıyor"], ["nav"]], acts: [["Yola çıktım", "Müşteride “Yolda”"], ["Navigasyon", "Harita uygulaması"]] },
+      { n: "Teslim", st: "have", goal: "Müşteri imzası ve teslim fotoğrafıyla iş kapanır.", wf: [["bar", "Teslim · Depo rafı sistemi"], ["wb", "İmza alanı"], ["tools", "Teslim fotoğrafı"], ["btn", "Teslim edildi ✓"]], acts: [["Teslim edildi", "İş tamamlanır, patrona rapor"]] },
+    ] },
+    { id: "musteri", name: "Müşteri", who: "İşi yaptıran", mod: "Müşteri takip", nav: ["Siparişlerim", "Mesajlar"], desc: "Giriş yapmadan, kendisine gönderilen linkle siparişini izler. İç bilgiler gösterilmez.", screens: [
+      { n: "Sipariş takibi", tab: "Siparişlerim", st: "have", goal: "Siparişim nerede, ne zaman gelir?", wf: [["bar", "Ekin Lojistik"], ["wb", "SİPARİŞ #1047 · Depo rafı"], ["steps", "Alındı → Üretim → Kontrol → Sevk → Teslim"], ["wb", "Tahmini teslim: Yarın"], ["btn", "Mesaj yaz"], ["nav"]], acts: [["Mesaj yaz", "Siparişe özel sohbet"]] },
+      { n: "Onay ver", st: "plan", goal: "Fiyat ya da tasarım onayı müşterinin kendisinden alınır; çalışan aracı olmaz.", wf: [["bar", "Onayınız bekleniyor"], ["wb", "Fiyat 52.000 ₺ · Termin 12 Aralık"], ["two", "Onaylıyorum | Görüşelim"]], acts: [["Onaylıyorum", "Akış devam eder"], ["Görüşelim", "İşletmeye mesaj"]] },
+    ] },
+    { id: "ortak", name: "Herkeste ortak", who: "Bütün roller", mod: "Ekip sohbeti", desc: "Her rolün menüsündeki Sohbet sekmesi. WhatsApp gruplarının yerini alır; iş olayları ilgili sohbete kendiliğinden düşer.", screens: [
+      { n: "Sohbet listesi", st: "have", goal: "İşe özel sohbetler, departman kanalları, birebir mesajlar.", wf: [["bar", "Sohbet"], ["chips", "Tümü · İşler · Kanallar · Kişiler"], ["list", "#1042 Metal konstrüksiyon"], ["list", "Kaynak kanalı"], ["btn", "＋ Yeni mesaj"]], acts: [["Sohbet", "Sohbet penceresi"], ["＋ Yeni mesaj", "Kişi seç"]] },
+      { n: "Sohbet penceresi", st: "have", goal: "Mesaj, fotoğraf, sesli mesaj. İş olayları gri satır olarak araya girer.", wf: [["bar", "#1042 · Metal konstrüksiyon"], ["wb", "Kaynak aşamasına geçti"], ["list", "Hüseyin: profiller geldi"], ["input", "Mesaj · 📷 · 🎙"]], acts: [["Mesajı soruna çevir", "Sorun bildir"]] },
+    ] },
+  ];
+
+  const scr = (s, nav) => `<article class="scr">
+      <div class="phone" aria-hidden="true">${s.wf.map(b => block(b, nav, s.tab)).join("")}</div>
+      <div class="info">
+        <div class="top"><h3>${esc(s.n)}</h3><span class="badge ${ST[s.st][0]}">${ST[s.st][1]}</span>${s.mod ? `<span class="badge b-mod">${esc(s.mod)}</span>` : ""}</div>
+        <p class="goal">${esc(s.goal)}</p>
+        ${s.acts.length ? `<ul class="acts" aria-label="Düğmeler">${s.acts.map(([k, to]) => `<li><span class="k">${esc(k)}</span><span class="arr">→</span><span class="to">${esc(to)}</span></li>`).join("")}</ul>` : ""}
+      </div></article>`;
+
+  document.getElementById("roles").innerHTML = ROLES.map(r => `<section id="${r.id}">
+    <div class="sec-head"><div class="eyebrow">${esc(r.who)}</div>
+      <div class="rolehead"><h2>${esc(r.name)}</h2>${r.mod ? `<span class="badge b-mod">${esc(r.mod)} modülüyle</span>` : ""}<span class="muted" style="font-size:.88rem">${r.screens.length} ekran${r.sheets ? ` · ${r.sheets.length} pencere` : ""}</span></div>
+      <p class="muted">${esc(r.desc)}</p>
+      ${r.nav ? `<div class="navbar"><span class="muted">Alt menü:</span>${r.nav.map(n => `<span class="t">${esc(n)}</span>`).join("")}</div>` : ""}</div>
+    <div class="screens">${r.screens.map(s => scr(s, r.nav)).join("")}</div>
+    ${r.sheets ? `<div class="sheets"><h3>Alttan açılan pencereler</h3><dl>${r.sheets.map(([a, b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join("")}</dl></div>` : ""}
+  </section>`).join("");
+
+  document.getElementById("jump").innerHTML = [["dongu", "Ana döngü"], ...ROLES.map(r => [r.id, r.name]), ["bildirim", "Bildirimler"], ["durumlar", "Durumlar"], ["moduller", "Modüller"], ["ilkeler", "İlkeler"]]
+    .map(([id, n]) => `<a href="#${id}">${esc(n)}</a>`).join("");
+
+  const NOTIF = [
+    ["İş açıldı", "İlk aşamanın sorumlusu", "Görevlerim"],
+    ["Aşama bitti", "Sıradaki aşamanın sorumlusu; paralelse hepsi", "Görevlerim"],
+    ["Onay bekliyor", "Onaylayacak kişi", "Görev: onay"],
+    ["Sorun bildirildi", "Ustabaşı ve patron", "Ustabaşı paneli / İş detayı"],
+    ["Sorun çözüldü", "Aşamanın sorumlusu", "Görevlerim"],
+    ["Geri gönderildi", "Önceki aşamanın sorumlusu ve patron", "Görevlerim"],
+    ["Hedef süre aşıldı", "Ustabaşı ve patron (akış tercihine bağlı)", "İş detayı"],
+    ["Teslimata hazır", "Şoför", "Teslimatlarım"],
+    ["İş tamamlandı", "Patron; Müşteri takip açıksa müşteri", "İş detayı / Sipariş takibi"],
+    ["Aşama değişti", "Müşteri (Müşteri takip modülü)", "Sipariş takibi"],
+  ];
+  document.getElementById("notif").innerHTML = NOTIF.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join("")}</tr>`).join("");
+
+  const STATES = [["p-mute", "Bekliyor", "Önceki aşama bitmedi. Çalışanın “Sırada gelecek” listesinde."], ["p-warn", "Sırada", "Başlanabilir. Sorumluya bildirim gitti."], ["p-acc", "Çalışıyor", "Başlandı, süre sayıyor."],
+    ["p-warn", "Onay bekliyor", "Kontrol aşaması; onay ya da geri gönderme bekleniyor."], ["p-bad", "Sorun", "İş durdu. Ustabaşı müdahale etmeli."], ["p-ok", "Bitti", "Tamamlandı; iş sıradakine geçti."]];
+  document.getElementById("states").innerHTML = STATES.map(([c, n, d]) => `<div class="state"><span class="pill ${c}">${n}</span><span>${d}</span></div>`).join("");
+
+  const MODS = [
+    ["Ekip sohbeti", "İşe özel sohbet, kanallar, duyurular, birebir mesaj", "Her rolde Sohbet sekmesi, iş detayı"],
+    ["Akıllı termin", "Tahmini bitiş, termin riski, darboğaz radarı", "Kontrol merkezi, Yeni iş, İş detayı"],
+    ["Kural motoru", "“Eğer… ise… yap” otomasyonları", "Akış düzenleyici"],
+    ["Saha ve teslimat", "Şoför rolü, teslimat aşaması, imza ve fotoğraf", "Şoför ekranları, Akış düzenleyici"],
+    ["Depo ve stok", "Stok listesi, kritik stok uyarısı", "Depo görevleri, Kontrol merkezi, Yeni iş"],
+    ["Barkod ve QR", "Okutarak sayım, araç seçimi", "Depo: sevkiyat"],
+    ["Maliyet ve kârlılık", "Tutar, maliyet, iş başına kâr", "Yeni iş, İş detayı, Raporlar"],
+    ["Müşteri takip", "Müşteri ekranı, otomatik müşteri mesajı, onay", "Müşteri ekranları, Akış tercihleri"],
+    ["Özel formlar", "Aşamaya ölçü, evet/hayır, seçim ve not alanları", "Görev kartı, İş detayı, Raporlar"],
+    ["Performans ve raporlar", "Zamanında teslim, aşama süreleri", "Raporlar sekmesi"],
+  ];
+  document.getElementById("mods").innerHTML = MODS.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join("")}</tr>`).join("");
+})();
+</script>
