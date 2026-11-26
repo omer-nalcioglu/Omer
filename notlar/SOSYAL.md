@@ -22,6 +22,10 @@ Hepsi tek dosyalık `index.html` prototipler. Mağazaya çıkmak için native/PW
 (Capacitor vb.). Çocuk uygulaması için Apple "Kids" ve Google "Families" kuralları geçerli.
 
 ## Kararlar / Yapılanlar
+- 2026-11-26: **Setiscar Instagram hedefi**: günde en az 6 Reels (fazlası olabilir), takipçilerin en aktif olduğu saatlerde.
+  İzlenme/erişim oranları ölçülecek ve tasarım + paylaşım saatleri bu verilere göre ayarlanacak.
+  Durum: başlamadı. Eksikler: Setiscar'ın ne olduğu, IG hesabı, Meta Graph API erişimi (token), görsel/video kaynakları.
+  Bu oturumda Instagram connector'ı yok.
 - 2026-11-26: "Sosyal" hattı açıldı, bu not dosyası oluşturuldu. Henüz hiçbir mağaza/hosting/Instagram işi başlamadı.
 
 ## Sıradaki adımlar (öneri)
