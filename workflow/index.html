@@ -249,6 +249,22 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
 .ts.cur { color: var(--ink); }
 .eta { font-family: var(--display); font-weight: 800; font-size: 1.6rem; }
 
+.ed-name { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 8px; }
+.ed-name select { padding: 10px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface-2); font-size: 1.1rem; }
+.ed-list { display: flex; flex-direction: column; gap: 10px; }
+.ed-row { background: var(--surface-2); border-radius: 14px; padding: 10px; display: grid; gap: 8px; border-left: 4px solid transparent; }
+.ed-row.par { border-left-color: var(--info); margin-left: 14px; }
+.ed-top { display: grid; grid-template-columns: 26px minmax(0, 1fr) 36px 36px 36px; gap: 6px; align-items: center; }
+.ed-top input, .ed-two input, .ed-two select { width: 100%; min-width: 0; padding: 9px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); }
+.ed-n { width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: var(--surface); display: grid; place-items: center; font-size: .78rem; font-weight: 700; }
+.ed-b { height: 38px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); font-weight: 700; }
+.ed-b.del { color: var(--bad); }
+.ed-b:disabled { opacity: .35; }
+.ed-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.ed-two label { display: grid; gap: 3px; font-weight: 600; }
+.ed-checks { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .85rem; font-weight: 600; }
+.ed-checks label { display: flex; gap: 6px; align-items: center; }
+.ed-checks input { width: 18px; height: 18px; accent-color: var(--accent); }
 .toast { position: fixed; z-index: 30; left: 50%; transform: translateX(-50%); top: calc(54px + env(safe-area-inset-top, 0px)); width: min(488px, calc(100% - 32px)); background: var(--ink); color: var(--surface); border-radius: 14px; padding: 12px 14px; display: flex; gap: 10px; align-items: center; box-shadow: 0 10px 30px #0005; animation: drop .25s ease-out; }
 @keyframes drop { from { transform: translate(-50%, -16px); opacity: 0; } }
 .toast b { display: block; }
@@ -293,7 +309,7 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
   // ---------------- model ----------------
   const PEOPLE = [
     { id: "selim", name: "Selim Demirtaş", role: "patron", title: "Patron", color: "#12161d" },
-    { id: "kadir", name: "Kadir Usta", role: "ustabasi", title: "Ustabaşı", color: "#7c3aed" },
+    { id: "kadir", name: "Kadir Usta", role: "ustabasi", title: "Ustabaşı", skills: ["yonetim"], color: "#7c3aed" },
     { id: "murat", name: "Murat Kaya", role: "uretim", title: "Teknik personel", skills: ["olcum"], color: "#2a64c9" },
     { id: "emre", name: "Emre Şahin", role: "uretim", title: "Kesimci", skills: ["kesim"], color: "#0f766e" },
     { id: "huseyin", name: "Hüseyin Arslan", role: "uretim", title: "Kaynak ustası", skills: ["kaynak", "montaj"], color: "#c2410c" },
@@ -314,6 +330,18 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
     { key: "kalite", name: "Kalite kontrol", skill: "kalite", g: 4, type: "approval", pub: "Kalite kontrol", checklist: "Ölçü, kaynak dikişi ve boya yüzeyini kontrol et." },
     { key: "sevk", name: "Sevkiyat hazırlığı", skill: "depo", g: 5, type: "pack", pub: "Sevkiyata hazırlanıyor", checklist: "Ürünleri barkodla say, paketle, araca yükle." },
     { key: "teslim", name: "Nakliye ve teslimat", skill: "sofor", g: 6, type: "delivery", pub: "Teslimat", checklist: "Müşteriye teslim et, fotoğraf ve imza al." },
+  ];
+  // parallel flags for the editor (same group as the stage before)
+  METAL.forEach((st, i) => { st.par = i > 0 && METAL[i - 1].g === st.g; st.sla = { malzeme: 4, olcum: 8, kesim: 8, kaynak: 16, boya: 12, aksesuar: 6, kalite: 4, sevk: 6, teslim: 8 }[st.key]; st.photo = ["kaynak", "boya"].includes(st.key); });
+  const DEPTS = { yonetim: "Ustabaşı / yönetim", olcum: "Teknik / ölçüm", kesim: "Kesim", kaynak: "Kaynak", boya: "Boya", montaj: "Montaj", kalite: "Kalite kontrol", depo: "Depo ve sevkiyat", sofor: "Şoför" };
+  const TYPES = { task: "İş", approval: "Onay", pack: "Sevkiyat (barkod)", delivery: "Teslimat (imza)" };
+  const DEFAULT_PREFS = { sendBack: true, signReq: true, custNotify: true, custVisible: true, slaWarn: true };
+  const PREF_TEXT = [
+    ["sendBack", "Hatalı işi geri gönderme", "Onay aşaması işi notla önceki aşamaya döndürebilir."],
+    ["signReq", "Teslimatta müşteri imzası zorunlu", "Şoför imza almadan teslimatı kapatamaz."],
+    ["custNotify", "Müşteriye otomatik bildirim", "Aşama değiştikçe müşteriye mesaj gider."],
+    ["custVisible", "Müşteri takip ekranında görünsün", "Müşteri bu akıştaki işlerin durumunu görebilir."],
+    ["slaWarn", "Hedef süre aşılınca uyar", "Aşama hedef süresini geçince ustabaşı ve patron uyarılır."],
   ];
   const SECTORS = [
     ["🏭", "Metal sanayi", ["Kesim", "Kaynak", "Boya", "Sevkiyat"]], ["🪑", "Mobilya", ["Ölçüm", "Tasarım", "Üretim", "Montaj"]],
@@ -336,9 +364,10 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
 
   function mkJob(o) {
     const now = Date.now();
-    const steps = METAL.map(st => ({ ...st, owner: (o.owners && o.owners[st.key]) || defaultOwner(st.skill), status: "locked", photos: [], notes: [], log: [] }));
+    const flow = o.flow || flowById(o.flowId || D.defaultFlow);
+    const steps = flow.stages.map(st => ({ ...st, owner: (o.owners && o.owners[st.key]) || st.fixed || defaultOwner(st.skill), status: "locked", photos: [], notes: [], log: [] }));
     const j = { id: o.id, title: o.title, desc: o.desc || "", customer: o.customer, address: o.address || "", qty: o.qty || "", due: o.due,
-      createdAt: o.createdAt || now - 6 * DAY, price: o.price || 0, cost: o.cost || 0, urgent: !!o.urgent, steps, done: false };
+      createdAt: o.createdAt || now - 6 * DAY, price: o.price || 0, cost: o.cost || 0, urgent: !!o.urgent, steps, done: false, flowId: flow.id };
     let t = j.createdAt;
     steps.forEach(s => {
       if (s.g < o.at) { s.status = "done"; s.readyAt = t; s.startedAt = t + 2 * HOUR; s.doneAt = t + (o.dur?.[s.key] ?? 6) * HOUR; }
@@ -350,25 +379,37 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
     return j;
   }
   function defaultOwner(skill) { return (PEOPLE.find(p => (p.skills || []).includes(skill)) || PEOPLE[1]).id; }
+  const flowById = id => (D && D.flows.find(f => f.id === id)) || (D && D.flows[0]);
+  const flowOf = j => flowById(j.flowId) || D.flows[0];
 
   function seed() {
     const now = Date.now(), at = (d, h = 17, m = 0) => sod() + d * DAY + h * HOUR + m * MIN;
+    const metal = { id: "metal", ico: "🏭", name: "Metal imalat", sector: "Metal sanayi", stages: JSON.parse(JSON.stringify(METAL)), prefs: { ...DEFAULT_PREFS } };
+    const montaj = { id: "montaj", ico: "🔧", name: "Saha montajı", sector: "Metal sanayi", prefs: { ...DEFAULT_PREFS, custNotify: false },
+      stages: [
+        { key: "keşif", name: "Keşif ve ölçü", skill: "olcum", g: 0, type: "task", pub: "Planlama", checklist: "Sahada ölçü al, fotoğraf çek.", sla: 6, photo: true },
+        { key: "yukle", name: "Malzeme yükleme", skill: "depo", g: 1, type: "pack", pub: "Hazırlık", checklist: "Montaj malzemesini araca yükle.", sla: 4 },
+        { key: "montaj", name: "Sahada montaj", skill: "montaj", g: 2, type: "task", pub: "Montaj", checklist: "Montajı yap, alanı temizle.", sla: 10, photo: true },
+        { key: "onay", name: "Müşteri onayı", skill: "yonetim", g: 3, type: "approval", pub: "Kontrol", checklist: "Müşteriyle son kontrol.", sla: 4 },
+      ] };
+    montaj.stages.forEach((st, i) => st.par = false);
+    const flows = [metal, montaj];
     const jobs = [
-      mkJob({ id: 1042, title: "Metal konstrüksiyon", customer: "Kaya İnşaat", qty: "24 profil", due: at(2), at: 2, waiting: 2, price: 186000, cost: 121000,
+      mkJob({ flow: metal, id: 1042, title: "Metal konstrüksiyon", customer: "Kaya İnşaat", qty: "24 profil", due: at(2), at: 2, waiting: 2, price: 186000, cost: 121000,
         createdAt: now - 4 * DAY, owners: { kaynak: "huseyin" } }),
-      mkJob({ id: 1043, title: "Çelik kapı siparişi", customer: "Yıldız Sitesi", qty: "12 adet", due: at(1), at: 5, waiting: 1, price: 228000, cost: 151000, createdAt: now - 7 * DAY }),
-      mkJob({ id: 1044, title: "Makine parçası · flanş", customer: "Öztürk Makine", qty: "40 adet", due: at(4), at: 1, waiting: 30, price: 64000, cost: 39000, createdAt: now - 3 * DAY, owners: { kesim: "emre" } }),
-      mkJob({ id: 1045, title: "Merdiven korkuluğu montajı", customer: "Defne Hanım · Kadıköy", qty: "14 m", due: at(-1), at: 3, waiting: 26, price: 52000, cost: 33500, createdAt: now - 8 * DAY }),
-      mkJob({ id: 1046, title: "Bahçe kapısı", customer: "Can Bey · Beykoz", qty: "1 adet", due: at(3), at: 4, waiting: 3, price: 41000, cost: 24800, createdAt: now - 6 * DAY }),
-      mkJob({ id: 1047, title: "Depo rafı sistemi", customer: "Ekin Lojistik", qty: "8 ünite", due: at(0, 18), at: 6, waiting: 2, price: 132000, cost: 88000, createdAt: now - 9 * DAY,
+      mkJob({ flow: metal, id: 1043, title: "Çelik kapı siparişi", customer: "Yıldız Sitesi", qty: "12 adet", due: at(1), at: 5, waiting: 1, price: 228000, cost: 151000, createdAt: now - 7 * DAY }),
+      mkJob({ flow: metal, id: 1044, title: "Makine parçası · flanş", customer: "Öztürk Makine", qty: "40 adet", due: at(4), at: 1, waiting: 30, price: 64000, cost: 39000, createdAt: now - 3 * DAY, owners: { kesim: "emre" } }),
+      mkJob({ flow: metal, id: 1045, title: "Merdiven korkuluğu montajı", customer: "Defne Hanım · Kadıköy", qty: "14 m", due: at(-1), at: 3, waiting: 26, price: 52000, cost: 33500, createdAt: now - 8 * DAY }),
+      mkJob({ flow: metal, id: 1046, title: "Bahçe kapısı", customer: "Can Bey · Beykoz", qty: "1 adet", due: at(3), at: 4, waiting: 3, price: 41000, cost: 24800, createdAt: now - 6 * DAY }),
+      mkJob({ flow: metal, id: 1047, title: "Depo rafı sistemi", customer: "Ekin Lojistik", qty: "8 ünite", due: at(0, 18), at: 6, waiting: 2, price: 132000, cost: 88000, createdAt: now - 9 * DAY,
         address: "Aydınlı Mah. Organize Sanayi Cd. No: 14, Tuzla / İstanbul", owners: { teslim: "mehmet" } }),
-      mkJob({ id: 1048, title: "Çatı makası", customer: "Kaya İnşaat", qty: "6 adet", due: at(10), at: 0, waiting: 5, price: 97000, cost: 64000, createdAt: now - 6 * HOUR }),
-      mkJob({ id: 1049, title: "Kepenk", customer: "Ekin Lojistik", qty: "3 adet", due: at(5), at: 2, waiting: 1, price: 45000, cost: 29500, createdAt: now - 2 * DAY, owners: { kaynak: "huseyin" } }),
+      mkJob({ flow: metal, id: 1048, title: "Çatı makası", customer: "Kaya İnşaat", qty: "6 adet", due: at(10), at: 0, waiting: 5, price: 97000, cost: 64000, createdAt: now - 6 * HOUR }),
+      mkJob({ flow: metal, id: 1049, title: "Kepenk", customer: "Ekin Lojistik", qty: "3 adet", due: at(5), at: 2, waiting: 1, price: 45000, cost: 29500, createdAt: now - 2 * DAY, owners: { kaynak: "huseyin" } }),
       // finished, for reports
-      mkJob({ id: 1038, title: "Pergola", customer: "Can Bey · Beykoz", qty: "1 adet", due: at(-9), at: 9, price: 74000, cost: 47200, createdAt: now - 18 * DAY, dur: { kaynak: 16, boya: 12, kalite: 3 } }),
-      mkJob({ id: 1039, title: "Yangın merdiveni", customer: "Kaya İnşaat", qty: "1 adet", due: at(-6), at: 9, price: 168000, cost: 118000, createdAt: now - 16 * DAY, dur: { kaynak: 30, boya: 14, kesim: 9 } }),
-      mkJob({ id: 1040, title: "Çelik kapı", customer: "Yıldız Sitesi", qty: "6 adet", due: at(-4), at: 9, price: 112000, cost: 70500, createdAt: now - 12 * DAY, dur: { kaynak: 12, boya: 20, sevk: 5 } }),
-      mkJob({ id: 1041, title: "Platform ve korkuluk", customer: "Ekin Lojistik", qty: "1 takım", due: at(-2), at: 9, price: 89000, cost: 61000, createdAt: now - 9 * DAY, dur: { kaynak: 22, boya: 18, olcum: 10 } }),
+      mkJob({ flow: metal, id: 1038, title: "Pergola", customer: "Can Bey · Beykoz", qty: "1 adet", due: at(-9), at: 9, price: 74000, cost: 47200, createdAt: now - 18 * DAY, dur: { kaynak: 16, boya: 12, kalite: 3 } }),
+      mkJob({ flow: metal, id: 1039, title: "Yangın merdiveni", customer: "Kaya İnşaat", qty: "1 adet", due: at(-6), at: 9, price: 168000, cost: 118000, createdAt: now - 16 * DAY, dur: { kaynak: 30, boya: 14, kesim: 9 } }),
+      mkJob({ flow: metal, id: 1040, title: "Çelik kapı", customer: "Yıldız Sitesi", qty: "6 adet", due: at(-4), at: 9, price: 112000, cost: 70500, createdAt: now - 12 * DAY, dur: { kaynak: 12, boya: 20, sevk: 5 } }),
+      mkJob({ flow: metal, id: 1041, title: "Platform ve korkuluk", customer: "Ekin Lojistik", qty: "1 takım", due: at(-2), at: 9, price: 89000, cost: 61000, createdAt: now - 9 * DAY, dur: { kaynak: 22, boya: 18, olcum: 10 } }),
     ];
     const J = id => jobs.find(j => j.id === id), S = (id, k) => J(id).steps.find(s => s.key === k);
     // 1042: Hüseyin's welding task, the spec example
@@ -396,14 +437,14 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
       { name: "Profil 40×40 mm", qty: 38, min: 60, unit: "boy" }, { name: "Sac levha 20 mm", qty: 0, min: 10, unit: "plaka" },
       { name: "Kilit takımı", qty: 30, min: 20, unit: "adet" }, { name: "Elektrostatik boya · RAL 7016", qty: 42, min: 25, unit: "kg" },
       { name: "Menteşe", qty: 220, min: 80, unit: "adet" } ];
-    return { jobs, feed, stock, nextId: 1050, mods: { ai: true, fleet: true, stock: true, finance: true, customers: true },
+    return { flows, defaultFlow: "metal", jobs, feed, stock, nextId: 1050, mods: { fleet: true, stock: true, finance: true, customers: true },
       privacy: { loc: true, perf: true } };
   }
 
   let D;
-  try { D = JSON.parse(localStorage.getItem("wf-proto-1")); } catch (e) {}
-  if (!D || !D.jobs) D = seed();
-  const save = () => { try { localStorage.setItem("wf-proto-1", JSON.stringify(D)); } catch (e) {} };
+  try { D = JSON.parse(localStorage.getItem("wf-proto-2")); } catch (e) {}
+  if (!D || !D.jobs || !D.flows) D = seed();
+  const save = () => { try { localStorage.setItem("wf-proto-2", JSON.stringify(D)); } catch (e) {} };
 
   const VIEWS = [
     ["selim", "Selim · Patron"], ["kadir", "Kadir · Ustabaşı"], ["huseyin", "Hüseyin · Kaynak ustası"], ["cem", "Cem · Boyacı"],
@@ -427,11 +468,14 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
     const names = act.map(s => s.name.split(" ")[0]).join(" + ");
     return { label: `${names} aşamasında`, cls: "mute" };
   }
+  const overSla = s => s.sla && ["ready", "working"].includes(s.status) && s.readyAt && (Date.now() - s.readyAt) > s.sla * HOUR;
+  function slaPill(j, s) { if (!overSla(s) || !flowOf(j).prefs.slaWarn) return ""; return `<span class="pill bad">Hedef süre aşıldı · ${Math.round((Date.now() - s.readyAt) / HOUR)}/${s.sla} sa</span>`; }
   function notify(text, ic, to) { D.feed.push({ at: Date.now(), ic, text, to }); }
   function activateGroup(j, g) {
     const gs = j.steps.filter(s => s.g === g);
     gs.forEach(s => { s.status = "ready"; s.readyAt = Date.now(); delete s.issue; });
     gs.forEach(s => notify(`#${j.id} ${s.name} aşamasına geçti · ${first(s.owner)} bilgilendirildi`, "➡️", [s.owner]));
+    const pr = flowOf(j).prefs; if (pr.custNotify && D.mods.customers) notify(`Müşteriye mesaj gitti: “${j.title} siparişiniz ${gs[0].pub || gs[0].name} aşamasında”`, "📲");
     return gs;
   }
   function completeStep(j, s, by, how = "done") {
@@ -446,7 +490,8 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
     const nextG = curGroup(j);
     if (nextG == null) {
       j.done = true; j.doneAt = Date.now();
-      notify(`#${j.id} ${j.title} teslim edildi · rapor hazır`, "🏁", ["selim"]);
+      notify(`#${j.id} ${j.title} tamamlandı · rapor hazır`, "🏁", ["selim"]);
+      if (flowOf(j).prefs.custNotify && D.mods.customers) notify(`Müşteriye mesaj gitti: “${j.title} siparişiniz tamamlandı”`, "📲");
       return { finished: true };
     }
     const next = activateGroup(j, nextG);
@@ -566,11 +611,13 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
     const idle = PEOPLE.filter(p => p.role === "uretim" && loadOf(p.id) === 0);
     const busy = PEOPLE.filter(p => p.role === "uretim").sort((a, b) => (loadOf(b.id) + queuedOf(b.id)) - (loadOf(a.id) + queuedOf(a.id)))[0];
     if (idle.length && busy && loadOf(busy.id) > 1) lines.push(`<b>${esc(first(busy.id))}</b> üzerinde ${loadOf(busy.id)} açık görev var, <b>${esc(idle.map(p => first(p.id)).join(", "))}</b> boşta. Görev aktarılabilir.`);
+    const over = D.jobs.flatMap(j => j.done || !flowOf(j).prefs.slaWarn ? [] : j.steps.filter(overSla).map(s => `#${j.id} ${s.name}`));
+    if (over.length) lines.push(`Hedef süresini aşan aşamalar: ${esc(over.slice(0, 3).join(", "))}${over.length > 3 ? ` ve ${over.length - 3} tane daha` : ""}.`);
     const low = D.mods.stock ? D.stock.filter(s => s.qty < s.min) : [];
     if (low.length) lines.push(`Stok uyarısı: ${low.map(s => `${esc(s.name)} (${s.qty}/${s.min} ${s.unit})`).join(", ")}.`);
     const del = D.jobs.find(j => j.steps.some(s => s.type === "delivery" && (s.status === "ready" || s.status === "working")));
     if (del) lines.push(`Bugün <b>#${del.id}</b> ${esc(dat(del.customer))} teslim edilecek, şoför ${esc(first(del.steps.find(s => s.type === "delivery").owner))}.`);
-    return `<div class="ai"><div class="ai-h"><span class="spark">!</span>Bugün dikkat gerektirenler</div><ul>${lines.slice(0, 5).map(l => `<li>${l}</li>`).join("") || "<li>Her şey yolunda, gecikme riski yok.</li>"}</ul></div>`;
+    return `<div class="ai"><div class="ai-h"><span class="spark">!</span>Bugün dikkat gerektirenler</div><ul>${lines.slice(0, 6).map(l => `<li>${l}</li>`).join("") || "<li>Her şey yolunda, gecikme riski yok.</li>"}</ul></div>`;
   }
   function bossJobs() {
     const F = [["aktif", "Aktif"], ["geciken", "Geciken"], ["sorun", "Sorunlu"], ["onay", "Onay bekleyen"], ["biten", "Biten"]];
@@ -602,7 +649,7 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
     const onTime = done.filter(j => j.doneAt <= j.due + DAY).length;
     const avgDays = done.length ? done.reduce((a, j) => a + (j.doneAt - j.createdAt), 0) / done.length / DAY : 0;
     const rev = done.reduce((a, j) => a + j.price, 0), cost = done.reduce((a, j) => a + j.cost, 0);
-    const stageAvg = METAL.map(st => { const ds = done.map(j => j.steps.find(s => s.key === st.key)).filter(s => s && s.doneAt && s.readyAt);
+    const stageAvg = flowById("metal").stages.map(st => { const ds = done.map(j => j.steps.find(s => s.key === st.key)).filter(s => s && s.doneAt && s.readyAt);
       return { name: st.name, h: ds.length ? ds.reduce((a, s) => a + (s.doneAt - s.readyAt), 0) / ds.length / HOUR : 0 }; });
     const max = Math.max(...stageAvg.map(s => s.h), 1), top = stageAvg.reduce((a, b) => b.h > a.h ? b : a, stageAvg[0]);
     return head("Workflow Reports", "Raporlar") + `<main class="gut">
@@ -613,7 +660,7 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
         ${D.mods.finance ? `<div class="kpi"><div class="v" style="font-size:1.45rem">${tl(rev)}</div><div class="l">Ciro</div></div>
         <div class="kpi ok"><div class="v">%${rev ? Math.round((rev - cost) / rev * 100) : 0}</div><div class="l">Ortalama kâr marjı</div></div>` : ""}
       </div>
-      <section><h2>Aşamalarda ortalama süre</h2><div class="bars">
+      <section><h2>Aşamalarda ortalama süre</h2><div class="sm" style="margin-top:-6px">Metal imalat akışı</div><div class="bars">
         ${stageAvg.map(s => `<div class="bar"><span>${esc(s.name)}</span><span class="tr"><i class="${s === top ? "hi" : ""}" style="width:${s.h / max * 100}%"></i></span><span class="v">${s.h.toFixed(0)} sa</span></div>`).join("")}
         <div class="sm">En uzun süren aşama: <b>${esc(top.name)}</b>. Kapasite artırmak en çok burada kazandırır.</div>
       </div></section>
@@ -629,12 +676,92 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
       <section><h2>Modüller</h2><p class="sm" style="margin:0">İşletme yalnızca ihtiyacı olanı açar. Kapatılan modül hiçbir ekranda görünmez.</p>
         <div class="list">${MODULES.map(([k, n, d]) => `<div class="set"><div><b>${n}</b><div class="sm">${d}</div></div><button class="sw" role="switch" aria-checked="${D.mods[k]}" data-mod="${k}" aria-label="${n}"></button></div>`).join("")}</div>
         <div class="sm">Yol haritasında: ${ROADMAP.map(esc).join(" · ")}</div></section>
-      <section><h2>İş akışları</h2>
-        <div class="list"><div class="set"><div style="min-width:0"><b>🏭 Metal imalat · aktif</b><div class="flowline">${[...new Set(METAL.map(s => s.g))].map(g => `<span class="s">${METAL.filter(s => s.g === g).map(s => esc(s.name.split(" ")[0])).join(" ∥ ")}</span>`).join(" → ")}</div>
-          <div class="sm" style="margin-top:4px">∥ aynı anda çalışan departmanlar</div></div></div></div></section>
+      <section><div class="sec-h"><h2>İş akışları</h2><button class="link" id="newFlow">＋ Yeni akış</button></div>
+        <p class="sm" style="margin:0">Her işletme kendi aşamalarını, sorumlularını, onaylarını ve tercihlerini kurar. ∥ aynı anda çalışan aşamalar.</p>
+        <div class="list">${D.flows.map(f => `<div class="set"><div style="min-width:0"><b>${f.ico} ${esc(f.name)}</b>${f.id === D.defaultFlow ? ` <span class="pill ok">Varsayılan</span>` : ""}
+          <div class="flowline">${flowLine(f)}</div>
+          <div class="sm" style="margin-top:4px">${D.jobs.filter(j => j.flowId === f.id && !j.done).length} aktif iş · ${f.stages.length} aşama</div></div>
+          <div style="display:grid;gap:6px"><button class="btn line" data-editflow="${f.id}">Düzenle</button>${f.id !== D.defaultFlow ? `<button class="chip" data-defflow="${f.id}">Varsayılan yap</button>` : ""}</div></div>`).join("")}</div></section>
       <section><h2>Sektör şablonları</h2><p class="sm" style="margin:0">Uygulama sektöre göre değil, işletmenin düzenine göre şekillenir. Şablon sadece başlangıç noktasıdır, her aşama düzenlenebilir.</p>
         <div class="list">${SECTORS.map(([i, n, st]) => `<div class="set"><div style="min-width:0"><b>${i} ${esc(n)}</b><div class="flowline">${st.map(s => `<span class="s">${esc(s)}</span>`).join(" → ")}</div></div><button class="btn line" data-sector="${esc(n)}">Kullan</button></div>`).join("")}</div></section>
     </main>`;
+  }
+
+  function flowLine(f) {
+    const gs = [...new Set(f.stages.map(s => s.g))];
+    return gs.map(g => `<span class="s">${f.stages.filter(s => s.g === g).map(s => esc(s.name)).join(" ∥ ")}</span>`).join(" → ");
+  }
+
+  // ----- flow editor -----
+  let draft = null;
+  const FICONS = ["🏭", "🔧", "🪑", "🚗", "🏗️", "🚚", "🧵", "🍽️", "🏠", "🧽", "📦", "⭐"];
+  function guessStage(name, i) {
+    const l = lower(name);
+    const st = { key: "s" + Math.random().toString(36).slice(2, 7), name, skill: "yonetim", type: "task", pub: name, checklist: "", sla: 8, photo: false, par: false };
+    if (/kesim/.test(l)) st.skill = "kesim";
+    else if (/kaynak/.test(l)) { st.skill = "kaynak"; st.photo = true; }
+    else if (/boya|kaplama/.test(l)) { st.skill = "boya"; st.photo = true; }
+    else if (/montaj|uygulama|onarım|dikim|hizmet|pişirme|hazırlık|üretim/.test(l)) { st.skill = /montaj|uygulama|onarım/.test(l) ? "montaj" : "yonetim"; st.photo = /montaj|uygulama|onarım/.test(l); }
+    else if (/kontrol|kalite/.test(l)) { st.skill = "kalite"; st.type = "approval"; }
+    else if (/sevkiyat|yükleme/.test(l)) { st.skill = "depo"; st.type = "pack"; }
+    else if (/paketleme|malzeme|ütü/.test(l)) st.skill = "depo";
+    else if (/teslim|nakliye|kargo/.test(l)) { st.skill = "sofor"; st.type = D.mods.fleet ? "delivery" : "task"; }
+    else if (/ölçüm|planlama|tasarım|arıza|kabul/.test(l)) st.skill = "olcum";
+    return st;
+  }
+  function openFlowEditor(id, tpl, still) {
+    if (!still) {
+      if (id) draft = JSON.parse(JSON.stringify(flowById(id)));
+      else if (tpl) { const [ico, name, st] = SECTORS.find(x => x[1] === tpl); draft = { id: null, ico, name: `${name} akışı`, sector: name, prefs: { ...DEFAULT_PREFS }, stages: st.map(guessStage) }; }
+      else draft = { id: null, ico: "⭐", name: "", sector: "", prefs: { ...DEFAULT_PREFS }, stages: [guessStage("Sipariş", 0), guessStage("Hazırlık", 1), guessStage("Teslim", 2)] };
+    }
+    const ownerOpts = st => Object.entries(DEPTS).filter(([k]) => k !== "sofor" || D.mods.fleet).map(([k, v]) => `<option value="d:${k}"${!st.fixed && st.skill === k ? " selected" : ""}>${esc(v)} · otomatik</option>`).join("")
+      + `<optgroup label="Sabit kişi">${PEOPLE.filter(p => p.role !== "patron").map(p => `<option value="p:${p.id}"${st.fixed === p.id ? " selected" : ""}>👤 ${esc(p.name)}</option>`).join("")}</optgroup>`;
+    const rows = draft.stages.map((st, i) => `<div class="ed-row${st.par && i ? " par" : ""}">
+      <div class="ed-top"><span class="ed-n">${i + 1}</span><input data-i="${i}" data-f="name" value="${esc(st.name)}" placeholder="Aşama adı" aria-label="${i + 1}. aşamanın adı">
+        <button class="ed-b" data-mv="${i}:-1" aria-label="Yukarı"${i === 0 ? " disabled" : ""}>↑</button><button class="ed-b" data-mv="${i}:1" aria-label="Aşağı"${i === draft.stages.length - 1 ? " disabled" : ""}>↓</button>
+        <button class="ed-b del" data-del="${i}" aria-label="Sil"${draft.stages.length <= 1 ? " disabled" : ""}>✕</button></div>
+      <div class="ed-two"><label class="sm">Sorumlu<select data-i="${i}" data-f="owner">${ownerOpts(st)}</select></label>
+        <label class="sm">Tip<select data-i="${i}" data-f="type">${Object.entries(TYPES).filter(([k]) => k !== "delivery" || D.mods.fleet).map(([k, v]) => `<option value="${k}"${st.type === k ? " selected" : ""}>${v}</option>`).join("")}</select></label></div>
+      <div class="ed-two"><label class="sm">Hedef süre (saat)<input data-i="${i}" data-f="sla" type="number" min="1" max="240" value="${st.sla || ""}" inputmode="numeric"></label>
+        <label class="sm">Müşteriye görünen ad<input data-i="${i}" data-f="pub" value="${esc(st.pub || "")}" placeholder="${esc(st.name)}"></label></div>
+      <div class="ed-checks">${i ? `<label><input type="checkbox" data-i="${i}" data-f="par"${st.par ? " checked" : ""}> Öncekiyle aynı anda (paralel)</label>` : ""}
+        <label><input type="checkbox" data-i="${i}" data-f="photo"${st.photo ? " checked" : ""}> Bitirirken fotoğraf zorunlu</label></div>
+    </div>`).join("");
+    sheet(`<div class="stack">
+      <div><div class="eyebrow">${draft.id ? "Akışı düzenle" : draft.sector ? `${esc(draft.sector)} şablonundan` : "Yeni akış"}</div><h2 style="font-size:1.4rem">${draft.id ? esc(draft.name) : "Akışını kur"}</h2>
+        <div class="sm">Aşamaları işletmenin gerçek sırasına diz. Değişiklikler yeni açılan işlere uygulanır, devam eden işler bozulmaz.</div></div>
+      <div class="ed-name"><select id="edIco" aria-label="Simge">${FICONS.map(x => `<option${x === draft.ico ? " selected" : ""}>${x}</option>`).join("")}</select><input class="in" id="edName" value="${esc(draft.name)}" placeholder="Akışın adı (ör: Kapı üretimi)" aria-label="Akışın adı"></div>
+      <section><h2>Aşamalar</h2><div class="ed-list">${rows}</div><button class="btn ghost block" id="edAdd">＋ Aşama ekle</button></section>
+      <section><h2>Akış tercihleri</h2><div class="list">${PREF_TEXT.filter(([k]) => (k !== "signReq" || D.mods.fleet) && (!k.startsWith("cust") || D.mods.customers)).map(([k, n, dsc]) => `<div class="set"><div><b>${n}</b><div class="sm">${dsc}</div></div><button class="sw" role="switch" aria-checked="${!!draft.prefs[k]}" data-dpref="${k}" aria-label="${n}"></button></div>`).join("")}</div></section>
+      <div class="sm" id="edMsg" style="color:var(--bad)"></div>
+      <div class="grid2"><button class="btn ghost" id="edCancel">Vazgeç</button><button class="btn ok" id="edSave">Kaydet</button></div>
+    </div>`, () => {
+      layer.querySelectorAll("[data-f]").forEach(el => el.addEventListener(el.type === "checkbox" || el.tagName === "SELECT" ? "change" : "input", () => {
+        const st = draft.stages[+el.dataset.i], f = el.dataset.f;
+        if (f === "owner") { const [kind, v] = el.value.split(":"); if (kind === "p") { st.fixed = v; st.skill = (person(v).skills || ["yonetim"])[0]; } else { delete st.fixed; st.skill = v; } }
+        else if (f === "par" || f === "photo") { st[f] = el.checked; if (f === "par") openFlowEditor(id, tpl, true); }
+        else if (f === "sla") st.sla = Math.max(1, +el.value || 0) || null;
+        else st[f] = el.value;
+      }));
+      $("#edIco").onchange = e => draft.ico = e.target.value;
+      $("#edName").oninput = e => draft.name = e.target.value;
+      layer.querySelectorAll("[data-dpref]").forEach(b => b.onclick = () => { const k = b.dataset.dpref; draft.prefs[k] = !draft.prefs[k]; b.setAttribute("aria-checked", draft.prefs[k]); });
+      layer.querySelectorAll("[data-mv]").forEach(b => b.onclick = () => { const [i, d] = b.dataset.mv.split(":").map(Number), a = draft.stages; [a[i], a[i + d]] = [a[i + d], a[i]]; a[0].par = false; openFlowEditor(id, tpl, true); });
+      layer.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { draft.stages.splice(+b.dataset.del, 1); draft.stages[0].par = false; openFlowEditor(id, tpl, true); });
+      $("#edAdd").onclick = () => { draft.stages.push(guessStage("", draft.stages.length)); openFlowEditor(id, tpl, true); const ins = layer.querySelectorAll('[data-f="name"]'); ins[ins.length - 1].focus(); };
+      $("#edCancel").onclick = closeSheet;
+      $("#edSave").onclick = () => {
+        draft.name = draft.name.trim();
+        if (!draft.name) { $("#edMsg").textContent = "Akışa bir ad ver."; $("#edName").focus(); return; }
+        if (draft.stages.some(x => !x.name.trim())) { $("#edMsg").textContent = "Her aşamanın bir adı olmalı."; return; }
+        let g = -1; draft.stages.forEach((x, i) => { x.name = x.name.trim(); if (!x.pub) x.pub = x.name; if (!i) x.par = false; g += x.par ? 0 : 1; x.g = g; if (!x.checklist) x.checklist = x.name; });
+        const keys = new Set(); draft.stages.forEach(x => { while (keys.has(x.key)) x.key += "x"; keys.add(x.key); });
+        if (draft.id) D.flows[D.flows.findIndex(f => f.id === draft.id)] = draft; else { draft.id = "f" + Date.now().toString(36); D.flows.push(draft); }
+        save(); closeSheet(); render();
+        toast(draft.ico, `${draft.name} kaydedildi`, `${draft.stages.length} aşama · yeni işlerde kullanılabilir`);
+      };
+    }, still);
   }
 
   // ----- job detail (boss / foreman) -----
@@ -646,7 +773,7 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
       const gs = j.steps.filter(s => s.g === g), all = gs.every(s => s.status === "done"), blk = gs.some(s => s.status === "blocked"), act = gs.some(s => !["done", "locked"].includes(s.status));
       return `<div class="gstep ${all ? "done" : blk ? "blk" : act ? "cur" : ""}"><span class="dotn">${all ? "✓" : gi + 1}</span><div class="par">
         ${gs.length > 1 ? `<span class="ptag">∥ Paralel · ${gs.length} departman aynı anda</span>` : ""}
-        ${gs.map(s => `<div class="pcard"><div class="h"><span>${esc(s.name)}</span>${stepPill(s)}</div>
+        ${gs.map(s => `<div class="pcard"><div class="h"><span>${esc(s.name)}</span>${stepPill(s)}</div>${slaPill(j, s)}
           <div class="sm" style="display:flex;align-items:center;gap:6px">${avatar(s.owner, 20)} ${esc(person(s.owner).name)}${s.doneAt && s.status === "done" ? ` · ${esc(when(s.doneAt))}` : s.status !== "locked" && s.readyAt ? ` · ${ago(s.readyAt)}dır bu aşamada` : ""}</div>
           ${s.issue && s.status === "blocked" ? `<div class="issue"><b>${esc(s.issue.type)}</b> · ${esc(s.issue.note)}</div>` : ""}
           ${s.photos.length || s.notes.length ? `<div class="attach">${s.photos.map(p => `<img src="${p}" alt="İş fotoğrafı">`).join("")}${s.notes.map(n => `<span class="vn">${n.kind === "voice" ? "🎙 " + n.text : "📝 " + esc(n.text)}</span>`).join("")}</div>` : ""}
@@ -658,7 +785,7 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
         </div>`).join("")}</div></div>`;
     }).join("");
     sheet(`<div class="stack">
-      <div><div class="eyebrow">İş emri #${j.id}</div><h2 style="font-size:1.45rem">${esc(j.title)}</h2>
+      <div><div class="eyebrow">İş emri #${j.id} · ${esc(flowOf(j).ico)} ${esc(flowOf(j).name)}</div><h2 style="font-size:1.45rem">${esc(j.title)}</h2>
         <div class="sm">${esc(j.customer)} · ${esc(j.qty)} · Termin ${esc(when(j.due))}</div>
         <div class="chips" style="margin-top:8px"><span class="pill ${jobState(j).cls}">${esc(jobState(j).label)}</span>${isLate(j) ? `<span class="pill bad">Gecikme mevcut</span>` : ""}<span class="pill mute">%${pct(j)}</span></div></div>
       ${D.mods.finance && canManage ? `<div class="grid3"><div class="kpi"><div class="l">Tutar</div><div class="num" style="font-weight:700">${tl(j.price)}</div></div><div class="kpi"><div class="l">Tahmini maliyet</div><div class="num" style="font-weight:700">${tl(j.cost)}</div></div><div class="kpi"><div class="l">Kâr</div><div class="num" style="font-weight:700;color:var(--ok)">${tl(j.price - j.cost)}</div></div></div>` : ""}
@@ -696,6 +823,7 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
     const dv = `${dueDef.getFullYear()}-${pad(dueDef.getMonth() + 1)}-${pad(dueDef.getDate())}`;
     sheet(`<div class="stack">
       <div><div class="eyebrow">Yeni iş emri #${D.nextId}</div><h2 style="font-size:1.4rem">Yeni iş oluştur</h2><div class="sm">İş, aşamalara bölünüp sorumlulara dağıtılır. İlk aşama bitince sıradakine otomatik bildirim gider.</div></div>
+      <div><label class="sm" for="nFlow"><b>İş akışı</b></label><select class="in" id="nFlow">${D.flows.map(f => `<option value="${f.id}"${f.id === D.defaultFlow ? " selected" : ""}>${f.ico} ${esc(f.name)} · ${f.stages.length} aşama</option>`).join("")}</select></div>
       <div class="grid2" style="grid-template-columns:minmax(0,2fr) minmax(0,1fr)">
         <div><label class="sm" for="nTitle"><b>Ürün / iş</b></label><input class="in" id="nTitle" placeholder="Ör: Demir kapı" autocomplete="off"></div>
         <div><label class="sm" for="nQty"><b>Miktar</b></label><input class="in" id="nQty" placeholder="50 adet" autocomplete="off"></div>
@@ -708,9 +836,8 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
       </div>
       ${D.mods.fleet ? `<div><label class="sm" for="nAddr"><b>Teslimat adresi</b></label><input class="in" id="nAddr" placeholder="Mahalle, cadde, ilçe" autocomplete="off"></div>` : ""}
       <label class="ck" style="display:flex;gap:10px;align-items:center;font-weight:600"><input type="checkbox" id="nUrgent" style="width:20px;height:20px;accent-color:var(--accent)"> Acil iş</label>
-      <div class="plan"><div class="plan-h"><b>Aşamalar ve sorumlular</b><div class="sm">En az yüklü kişi seçili geldi, istersen değiştir.</div></div>
-        <div>${METAL.map(s => `<div class="pl"><span class="n">${s.g + 1}</span><div style="min-width:0"><b style="font-size:.9rem">${esc(s.name)}</b>${METAL.filter(x => x.g === s.g).length > 1 ? ` <span class="ptag">∥ paralel</span>` : ""}${s.type === "approval" ? ` <span class="ptag" style="color:var(--warn)">onay</span>` : ""}</div>
-          <select data-owner="${s.key}" aria-label="${esc(s.name)} sorumlusu">${PEOPLE.filter(p => ((p.skills || []).includes(s.skill) || p.role === "ustabasi") && (s.skill !== "sofor" || D.mods.fleet)).map(p => `<option value="${p.id}"${p.id === leastLoaded(s.skill) ? " selected" : ""}>${esc(first(p.id))} · ${loadOf(p.id)} açık</option>`).join("")}</select></div>`).join("")}</div>
+      <div class="plan"><div class="plan-h"><b>Aşamalar ve sorumlular</b><div class="sm">Otomatik aşamalarda en az yüklü kişi seçili geldi, istersen değiştir.</div></div>
+        <div id="nStages"></div>
         <div id="nWarn"></div>
       </div>
       <div class="sm" id="nMsg" style="color:var(--bad)"></div>
@@ -719,10 +846,14 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
     </div>`, () => {
       $("#closeS").onclick = closeSheet;
       setTimeout(() => $("#nTitle").focus(), 60);
+      const drawStages = () => { const f = flowById($("#nFlow").value);
+        $("#nStages").innerHTML = f.stages.map(s => `<div class="pl"><span class="n">${s.g + 1}</span><div style="min-width:0"><b style="font-size:.9rem">${esc(s.name)}</b>${f.stages.filter(x => x.g === s.g).length > 1 ? ` <span class="ptag">∥ paralel</span>` : ""}${s.type === "approval" ? ` <span class="ptag" style="color:var(--warn)">onay</span>` : ""}${s.photo ? ` <span class="ptag" style="color:var(--ink-2)">📷</span>` : ""}</div>
+          <select data-owner="${s.key}" aria-label="${esc(s.name)} sorumlusu">${PEOPLE.filter(p => ((p.skills || []).includes(s.skill) || p.role === "ustabasi" || p.id === s.fixed)).map(p => `<option value="${p.id}"${p.id === (s.fixed || leastLoaded(s.skill)) ? " selected" : ""}>${esc(first(p.id))} · ${loadOf(p.id)} açık</option>`).join("")}</select></div>`).join(""); };
+      drawStages(); $("#nFlow").onchange = () => { drawStages(); warn(); };
       const warn = () => {
         const out = [], dvv = $("#nDue").value;
-        if (dvv) { const [y, m, d] = dvv.split("-").map(Number), due = new Date(y, m - 1, d, 17).getTime(), left = (due - Date.now()) / DAY, need = 7 * .6;
-          if (left < need) out.push(`Termin sıkı: 7 aşama için genelde ${Math.ceil(need)} gün gerekiyor, ${Math.max(0, left).toFixed(1).replace(".", ",")} gün var.`); }
+        if (dvv) { const [y, m, d] = dvv.split("-").map(Number), due = new Date(y, m - 1, d, 17).getTime(), left = (due - Date.now()) / DAY, fl = flowById($("#nFlow").value), need = fl.stages.reduce((a, x) => a + (x.sla || 8), 0) / 24 * .8, ng = new Set(fl.stages.map(x => x.g)).size;
+          if (left < need) out.push(`Termin sıkı: ${ng} aşamanın hedef süreleri toplamı yaklaşık ${Math.ceil(need)} gün, ${Math.max(0, left).toFixed(1).replace(".", ",")} gün var.`); }
         const n = parseInt($("#nQty").value) || 0, k = D.stock.find(s => s.name === "Kilit takımı");
         if (D.mods.stock && /kapı/.test(lower($("#nTitle").value)) && k && n > k.qty) out.push(`Stok: ${n} kilit takımı gerekiyor, depoda ${k.qty} var.`);
         $("#nWarn").innerHTML = out.length ? `<div class="note"><b>Dikkat</b>${out.map(x => `<span>${esc(x)}</span>`).join("")}</div>` : "";
@@ -735,10 +866,12 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
         const owners = {}; layer.querySelectorAll("[data-owner]").forEach(x => owners[x.dataset.owner] = x.value);
         const [y, m, d] = dvv.split("-").map(Number);
         const price = D.mods.finance ? +($("#nPrice").value || "0").replace(/\D/g, "") : 0;
-        const j = mkJob({ id: D.nextId++, title, customer, qty: $("#nQty").value.trim() || "1 adet", due: new Date(y, m - 1, d, 17).getTime(), at: 0, waiting: 0,
+        const j = mkJob({ flowId: $("#nFlow").value, id: D.nextId++, title, customer, qty: $("#nQty").value.trim() || "1 adet", due: new Date(y, m - 1, d, 17).getTime(), at: 0, waiting: 0,
           price, cost: Math.round(price * .65), createdAt: Date.now(), owners, urgent: $("#nUrgent").checked, address: D.mods.fleet ? $("#nAddr").value.trim() : "" });
         if (!D.mods.fleet) { j.steps = j.steps.filter(s => s.type !== "delivery"); }
-        warn().filter(x => x.startsWith("Stok")).forEach(x => j.steps.find(s => s.key === "malzeme").notes.push({ kind: "text", text: x, by: "selim", at: Date.now() }));
+        const mz = j.steps.find(s => s.key === "malzeme") || j.steps[0];
+        warn().filter(x => x.startsWith("Stok")).forEach(x => mz.notes.push({ kind: "text", text: x, by: "selim", at: Date.now() }));
+        j.steps.filter(s => s.status === "ready").forEach(s => s.readyAt = Date.now());
         D.jobs.push(j);
         const g0 = j.steps.filter(s => s.g === 0);
         notify(`Selim yeni iş açtı: #${j.id} ${title} (${customer}) · ${g0.map(s => first(s.owner)).join(" ve ")} bilgilendirildi`, "🆕", g0.map(s => s.owner));
@@ -800,7 +933,7 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
         <button class="tool" data-issue="${k}"><span class="i">⚠️</span>Sorun bildir</button></div>`;
     let body = "";
     if (s.status === "blocked") body = `<div class="issue"><b>${esc(s.issue.type)}</b> · ${esc(s.issue.note)}<div class="sm">Ustabaşı ve patron bilgilendirildi. Çözülünce bildirim gelecek.</div></div>`;
-    else if (s.type === "approval") body = `${tools}<div class="grid2"><button class="btn ok xl" data-approve="${k}">Onayla ✓</button><button class="btn bad xl" data-back="${k}">Geri gönder</button></div>`;
+    else if (s.type === "approval") body = `${tools}<div class="${flowOf(j).prefs.sendBack ? "grid2" : ""}"><button class="btn ok xl${flowOf(j).prefs.sendBack ? "" : " block"}" data-approve="${k}">Onayla ✓</button>${flowOf(j).prefs.sendBack ? `<button class="btn bad xl" data-back="${k}">Geri gönder</button>` : ""}</div>`;
     else if (s.type === "pack") {
       const items = s.items || [{ name: j.title, code: `UR-${j.id}`, n: parseInt(j.qty) || 1, scanned: false }]; s.items = items;
       const doneN = items.filter(i => i.scanned).length;
@@ -809,10 +942,10 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
         <div class="sm">Gerçek uygulamada kamera ile okutulur. Burada kodu yaz ya da satırdaki “Okut”a dokun.</div>
         ${D.mods.fleet ? `<select class="in" data-vehicle="${k}" aria-label="Yüklenecek araç"><option value="">Yüklenecek aracı seç</option>${PEOPLE.filter(p => p.role === "sofor").map(p => `<option value="${p.id}"${s.vehicle === p.id ? " selected" : ""}>${esc(p.vehicle)} · ${esc(first(p.id))}</option>`).join("")}</select>` : ""}
         <button class="btn ok xl block" data-done="${k}"${doneN < items.length || (D.mods.fleet && !s.vehicle) ? " disabled" : ""}>Araca yüklendi ✓ (${doneN}/${items.length})</button>`;
-    } else if (s.status === "working") body = `<div class="timer" data-timer="${s.startedAt}">${clock(s.startedAt)}</div>${tools}<button class="btn ok xl block" data-done="${k}">İşi tamamla ✓</button>`;
+    } else if (s.status === "working") body = `<div class="timer" data-timer="${s.startedAt}">${clock(s.startedAt)}</div>${tools}<button class="btn ok xl block" data-done="${k}"${s.photo && !s.photos.length ? " disabled" : ""}>İşi tamamla ✓</button>${s.photo && !s.photos.length ? `<div class="sm" style="text-align:center">Bu aşamada bitirmeden önce fotoğraf eklemen gerekiyor.</div>` : ""}`;
     else body = `<button class="btn xl block" data-start="${k}">▶ İşe başla</button>${tools}`;
     return `<article class="task ${s.status}">
-      <div class="task-top"><span class="wo">İŞ EMRİ #${j.id}</span>${status}</div>
+      <div class="task-top"><span class="wo">İŞ EMRİ #${j.id}</span>${status}</div>${slaPill(j, s) ? `<div>${slaPill(j, s)}</div>` : ""}
       <div><h3>${esc(s.detail ? s.name.split(" ")[0] + ": " + j.title : `${s.name} · ${j.title}`)}</h3><p style="margin-top:6px">${esc(s.detail || s.checklist)}</p></div>
       ${facts}
       ${s.file ? `<button class="file" data-file="${esc(s.file)}">📄 ${esc(s.file)}<span class="sm" style="margin-left:auto">Aç</span></button>` : ""}
@@ -895,7 +1028,7 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
       ${s.photos.length ? `<div class="attach">${s.photos.map(p => `<img src="${p}" alt="Teslim fotoğrafı">`).join("")}</div>` : ""}
       <div><div class="sec-h"><b>Müşteri imzası</b><button class="link" id="sigClear">Temizle</button></div><canvas class="sig" data-sig="${k}" aria-label="İmza alanı, parmakla imzalayın"></canvas></div>
       <button class="btn ok xl block" data-deliver="${k}">Teslim edildi ✓</button>
-      <div class="sm">Teslim için imza gerekli. Fotoğraf isteğe bağlı ama önerilir.</div>`;
+      <div class="sm">${flowOf(j).prefs.signReq ? "Teslim için imza gerekli." : "İmza isteğe bağlı."} Fotoğraf önerilir.</div>`;
     return `<article class="task ${s.status === "working" ? "working" : ""}">
       <div class="task-top"><span class="wo">İŞ EMRİ #${j.id}</span>${s.status === "working" ? `<span class="pill acc">Yolda · ${ago(s.startedAt)}</span>` : `<span class="pill warn">Yüklendi, çıkış bekliyor</span>`}</div>
       <div><h3>${esc(j.customer)}</h3><p style="margin-top:4px">📍 ${esc(addr)}</p></div>
@@ -918,19 +1051,21 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
   function renderCustomer(name) {
     setNav(null, false);
     const jobs = D.jobs.filter(j => j.customer === name).sort((a, b) => a.done - b.done || a.due - b.due);
-    const PUB = ["Sipariş alındı", "Planlama", "Üretim", "Kalite kontrol", "Teslimat"];
-    const stageIdx = j => { if (j.done) return 5; const g = curGroup(j); return g === 0 ? 1 : g <= 3 ? 2 : g === 4 ? 3 : 4; };
+    const pubsOf = j => ["Sipariş alındı", ...[...new Set(j.steps.slice().sort((a, b) => a.g - b.g).map(x => x.pub || x.name))]];
+    const stageIdx = j => { const P = pubsOf(j); if (j.done) return P.length; const act = activeSteps(j)[0]; return act ? P.indexOf(act.pub || act.name) : 0; };
+    const visible = jobs.filter(j => flowOf(j).prefs.custVisible);
     $("#app").innerHTML = head("Müşteri takip ekranı", esc(name)) + `<main class="gut">
       <p class="sm" style="margin:0">Demirtaş Metal'in sizinle paylaştığı sipariş durumları. İç notlar, maliyetler ve çalışan bilgileri gösterilmez.</p>
-      ${jobs.map(j => { const si = stageIdx(j), del = j.steps.find(s => s.type === "delivery");
+      ${visible.map(j => { const PUB = pubsOf(j), si = stageIdx(j), del = j.steps.find(s => s.type === "delivery") || { status: "locked" };
         const eta = j.done ? `Teslim edildi · ${when(j.doneAt)}` : del.status === "working" ? `Yolda · tahmini varış ${hm(Date.now() + 40 * MIN)}` : `Tahmini teslim: ${when(j.due)}`;
-        return `<div class="track"><div class="task-top"><span class="wo">SİPARİŞ #${j.id}</span>${j.done ? `<span class="pill ok">Teslim edildi</span>` : del.status === "working" ? `<span class="pill acc">Yolda</span>` : `<span class="pill info">${esc(PUB[Math.min(si, 4)])}</span>`}</div>
+        return `<div class="track"><div class="task-top"><span class="wo">SİPARİŞ #${j.id}</span>${j.done ? `<span class="pill ok">Teslim edildi</span>` : del.status === "working" ? `<span class="pill acc">Yolda</span>` : `<span class="pill info">${esc(PUB[Math.min(si, PUB.length - 1)])}</span>`}</div>
           <div><h2 style="font-size:1.25rem">${esc(j.title)}</h2><div class="sm">${esc(j.qty)}</div></div>
           <div class="eta">${esc(eta)}</div>
-          <div class="tsteps">${PUB.map((n, i) => `<div class="ts ${i < si ? "on" : i === si ? "cur" : ""}"><i></i>${esc(n)}</div>`).join("")}</div>
+          <div class="tsteps" style="grid-template-columns:repeat(${PUB.length},minmax(0,1fr))">${PUB.map((n, i) => `<div class="ts ${i < si ? "on" : i === si ? "cur" : ""}"><i></i>${esc(n)}</div>`).join("")}</div>
           ${del.status === "working" ? `<div class="note info"><b>🚚 Aracınız yolda</b><span>Teslimat aracı yola çıktı. Konum yalnızca teslimat süresince paylaşılır.</span></div>` : ""}
           ${j.done && del.signature ? `<div class="sm">Teslim belgesi imzalı olarak kayıtlı.</div>` : ""}
-        </div>`; }).join("") || `<div class="empty">Sipariş yok.</div>`}
+        </div>`; }).join("") || `<div class="empty">Paylaşılan sipariş yok.</div>`}
+      ${jobs.length > visible.length ? `<div class="sm">${jobs.length - visible.length} sipariş, işletmenin tercihiyle bu ekranda gösterilmiyor.</div>` : ""}
     </main>`;
   }
 
@@ -960,7 +1095,10 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
       sheet(`<div class="stack"><h2>Bildirimler</h2>${feedHtml(mine.length ? mine : [])}<button class="btn ghost block" id="closeS">Kapat</button></div>`, () => $("#closeS").onclick = closeSheet); return; }
     if (d.mod) { D.mods[d.mod] = !D.mods[d.mod]; save(); render(); toast("⚙", `${MODULES.find(m => m[0] === d.mod)[1]} ${D.mods[d.mod] ? "açıldı" : "kapatıldı"}`, D.mods[d.mod] ? "İlgili ekranlar görünür oldu" : "İlgili ekranlar gizlendi"); return; }
     if (d.priv) { D.privacy[d.priv] = !D.privacy[d.priv]; save(); render(); return; }
-    if (d.sector) { toast("🧩", `${d.sector} şablonu`, "Gerçek uygulamada aşamalar, roller ve formlar bu şablonla kurulur, sonra serbestçe düzenlenir."); return; }
+    if (d.sector) { openFlowEditor(null, d.sector); return; }
+    if (d.editflow) { openFlowEditor(d.editflow); return; }
+    if (d.defflow) { D.defaultFlow = d.defflow; save(); render(); toast("⭐", "Varsayılan akış değişti", `${flowById(d.defflow).name} yeni işlerde önce seçili gelir`); return; }
+    if (el.id === "newFlow") { openFlowEditor(null); return; }
     if (d.reassign) { const [a, b] = d.reassign.split(":"); openReassign(+a, b); return; }
     if (d.resolve) { const { j, s } = parseK(d.resolve); s.status = "ready"; s.readyAt = Date.now(); s.log.push({ at: Date.now(), by: me, act: "resolved", note: s.issue?.note }); delete s.issue;
       notify(`${first(me)} #${j.id} sorununu çözdü, ${first(s.owner)} devam edebilir`, "🛠", [s.owner]); save(); render(); if (layer.innerHTML) openJob(j.id, true); toast("🛠", "Sorun çözüldü", `${first(s.owner)} bilgilendirildi`); return; }
@@ -982,8 +1120,8 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
       it.scanned = true; save(); render(); toast("▣", "Okundu", `${it.name} · ${it.n} adet`); return; }
     if (d.go) { const { j, s } = parseK(d.go); s.status = "working"; s.startedAt = Date.now(); notify(`${first(me)} #${j.id} için yola çıktı · müşteri bilgilendirildi`, "🚚", ["selim"]); save(); render(); toast("🚚", "İyi yolculuklar", `${j.customer} takip ekranında “Yolda” görünüyor`); return; }
     if (d.deliver) { const { j, s } = parseK(d.deliver), c = document.querySelector(`[data-sig="${d.deliver}"]`);
-      if (!c || !c.dataset.inked) { toast("✍️", "İmza gerekli", "Müşteriye imza alanına imzalatın"); return; }
-      s.signature = c.toDataURL("image/png"); afterComplete(j, s, completeStep(j, s, me)); return; }
+      if (flowOf(j).prefs.signReq && (!c || !c.dataset.inked)) { toast("✍️", "İmza gerekli", "Müşteriye imza alanına imzalatın"); return; }
+      if (c && c.dataset.inked) s.signature = c.toDataURL("image/png"); afterComplete(j, s, completeStep(j, s, me)); return; }
   });
 
   render();
