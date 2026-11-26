@@ -691,7 +691,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
       adds: ["Tutar ve maliyet alanları", "İş başına kâr", "Tutara göre kurallar"], where: ["Yeni iş formu", "İş detayı", "Raporlar"] },
     { id: "customers", ico: "user", cat: "Müşteri", name: "Müşteri takip", desc: "Müşteriye kendi siparişini izleyebileceği sade bir ekran ve otomatik mesaj.",
       adds: ["Müşteri takip ekranı", "Aşama değişince müşteri mesajı", "Müşteriye görünen aşama adları"], where: ["Müşteri ekranı", "Akış tercihleri"] },
-    { id: "forms", ico: "form", cat: "Kalite", name: "Özel formlar", desc: "Aşamalara ölçü, kontrol ve teslim formları ekler. Tolerans dışı değer anında yakalanır, her iş kayıt altında kalır.",
+    { id: "forms", ico: "form", cat: "Kalite", name: "Özel formlar", desc: "İstersen bir aşamaya kendi formunu eklersin: ölçü, evet/hayır, seçim, not. Gerekmiyorsa hiç görünmez.",
       adds: ["Aşama başına form: ölçü, evet/hayır, seçim, not", "Tolerans kontrolü ve sapma uyarısı", "Zorunlu alan dolmadan aşama kapanmaz", "Form kayıtları ve Excel’e (CSV) aktarma"], where: ["Akış düzenleyici", "Görev kartı", "İş detayı", "Raporlar"] },
     { id: "reports", ico: "chart", cat: "Yönetim", name: "Performans ve raporlar", desc: "Zamanında teslim oranı, ortalama iş süresi ve aşama süreleri.",
       adds: ["Raporlar sekmesi", "Aşama süre analizi", "Tamamlanan iş tablosu"], where: ["Patron alt menüsü"] },
@@ -708,32 +708,6 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
 
   // ---------- Workflow Forms: fields a stage must record before it can close ----------
   const FKINDS = { num: "Ölçü / sayı", yesno: "Evet / Hayır", choice: "Seçim", text: "Not / metin" };
-  const FF = (id, label, kind, o = {}) => ({ id, label, kind, req: true, ...o });
-  const FORMS_SEED = {
-    olcum: [FF("olc-w", "Genişlik", "num", { unit: "mm" }), FF("olc-h", "Yükseklik", "num", { unit: "mm" }), FF("olc-yer", "Montaj yeri", "choice", { opts: ["İç mekân", "Dış mekân"] }), FF("olc-n", "Ölçü notu", "text", { req: false })],
-    kaynak: [FF("kay-y", "Kaynak yöntemi", "choice", { opts: ["MIG/MAG", "TIG", "Elektrot"] }), FF("kay-c", "Dikişler çapaksız mı?", "yesno", { failNo: true })],
-    boya: [FF("boy-k", "Boya kalınlığı", "num", { unit: "mikron", min: 60, max: 120 }), FF("boy-r", "RAL kodu", "text")],
-    kalite: [FF("kal-s", "Ölçü sapması", "num", { unit: "mm", min: -2, max: 2 }), FF("kal-k", "Kaynak dikişi sağlam mı?", "yesno", { failNo: true }),
-      FF("kal-b", "Boya yüzeyi", "choice", { opts: ["Kusursuz", "Küçük rötuş", "Kabul edilemez"], bad: ["Kabul edilemez"] }), FF("kal-n", "Kontrol notu", "text", { req: false })] };
-  const FORM_SAMPLE = {
-    olcum: j => ({ "olc-w": String(1800 + (j.id % 7) * 50), "olc-h": String(2100 + (j.id % 5) * 20), "olc-yer": j.id % 2 ? "Dış mekân" : "İç mekân" }),
-    kaynak: j => ({ "kay-y": j.id % 2 ? "MIG/MAG" : "TIG", "kay-c": "Evet" }),
-    boya: j => ({ "boy-k": String(j.id === 1040 ? 54 : 72 + (j.id % 9) * 4), "boy-r": "RAL 7016" }),
-    kalite: j => ({ "kal-s": { 1038: "0,8", 1039: "2,6", 1040: "-1,2", 1041: "1,1" }[j.id] || "0,5", "kal-k": "Evet", "kal-b": j.id === 1041 ? "Küçük rötuş" : "Kusursuz",
-      ...(j.id === 1039 ? { "kal-n": "Sol ayak 2,6 mm uzun, taşlanarak düzeltildi" } : {}) }) };
-  function seedForms(d) {
-    const cp = x => JSON.parse(JSON.stringify(x));
-    d.flows.filter(f => f.id === "metal").forEach(f => {
-      f.stages.forEach(st => { if (FORMS_SEED[st.key] && !st.form) st.form = cp(FORMS_SEED[st.key]); });
-      f.rules = f.rules || []; if (!f.rules.some(r => r.cond === "form_fail")) f.rules.push({ id: "r6", cond: "form_fail", act: "notify_patron", on: true });
-    });
-    d.jobs.filter(j => j.flowId === "metal").forEach(j => j.steps.forEach(s => {
-      if (!FORMS_SEED[s.key] || s.form) return; s.form = cp(FORMS_SEED[s.key]);
-      if (s.status === "done") { s.vals = FORM_SAMPLE[s.key](j); s.formAt = s.doneAt; s.formBy = s.owner; }
-    }));
-    const b = d.jobs.find(j => j.id === 1045)?.steps.find(s => s.key === "boya"); if (b && b.status === "working" && !b.vals) b.vals = { "boy-r": "RAL 9005" };
-    d.formsV = 1;
-  }
   const fFilled = v => v != null && String(v).trim() !== "";
   const hasLim = x => x != null && x !== "" && !isNaN(+x);
   const fNum = v => parseFloat(String(v).replace(",", "."));
@@ -904,16 +878,16 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
       { name: "Profil 40×40 mm", qty: 38, min: 60, unit: "boy" }, { name: "Sac levha 20 mm", qty: 0, min: 10, unit: "plaka" },
       { name: "Kilit takımı", qty: 30, min: 20, unit: "adet" }, { name: "Elektrostatik boya · RAL 7016", qty: 42, min: 25, unit: "kg" },
       { name: "Menteşe", qty: 220, min: 80, unit: "adet" } ];
-    const out = { people: JSON.parse(JSON.stringify(PEOPLE_SEED)), depts: { ...DEPTS_SEED }, flows, defaultFlow: "metal", jobs, feed, stock, nextId: 1050, mods: { chat: true, planning: true, rules: true, fleet: true, stock: true, scan: true, finance: true, customers: true, forms: true, reports: true },
+    const out = { people: JSON.parse(JSON.stringify(PEOPLE_SEED)), depts: { ...DEPTS_SEED }, flows, defaultFlow: "metal", jobs, feed, stock, nextId: 1050, mods: { chat: true, planning: true, rules: true, fleet: true, stock: true, scan: true, finance: true, customers: true, reports: true },
       privacy: { loc: true, perf: true, quiet: true } };
-    seedForms(out); return out;
+    return out;
   }
 
   let D;
   try { D = JSON.parse(localStorage.getItem("wf-proto-4")); } catch (e) {}
   if (!D || !D.jobs || !D.flows || !D.people) D = seed();
-  D.mods = { chat: true, planning: true, rules: true, scan: true, reports: true, forms: true, ...D.mods };
-  if (!D.formsV) seedForms(D);
+  D.mods = { chat: true, planning: true, rules: true, scan: true, reports: true, ...D.mods };
+  if (D.formsV) { delete D.formsV; D.mods.forms = false; }   // forms are opt-in: earlier preview turned them on with sample data
   if (!D.chat) D.chat = seedChat();
   const syncPeople = () => { PEOPLE.length = 0; PEOPLE.push(...D.people); D.people = PEOPLE; };
   syncPeople();
@@ -1692,10 +1666,9 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
   function quickStage(name) {
     const l = lower(name), st = { key: newKey(), name, skill: "yonetim", type: "task", pub: name, checklist: [], sla: 8, photo: false, par: false };
     if (/onay/.test(l)) { st.type = "approval"; st.skill = "patron"; st.sla = 4; }
-    else if (/ölçüm/.test(l)) { st.skill = "olcum"; st.form = [{ id: newKey(), label: "Genişlik", kind: "num", unit: "mm", req: true }, { id: newKey(), label: "Yükseklik", kind: "num", unit: "mm", req: true }]; }
+    else if (/ölçüm/.test(l)) st.skill = "olcum";
     else if (/montaj/.test(l)) { st.skill = "montaj"; st.photo = true; }
-    else if (/kalite|kontrol/.test(l)) { st.skill = "kalite"; st.type = "approval"; st.sla = 4;
-      st.form = [{ id: newKey(), label: "Ölçüler çizime uygun mu?", kind: "yesno", failNo: true, req: true }, { id: newKey(), label: "Yüzey", kind: "choice", opts: ["Kusursuz", "Rötuş gerekli", "Kabul edilemez"], bad: ["Kabul edilemez"], req: true }, { id: newKey(), label: "Kontrol notu", kind: "text", req: false }]; }
+    else if (/kalite|kontrol/.test(l)) { st.skill = "kalite"; st.type = "approval"; st.sla = 4; }
     else if (/paket/.test(l)) { st.skill = "depo"; st.type = "pack"; st.sla = 4; }
     else if (/teslim/.test(l)) { st.skill = D.mods.fleet ? "sofor" : "depo"; st.type = D.mods.fleet ? "delivery" : "task"; }
     else if (/ödeme/.test(l)) st.skill = "patron";
