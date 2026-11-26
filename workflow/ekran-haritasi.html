@@ -219,17 +219,19 @@ html { scroll-behavior: smooth; }
     ] },
     { id: "patron", name: "Patron", who: "İşletme sahibi, yönetici", nav: ["Panel", "İşler", "Sohbet", "Ekip", "Raporlar", "Sistem"], desc: "Her şeyi görür. İş açar, ekibi ve akışları yönetir. Sistemi kuran ve değiştiren tek kişidir.", screens: [
       { n: "Kontrol merkezi", tab: "Panel", st: "have", goal: "Telefon açmadan, işler nerede? Tek bakışta.", wf: [["bar", "Kontrol merkezi · 🔔"], ["kpi", "Aktif · Ekip · Geciken · Teslimat"], ["wb", "Bugün dikkat gerektirenler", "bad"], ["wb", "Darboğaz radarı", "mod"], ["list", "Devam eden işler"], ["btn", "＋ Yeni iş oluştur"], ["list", "Canlı akış"], ["nav"]], acts: [["Sayı kutuları", "İşler (filtreli)"], ["İş satırı", "İş detayı"], ["＋ Yeni iş", "Yeni iş"], ["🔔", "Bildirimler"]] },
+      { n: "İşler · Pano görünümü", tab: "İşler", st: "have", goal: "Her aşama bir sütun, her iş bir kart. Kartı tutamağından sürükleyip başka sütuna bırakınca iş o aşamaya geçer, ilgililere bildirim gider.", wf: [["bar", "İş emirleri"], ["chips", "Pano · Liste"], ["wb", "Kesim · #1044 · ⠿ sürükle"], ["wb", "Kaynak · #1042 · Hüseyin + Okan"], ["nav"]], acts: [["Kartı sürükle", "İş o aşamaya taşınır"], ["Karta dokun", "İş detayı"]] },
       { n: "İşler", tab: "İşler", st: "have", goal: "Bütün iş emirleri, duruma göre süzülür.", wf: [["bar", "İş emirleri"], ["chips", "Aktif · Geciken · Sorunlu · Onay · Biten"], ["list", "İş: ilerleme, durum, termin"], ["list", "İş: ilerleme, durum, termin"], ["btn", "＋ Yeni iş oluştur"], ["nav"]], acts: [["İş satırı", "İş detayı"], ["＋ Yeni iş", "Yeni iş"]] },
-      { n: "Ekip", tab: "Ekip", st: "have", goal: "Kim çalışıyor, kim boşta, kimde sorun var. Departmanlar ve yetkiler.", wf: [["bar", "Ekip ve departmanlar"], ["list", "Kişi · Çalışıyor / Boşta / Sorun"], ["btn", "＋ Çalışan ekle"], ["list", "Departmanlar"], ["wb", "Gizlilik ve yetki"], ["nav"]], acts: [["Kişi", "Kişi kartı"], ["＋ Çalışan ekle", "Kişi kartı"]] },
+      { n: "Ekip", tab: "Ekip", st: "have", goal: "Kim çalışıyor, kim boşta, kimde sorun var. Yetki grupları ve departmanlar.", wf: [["bar", "Ekip ve departmanlar"], ["btn", "＋ Çalışan ekle"], ["list", "Kişiler, yetki grubuna göre"], ["list", "Yetkiler · Patron, Yönetici, Ustabaşı, Çalışan, Şoför"], ["list", "Departmanlar"], ["nav"]], acts: [["Kişi", "Kişi kartı (yetki grubu seçilir)"], ["Yetki grubu", "Yetki grubu"], ["＋ Yeni grup", "Yetki grubu"]] },
       { n: "Raporlar", tab: "Raporlar", st: "have", mod: "Performans ve raporlar", goal: "Zamanında teslim oranı, ortalama iş süresi, en uzun süren aşama.", wf: [["bar", "Raporlar"], ["kpi", "Zamanında · Süre · Ciro · Kâr"], ["wb", "Aşamalarda ortalama süre"], ["list", "Tamamlanan işler"], ["nav"]], acts: [["İş satırı", "İş detayı"]] },
       { n: "Sistem", tab: "Sistem", st: "have", goal: "Uygulamanın nasıl çalışacağı burada belirlenir: akışlar, şablonlar, modüller.", wf: [["bar", "Sistem"], ["wb", "Senin sistemin: çekirdek + modüller"], ["list", "İş akışların"], ["btn", "＋ Kendi akışını kur"], ["wb", "Şablon galerisi"], ["wb", "Modül deposu"], ["nav"]], acts: [["Akışı düzenle", "Akış düzenleyici"], ["＋ Kendi akışını kur", "Başlangıç seçimi"], ["Şablon", "Şablon önizleme"], ["Modül", "Modül kartı"]] },
     ], sheets: [
       ["Yeni iş", "Akış seçilir; iş adı, müşteri, termin, acil. Her aşamaya en erken boşalacak kişi önerilir, değiştirilebilir. Tahmini bitiş canlı hesaplanır."],
       ["İş detayı", "Aşama aşama ilerleme: kim yapıyor, ne zamandır bekliyor, fotoğraf ve notlar. Başkasına ata, sorunu çöz, onayla."],
-      ["Başkasına ata", "Aynı departmandan kişi seçilir; her kişinin yükü yanında görünür."],
+      ["Kim yapıyor", "Aşamayı tek kişiye ver, birlikte çalışacak kişileri seç, işi paylara böl (ör. 14 + 10 profil) ya da panoya bırak. Her kişinin yükü yanında görünür."],
+      ["Yetki grubu", "Grubun adı, açılış ekranı ve 9 yetki anahtarı. Patron grubu değiştirilemez."],
       ["Kişi kartı", "Ad, unvan, rol ve departmanlar."],
       ["Başlangıç seçimi", "Sıfırdan, şablondan ya da mevcut bir akışı kopyalayarak başla."],
-      ["Akış düzenleyici", "Aşama ekle, sırala, aynı anda yürüt; sorumlu, hedef süre, müşterinin gördüğü ad. Kurallar ve tercihler."],
+      ["Akış düzenleyici", "Aşama ekle, sırala, aynı anda yürüt; sorumlu, panoya bırakma, kaç kişi çalışacağı, hedef süre, müşterinin gördüğü ad. İşin bittiğini kim onaylar. Kurallar ve tercihler."],
       ["Şablon önizleme", "Aşama grafiği, eksik departmanlar ve “Bu şablonla başla”."],
       ["Modül kartı", "Ne ekler, nerede görünür, neyi gerektirir. Ekle ya da çıkar."],
       ["Bildirimler", "Sana gelenler, en yenisi üstte. Her satır ilgili işe götürür."],
@@ -237,14 +239,17 @@ html { scroll-behavior: smooth; }
     { id: "ustabasi", name: "Ustabaşı", who: "Atölye şefi, ekip lideri", nav: ["Panel", "Sohbet"], desc: "Takılan işleri çözer, onay verir, yükü dengeler. Patronun sahadaki eli.", screens: [
       { n: "Ustabaşı paneli", tab: "Panel", st: "have", goal: "Önce sorunlar, sonra onaylar, sonra ekibin yükü.", wf: [["bar", "Günaydın Kadir Usta · 🔔"], ["wb", "Sorun bildirimleri", "bad"], ["two", "Çözüldü | Başkasına ata"], ["list", "Onay bekleyenler"], ["list", "Ekip yükü"], ["list", "Üretimdeki işler"], ["nav"]], acts: [["Çözüldü, devam", "Sorumluya bildirim"], ["Onayla", "Sıradaki aşama"], ["İş satırı", "İş detayı"]] },
     ] },
-    { id: "calisan", name: "Çalışan", who: "Usta, üretim, kontrol, depo", nav: ["Görevlerim", "Sohbet"], desc: "Yalnızca kendine düşen işi görür. Ekranın tamamı üç şey içindir: başla, bitir, sorun bildir.", screens: [
+    { id: "calisan", name: "Çalışan", who: "Usta, üretim, kontrol, depo", nav: ["Görevlerim", "Pano", "Sohbet"], desc: "Yalnızca kendine düşen işi görür. Ekranın tamamı üç şey içindir: başla, bitir, sorun bildir.", screens: [
       { n: "Görevlerim", tab: "Görevlerim", st: "have", goal: "Bugün ne yapacağım? En acil görev en üstte.", wf: [["bar", "Görevlerim · 🔔"], ["wb", "İŞ EMRİ #1042 · Kaynak · Bekliyor"], ["btn", "▶ İşe başla"], ["tools", "Fotoğraf · Sesli not · Sorun"], ["list", "Sırada gelecek"], ["nav"]], acts: [["İşe başla", "Görev: çalışıyor"], ["Sorun bildir", "Sorun bildir"], ["Dosya", "Çizim / belge"]] },
+      { n: "Pano (görev havuzu)", tab: "Pano", st: "have", goal: "Kimseye verilmemiş, departmanına düşen işler. İlk “Ben alıyorum” diyen üstlenir; 30 dakika kimse almazsa ustabaşına uyarı gider.", wf: [["bar", "Pano · Kaynak"], ["wb", "#1049 · Kaynak · Kepenk · 1 saattir panoda"], ["btn", "Ben alıyorum"], ["nav"]], acts: [["Ben alıyorum", "Görevlerim (en üstte)"]] },
+      { n: "Görev: bölüşülmüş", st: "have", goal: "Aynı aşamada birden fazla kişi. Herkes kendi payını bitirir; hepsi bitince iş sıradakine geçer.", wf: [["bar", "Kaynak · Metal konstrüksiyon"], ["wb", "Bölüşüldü: Sen 14 profil ✓ · Okan 10 profil"], ["timer", "02:10:44"], ["btn", "Payımı bitirdim ✓ · 14 profil"]], acts: [["Payımı bitirdim", "Diğerleri beklenir, son biten işi ilerletir"]] },
       { n: "Görev: çalışıyor", st: "have", goal: "Süre sayacı işler. Bitirince iş sıradaki kişiye kendiliğinden geçer.", wf: [["bar", "Kaynak · Metal konstrüksiyon"], ["timer", "01:24:09"], ["wb", "Form", "mod"], ["tools", "Fotoğraf · Sesli not · Sorun"], ["btn", "İşi tamamla ✓"]], acts: [["İşi tamamla", "Sıradakine bildirim"]] },
+      { n: "Tamamlanma onayı", st: "have", goal: "Bütün aşamalar bitince iş, akışta seçilen kişiye (patron, bir çalışan ya da müşteri) düşer. O “Tamamlandı” demeden iş kapanmaz.", wf: [["bar", "Tamamlanma onayı · Depo rafı"], ["wb", "Bütün aşamalar bitti"], ["two", "Tamamlandı ✓ | Geri gönder"]], acts: [["Tamamlandı", "İş kapanır, müşteriye bildirim"], ["Geri gönder", "Seçilen aşamaya, not ile"]] },
       { n: "Görev: onay", st: "have", goal: "Kontrol aşamaları için. Onaylar ya da not yazıp geri gönderir.", wf: [["bar", "Kontrol · Bahçe kapısı"], ["list", "Kontrol listesi"], ["tools", "Fotoğraf · Sesli not · Sorun"], ["two", "Onayla ✓ | Geri gönder"]], acts: [["Onayla", "Sıradaki aşama"], ["Geri gönder", "Önceki aşamaya, not ile"]] },
       { n: "Depo: sevkiyat", st: "have", mod: "Barkod ve QR", goal: "Ürünler okutularak sayılır; eksik varken araç yüklenemez.", wf: [["bar", "Sevkiyat · Çelik kapı"], ["list", "Okutulan: 2 / 4"], ["input", "Barkod / QR"], ["input", "Araç seç"], ["btn", "Araca yüklendi ✓"]], acts: [["Araca yüklendi", "Şoföre teslimat görevi"]] },
     ], sheets: [
       ["Sorun bildir", "Hazır seçenekler (malzeme eksik, arıza, ölçü hatası…) ve kısa not. Ustabaşı ve patron anında haberdar olur."],
-      ["Geri gönder", "Ne düzeltilmeli? İş, önceki aşamanın sahibine bu notla döner."],
+      ["Geri gönder", "Hangi aşamaya ve neden? İş seçilen aşamaya notla döner, aradaki aşamalar yeniden yapılır."],
       ["Çizim / belge", "İşe eklenmiş teknik çizim ya da dosya."],
     ] },
     { id: "sofor", name: "Şoför", who: "Teslimat, saha ekibi", mod: "Saha ve teslimat", nav: ["Teslimatlar", "Sohbet"], desc: "Teslimatlarını görür, yola çıkar, imza ve fotoğrafla teslim eder.", screens: [
@@ -283,7 +288,13 @@ html { scroll-behavior: smooth; }
 
   const NOTIF = [
     ["İş açıldı", "İlk aşamanın sorumlusu", "Görevlerim"],
-    ["Aşama bitti", "Sıradaki aşamanın sorumlusu; paralelse hepsi", "Görevlerim"],
+    ["Aşama bitti", "Sıradaki aşamanın sorumlusu; birden fazla kişiyse hepsi", "Görevlerim"],
+    ["İş panoya düştü", "O departmandaki herkes", "Pano"],
+    ["Panodan iş alındı", "Ustabaşı ve patron", "İş detayı"],
+    ["30 dakika kimse almadı", "Ustabaşı", "Ustabaşı paneli"],
+    ["Pay bitti (bölüşülmüş iş)", "Patron ve henüz bitirmeyenler", "İş detayı"],
+    ["Tamamlanma onayı bekliyor", "Akışta seçilen kişi ya da müşteri", "Görev: onay / Sipariş takibi"],
+    ["İş panoda taşındı", "Yeni aşamanın sorumluları ve patron", "Görevlerim"],
     ["Onay bekliyor", "Onaylayacak kişi", "Görev: onay"],
     ["Sorun bildirildi", "Ustabaşı ve patron", "Ustabaşı paneli / İş detayı"],
     ["Sorun çözüldü", "Aşamanın sorumlusu", "Görevlerim"],
