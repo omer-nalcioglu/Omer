@@ -396,6 +396,56 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
 .in, textarea { border: 1px solid var(--line); background: var(--surface); }
 .in:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .flowline span.s { background: var(--surface); border: 1px solid var(--line); font-weight: 500; }
+.tab .i { position: relative; }
+.tb { position: absolute; top: -5px; right: -10px; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 9px; background: var(--bad); color: #fff; font-size: .64rem; font-weight: 700; display: grid; place-items: center; }
+.cr { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 12px; align-items: center; width: 100%; text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.cr:last-child { border-bottom: 0; }
+.cr .av, .cav { width: 42px; height: 42px; border-radius: 50%; }
+.cav { display: grid; place-items: center; background: var(--surface-2); color: var(--ink-2); border: 1px solid var(--line); flex: none; }
+.cav svg { width: 20px; height: 20px; }
+.cav.k-announce { background: var(--accent); color: var(--on-accent); border: 0; }
+.cav.k-job { background: var(--accent-soft); color: var(--accent); border: 0; }
+.cav.k-customer { background: var(--ok-soft); color: var(--ok); border: 0; }
+.ct { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.ct b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ct time { font-size: .74rem; color: var(--ink-2); flex: none; }
+.cp { display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.cp .sm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cr.unread .cp .sm { color: var(--ink); font-weight: 500; }
+.ub { min-width: 20px; height: 20px; border-radius: 10px; padding: 0 6px; background: var(--accent); color: var(--on-accent); font-size: .7rem; font-weight: 700; display: grid; place-items: center; flex: none; }
+.kt { display: block; margin-top: 2px; font-size: .66rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+.chatview { position: fixed; inset: 0; z-index: 25; background: var(--bg); display: flex; flex-direction: column; max-width: 520px; margin: 0 auto; padding-top: env(safe-area-inset-top, 0px); }
+.cvh { display: flex; align-items: center; gap: 10px; padding-block: 10px; background: var(--surface); border-bottom: 1px solid var(--line); }
+.cvh .av, .cvh .cav { width: 36px; height: 36px; }
+.cvh b { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cvh .sm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cvb { width: 36px; height: 36px; border-radius: 10px; font-size: 1.6rem; line-height: 1; color: var(--accent); flex: none; }
+.pinbar { padding-block: 8px; background: var(--accent-soft); color: var(--ink); font-size: .84rem; border-bottom: 1px solid var(--line); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cvm { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-block: 14px; }
+.dsep { align-self: center; font-size: .72rem; font-weight: 600; color: var(--ink-2); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+.msys { align-self: center; max-width: 88%; text-align: center; font-size: .76rem; color: var(--ink-2); background: var(--surface-2); border-radius: 10px; padding: 5px 10px; }
+.msg { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; max-width: 82%; }
+.msg.me { align-self: flex-end; align-items: flex-end; }
+.mby { font-size: .72rem; color: var(--ink-2); font-weight: 600; padding-left: 4px; }
+.bub { background: var(--surface); border: 1px solid var(--line); border-radius: 16px 16px 16px 4px; padding: 9px 12px; text-align: left; font-size: .93rem; line-height: 1.4; overflow-wrap: anywhere; color: var(--ink); }
+.msg.me .bub { background: var(--accent); color: var(--on-accent); border-color: var(--accent); border-radius: 16px 16px 4px 16px; }
+.bub img { display: block; max-width: 200px; border-radius: 10px; }
+.men { font-weight: 700; }
+.msg.me .men { color: inherit; text-decoration: underline; }
+.voice { font-weight: 600; }
+.pinmark { margin-right: 4px; }
+.mt { font-size: .68rem; color: var(--ink-2); padding-inline: 4px; }
+.mact { display: flex; gap: 6px; flex-wrap: wrap; }
+.cvc { background: var(--surface); border-top: 1px solid var(--line); padding-block: 10px calc(10px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 8px; }
+.cvc.ro { text-align: center; }
+.qr { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+.qr .chip { flex: none; }
+.cvrow { display: grid; grid-template-columns: 40px 40px minmax(0, 1fr) 44px; gap: 6px; align-items: center; }
+.cvrow .in { padding: 11px 12px; border-radius: 22px; }
+.cbtn { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: var(--ink-2); position: relative; cursor: pointer; }
+.cbtn svg { width: 21px; height: 21px; }
+.cbtn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.cbtn.send { width: 44px; height: 44px; background: var(--accent); color: var(--on-accent); }
 .mi { width: 36px; height: 36px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; flex: none; font-weight: 600; }
 .mi svg { width: 20px; height: 20px; }
 .mi.big { width: 52px; height: 52px; border-radius: 14px; } .mi.big svg { width: 28px; height: 28px; }
@@ -596,6 +646,8 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
   const fmtH = h => h == null ? "—" : h < 1 ? `${Math.round(h * 60)} dk` : h < 48 ? `${+h.toFixed(1)} sa`.replace(".", ",") : `${+(h / 24).toFixed(1)} gün`.replace(".", ",");
   // ---- Modül Deposu: building blocks a business snaps onto the core (jobs + flow engine + team) ----
   const CATALOG = [
+    { id: "chat", ico: "chat", cat: "İletişim", name: "Ekip sohbeti", desc: "Her işe özel sohbet, departman kanalları, duyurular ve birebir mesaj. Kimse kişisel numarasını paylaşmaz.",
+      adds: ["Sohbet sekmesi (her rolde)", "İşe özel sohbet ve otomatik iş güncellemeleri", "Departman kanalları ve duyurular", "Hızlı cevaplar, fotoğraf, sesli mesaj"], where: ["Her ekranda Sohbet sekmesi", "İş detayı"] },
     { id: "planning", ico: "clock", cat: "Planlama", name: "Akıllı termin ve kapasite", desc: "Her işin tahmini bitişini hesaplar, termin riskini ve darboğazı önceden gösterir.",
       adds: ["Tahmini bitiş ve termin riski", "Darboğaz radarı ve yük dengeleme", "Kapasite takvimi"], where: ["Patron paneli", "Yeni iş formu", "İş detayı"] },
     { id: "rules", ico: "bolt", cat: "Otomasyon", name: "Kural motoru", desc: "“Eğer… ise… yap” kurallarıyla kod yazmadan otomasyon kurar.",
@@ -613,7 +665,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     { id: "reports", ico: "chart", cat: "Yönetim", name: "Performans ve raporlar", desc: "Zamanında teslim oranı, ortalama iş süresi ve aşama süreleri.",
       adds: ["Raporlar sekmesi", "Aşama süre analizi", "Tamamlanan iş tablosu"], where: ["Patron alt menüsü"] },
   ];
-  const SOON = [["chat", "İşe özel mesajlaşma"], ["forms", "Özel formlar"], ["offline", "İnternetsiz çalışma"], ["branch", "Çoklu şube"], ["erp", "Muhasebe ve ERP bağlantısı"], ["ai", "Konuşarak iş oluşturma"]];
+  const SOON = [["forms", "Özel formlar"], ["offline", "İnternetsiz çalışma"], ["branch", "Çoklu şube"], ["erp", "Muhasebe ve ERP bağlantısı"], ["ai", "Konuşarak iş oluşturma"]];
   const modOn = id => !!D.mods[id];
   const ROADMAP = ["Workflow AI · konuşarak iş oluşturma", "Workflow Chat · işe özel mesajlaşma", "Workflow Forms · özel formlar", "Workflow Offline · internetsiz kayıt", "Workflow Locations · çoklu şube", "Workflow Connect · ERP ve muhasebe"];
 
@@ -643,6 +695,25 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
   const flowById = id => (D && D.flows.find(f => f.id === id)) || (D && D.flows[0]);
   const flowOf = j => flowById(j.flowId) || D.flows[0];
 
+  function seedChat() {
+    const now = Date.now(), m = (by, minsAgo, text, extra) => ({ id: Math.random().toString(36).slice(2, 9), by, at: now - minsAgo * MIN, text, kind: "text", ...extra });
+    const sys = (minsAgo, text) => ({ id: Math.random().toString(36).slice(2, 9), by: "system", at: now - minsAgo * MIN, text, kind: "system" });
+    return { nextId: 1, threads: [
+      { id: "t-duyuru", kind: "announce", title: "Duyurular", msgs: [m("selim", 300, "Cumartesi yarım gün çalışıyoruz, mesai 13:00'te biter. Herkese kolay gelsin."),
+        m("selim", 45, "Yarın sabah 08:30'da kısa iş güvenliği toplantısı var. Atölye 1'de buluşuyoruz.", { pinned: true })],
+        read: { kadir: now, huseyin: now, okan: now, cem: now, zeynep: now, yusuf: now, murat: now - 60 * MIN } },
+      { id: "t-1042", kind: "job", jobId: 1042, title: "#1042 Metal konstrüksiyon", msgs: [sys(130, "#1042 Kaynak ve üretim aşamasına geçti · Hüseyin bilgilendirildi"),
+        m("kadir", 120, "@Hüseyin profiller 2 numaralı tezgâhta. Çizimdeki 3 numaralı birleşime dikkat, 45 derece."), m("huseyin", 95, "Tamam usta, öğleden sonra başlıyorum."),
+        m("selim", 20, "Müşteri cumartesiyi sordu, yetişir mi?")], read: { selim: now, kadir: now - 30 * MIN } },
+      { id: "t-1044", kind: "job", jobId: 1044, title: "#1044 Makine parçası · flanş", msgs: [m("emre", 1750, "20 mm sac levha bitti, kesime başlayamıyorum."),
+        sys(1740, "Emre sorun bildirdi: #1044 malzeme eksik"), m("selim", 1500, "Tedarikçiyi aradım, cumartesi geliyor. O zamana kadar #1049'a yardım et.")], read: { selim: now, emre: now, kadir: now } },
+      { id: "t-depo", kind: "dept", dept: "depo", title: "Depo ve sevkiyat", msgs: [m("yusuf", 200, "Kilit takımı 30 adet kaldı, yeni kapı siparişi gelirse yetmez."), m("kadir", 180, "Not aldım, Selim Bey'e ilettim.")], read: { yusuf: now, kadir: now } },
+      { id: "t-kaynak", kind: "dept", dept: "kaynak", title: "Kaynak", msgs: [m("okan", 600, "Gazaltı makinesinin teli bitmek üzere."), m("huseyin", 590, "Depoda 2 makara var, getiriyorum.")], read: {} },
+      { id: "t-dm-kadir", kind: "dm", members: ["selim", "kadir"], title: "", msgs: [m("kadir", 70, "Boyada iş birikti, Cem'e cumartesi mesai yazalım mı?")], read: {} },
+      { id: "t-c-1047", kind: "customer", jobId: 1047, members: ["c:Ekin Lojistik"], title: "Ekin Lojistik · #1047", msgs: [m("c:Ekin Lojistik", 55, "Merhaba, raf teslimatını 16:00'dan önce alabilir miyiz? Depoda forklift o saate kadar var."),
+        m("kadir", 40, "Merhaba, şoförümüz Mehmet öğleden sonra yola çıkıyor. 15:30 gibi orada olur.")], read: { kadir: now } },
+    ] };
+  }
   function seed() {
     const now = Date.now(), at = (d, h = 17, m = 0) => sod() + d * DAY + h * HOUR + m * MIN;
     const metal = { id: "metal", ico: "🏭", name: "Metal imalat", sector: "Metal sanayi", stages: JSON.parse(JSON.stringify(METAL)), prefs: { ...DEFAULT_PREFS },
@@ -701,14 +772,15 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
       { name: "Profil 40×40 mm", qty: 38, min: 60, unit: "boy" }, { name: "Sac levha 20 mm", qty: 0, min: 10, unit: "plaka" },
       { name: "Kilit takımı", qty: 30, min: 20, unit: "adet" }, { name: "Elektrostatik boya · RAL 7016", qty: 42, min: 25, unit: "kg" },
       { name: "Menteşe", qty: 220, min: 80, unit: "adet" } ];
-    return { people: JSON.parse(JSON.stringify(PEOPLE_SEED)), depts: { ...DEPTS_SEED }, flows, defaultFlow: "metal", jobs, feed, stock, nextId: 1050, mods: { planning: true, rules: true, fleet: true, stock: true, scan: true, finance: true, customers: true, reports: true },
-      privacy: { loc: true, perf: true } };
+    return { people: JSON.parse(JSON.stringify(PEOPLE_SEED)), depts: { ...DEPTS_SEED }, flows, defaultFlow: "metal", jobs, feed, stock, nextId: 1050, mods: { chat: true, planning: true, rules: true, fleet: true, stock: true, scan: true, finance: true, customers: true, reports: true },
+      privacy: { loc: true, perf: true, quiet: true } };
   }
 
   let D;
   try { D = JSON.parse(localStorage.getItem("wf-proto-4")); } catch (e) {}
   if (!D || !D.jobs || !D.flows || !D.people) D = seed();
-  D.mods = { planning: true, rules: true, scan: true, reports: true, ...D.mods };
+  D.mods = { chat: true, planning: true, rules: true, scan: true, reports: true, ...D.mods };
+  if (!D.chat) D.chat = seedChat();
   const syncPeople = () => { PEOPLE.length = 0; PEOPLE.push(...D.people); D.people = PEOPLE; };
   syncPeople();
   const save = () => { try { localStorage.setItem("wf-proto-4", JSON.stringify(D)); } catch (e) {} };
@@ -736,7 +808,10 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
   }
   const overSla = s => s.sla && ["ready", "working"].includes(s.status) && s.readyAt && (Date.now() - s.readyAt) > s.sla * HOUR;
   function slaPill(j, s) { if (!overSla(s) || !flowOf(j).prefs.slaWarn) return ""; return `<span class="pill bad">Hedef süre aşıldı · ${fmtH((Date.now() - s.readyAt) / HOUR)} / ${fmtH(s.sla)}</span>`; }
-  function notify(text, ic, to) { D.feed.push({ at: Date.now(), ic, text, to }); }
+  function notify(text, ic, to) {
+    D.feed.push({ at: Date.now(), ic, text, to });
+    if (D.chat && D.mods.chat) { const m = String(text).match(/#(\d{4})/), j = m && jobById(+m[1]); if (j) jobThread(j).msgs.push({ id: Math.random().toString(36).slice(2, 9), by: "system", at: Date.now(), text, kind: "system" }); }
+  }
   function activateGroup(j, g) {
     const gs = j.steps.filter(s => s.g === g);
     gs.forEach(s => { s.status = "ready"; s.readyAt = Date.now(); delete s.issue; });
@@ -923,7 +998,12 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     const sel = $("#who");
     sel.innerHTML = views()
       .map(([id, l]) => `<option value="${esc(id)}"${id === me ? " selected" : ""}>${esc(l)}</option>`).join("");
-    if (me.startsWith("c:")) return renderCustomer(me.slice(2));
+    if (tab === "chat" && !D.mods.chat) tab = "panel";
+    if (!me.startsWith("c:") && person(me).role !== "patron") {
+      const lbl = me.startsWith("c:") ? "Siparişlerim" : { ustabasi: "Panel", sofor: "Teslimatlar" }[person(me).role] || "Görevlerim";
+      if (tab === "chat") { setNav(roleNav(lbl)); $("#app").innerHTML = chatList(); return; }
+    }
+    if (me.startsWith("c:")) { if (tab === "chat" && D.mods.customers) { setNav(roleNav("Siparişlerim")); $("#app").innerHTML = chatList(); return; } return renderCustomer(me.slice(2)); }
     const p = person(me);
     if (p.role === "patron") return renderBoss();
     if (p.role === "ustabasi") return renderForeman();
@@ -951,16 +1031,145 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     user: '<circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c.8-3.8 3.6-6 7-6s6.2 2.2 7 6"/>',
     core: '<path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z"/><path d="M12 12 20 7.5M12 12v9M12 12 4 7.5"/>',
     lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/>',
+    chat: '<path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v8a2.5 2.5 0 0 1-2.5 2.5H10l-4.5 3.5V17H6.5A2.5 2.5 0 0 1 4 14.5z"/>',
+    camera: '<path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.2l1.5-2h5.6l1.5 2h2.2A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="12.5" r="3.3"/>',
+    mic: '<rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/>',
+    send: '<path d="M4 12 20 4l-4 16-4.5-6.5z"/><path d="M11.5 13.5 20 4"/>',
+    megaphone: '<path d="M4 10v4a1 1 0 0 0 1 1h2l8 4V5L7 9H5a1 1 0 0 0-1 1zM18 9.5a3.5 3.5 0 0 1 0 5"/>',
+    hash: '<path d="M5 9h15M4 15h15M10 4 8 20M16 4l-2 16"/>',
     gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M4.2 7.5l2.1 1.2M17.7 15.3l2.1 1.2M4.2 16.5l2.1-1.2M17.7 8.7l2.1-1.2"/><circle cx="12" cy="12" r="7"/>' };
   const ico = n => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
+  // ---------- Workflow Chat ----------
+  const isMgr = uid => !uid.startsWith("c:") && ["patron", "ustabasi"].includes(person(uid).role);
+  function jobThread(j) {
+    let t = D.chat.threads.find(x => x.kind === "job" && x.jobId === j.id);
+    if (!t) { t = { id: "t-" + j.id, kind: "job", jobId: j.id, title: `#${j.id} ${j.title}`, msgs: [], read: {} }; D.chat.threads.push(t); }
+    return t;
+  }
+  function canSee(t, uid) {
+    if (uid.startsWith("c:")) return t.kind === "customer" && t.members.includes(uid);
+    if (t.kind === "announce") return true;
+    if (t.kind === "customer") return isMgr(uid) && D.mods.customers;
+    if (isMgr(uid) && t.kind !== "dm") return true;
+    if (t.kind === "dept") return (person(uid).skills || []).includes(t.dept);
+    if (t.kind === "job") { const j = jobById(t.jobId); return !!j && j.steps.some(s => s.owner === uid); }
+    return (t.members || []).includes(uid);
+  }
+  const lastAt = t => t.msgs.length ? t.msgs[t.msgs.length - 1].at : 0;
+  const sortAt = t => { const h = t.msgs.filter(m => m.by !== "system"); return h.length ? h[h.length - 1].at : lastAt(t) - 30 * DAY; };
+  const unreadOf = (t, uid) => t.msgs.filter(m => m.at > ((t.read || {})[uid] || 0) && m.by !== uid && m.by !== "system").length;
+  const myThreads = () => D.chat.threads.filter(t => canSee(t, me));
+  const unreadTotal = () => myThreads().reduce((a, t) => a + (unreadOf(t, me) ? 1 : 0), 0);
+  const chatIcon = () => { const n = D.mods.chat ? unreadTotal() : 0; return ico("chat") + (n ? `<b class="tb">${n}</b>` : ""); };
+  function roleNav(label) { return D.mods.chat && (!me.startsWith("c:") || D.mods.customers) ? [["panel", ico(me.startsWith("c:") ? "box" : person(me).role === "sofor" ? "truck" : "list"), label], ["chat", chatIcon(), me.startsWith("c:") ? "Mesajlar" : "Sohbet"]] : null; }
+  const whoName = by => by.startsWith("c:") ? by.slice(2) : first(by);
+  const whoSub = by => by.startsWith("c:") ? "Müşteri" : person(by).title;
+  function threadTitle(t) {
+    if (t.kind === "dm") { const o = t.members.find(x => x !== me) || t.members[0]; return person(o).name; }
+    if (t.kind === "dept") return `# ${t.title}`;
+    if (t.kind === "customer" && me.startsWith("c:")) { const j = jobById(t.jobId); return `Demirtaş Metal · #${t.jobId}${j ? " " + j.title : ""}`; }
+    return t.title;
+  }
+  function threadAvatar(t) {
+    if (t.kind === "dm") return avatar(t.members.find(x => x !== me) || t.members[0]);
+    const icn = { announce: "megaphone", job: "list", dept: "hash", customer: "user" }[t.kind];
+    return `<span class="cav k-${t.kind}">${ico(icn)}</span>`;
+  }
+  const KIND_TXT = { announce: "Duyuru", job: "İş", dept: "Ekip", dm: "Kişi", customer: "Müşteri" };
+  let chatFilter = "all";
+  function chatList() {
+    const F = [["all", "Tümü"], ["job", "İşler"], ["dept", "Ekipler"], ["dm", "Kişiler"], ...(isMgr(me) && D.mods.customers ? [["customer", "Müşteriler"]] : [])];
+    const list = myThreads().filter(t => chatFilter === "all" || t.kind === chatFilter || (chatFilter === "dept" && t.kind === "announce"))
+      .sort((a, b) => (b.kind === "announce" && unreadOf(b, me) ? 1 : 0) - (a.kind === "announce" && unreadOf(a, me) ? 1 : 0) || sortAt(b) - sortAt(a));
+    const preview = t => { const m = t.msgs[t.msgs.length - 1]; if (!m) return "Henüz mesaj yok"; const who = m.by === "system" ? "" : m.by === me ? "Sen: " : whoName(m.by) + ": ";
+      return who + (m.kind === "photo" ? "📷 Fotoğraf" : m.kind === "voice" ? "🎙 Sesli mesaj" : m.text); };
+    return head(me.startsWith("c:") ? "Demirtaş Metal ile" : "İletişim", me.startsWith("c:") ? "Mesajlar" : "Sohbet") + `<main class="gut">
+      ${me.startsWith("c:") ? "" : `<div class="chips">${F.map(([k, l]) => `<button class="chip" data-cf="${k}" aria-pressed="${chatFilter === k}">${l}</button>`).join("")}</div>`}
+      ${list.length ? `<div class="list">${list.map(t => { const u = unreadOf(t, me);
+        return `<button class="cr${u ? " unread" : ""}" data-thread="${t.id}">${threadAvatar(t)}<div style="min-width:0"><div class="ct"><b>${esc(threadTitle(t))}</b><time>${lastAt(t) ? ago(lastAt(t)) : ""}</time></div>
+          <div class="cp"><span class="sm">${esc(preview(t))}</span>${u ? `<span class="ub">${u}</span>` : ""}</div>${t.kind !== "dm" ? `<span class="kt">${KIND_TXT[t.kind]}</span>` : ""}</div></button>`; }).join("")}</div>`
+        : `<div class="empty">${me.startsWith("c:") ? "Henüz mesaj yok. Siparişlerim ekranından bir sipariş hakkında yazabilirsin." : "Bu filtrede sohbet yok."}</div>`}
+      ${me.startsWith("c:") ? "" : `<button class="btn line block" id="newDm">＋ Yeni mesaj</button>`}
+      ${!me.startsWith("c:") && D.privacy.quiet ? `<p class="sm" style="margin:0;text-align:center">Mesai dışında (18:00–08:00) bildirimler sessizdir. Kişisel numaralar kimseyle paylaşılmaz.</p>` : ""}
+    </main>`;
+  }
+  const QUICK_REPLIES = ["Başladım", "Bitti ✓", "Malzeme lazım", "Yardım lazım", "10 dk gecikeceğim"];
+  const fmtMsg = text => esc(text).replace(/@([A-Za-zÇĞİÖŞÜçğıöşü]+)/g, '<b class="men">@$1</b>');
+  function openThread(id, keepScroll) {
+    const t = D.chat.threads.find(x => x.id === id); if (!t) return;
+    t.read = t.read || {}; t.read[me] = Date.now(); save();
+    const canPost = t.kind !== "announce" || isMgr(me);
+    const j = t.jobId ? jobById(t.jobId) : null;
+    const sub = t.kind === "job" && j ? `${jobState(j).label} · ${j.customer}` : t.kind === "dept" ? `${deptPeople(t.dept).length} kişi · departman kanalı` : t.kind === "announce" ? "Herkes okur, yönetim yazar"
+      : t.kind === "customer" ? (me.startsWith("c:") ? "İşletmeyle doğrudan mesaj" : "Müşteriyle yazışma · müşteri yalnızca bu sohbeti görür") : person(t.members.find(x => x !== me) || me).title;
+    const staff = PEOPLE.filter(p => p.role !== "patron").length;
+    const pinned = t.msgs.filter(m => m.pinned).slice(-1)[0];
+    let lastDay = "";
+    const body = t.msgs.map(m => {
+      const day = dayLabel(m.at), sep = day !== lastDay ? `<div class="dsep">${esc(day)}</div>` : ""; lastDay = day;
+      if (m.kind === "system") return sep + `<div class="msys">${esc(m.text)} · ${hm(m.at)}</div>`;
+      const mine = m.by === me, readers = Object.entries(t.read || {}).filter(([u, at]) => u !== m.by && at >= m.at && !u.startsWith("c:")).length;
+      const content = m.kind === "photo" ? `<img src="${m.photo}" alt="Gönderilen fotoğraf">` : m.kind === "voice" ? `<span class="voice">▶ ${esc(m.text)}</span>` : fmtMsg(m.text);
+      return sep + `<div class="msg${mine ? " me" : ""}">${!mine ? `<span class="mby">${esc(whoName(m.by))} · ${esc(whoSub(m.by))}</span>` : ""}
+        <button class="bub" data-mact="${m.id}">${m.pinned ? `<span class="pinmark">📌</span>` : ""}${content}</button>
+        <span class="mt">${hm(m.at)}${t.kind === "announce" && isMgr(me) ? ` · Okundu ${readers}/${staff}` : mine ? " · ✓✓" : ""}</span>
+        <div class="mact" data-actfor="${m.id}" hidden>${isMgr(me) ? `<button class="chip" data-pin="${t.id}:${m.id}">${m.pinned ? "Sabitlemeyi kaldır" : "📌 Sabitle"}</button>` : ""}
+          ${t.kind === "job" && j && !j.done && isMgr(me) && m.kind === "text" ? `<button class="chip" data-toissue="${t.id}:${m.id}">⚠️ Soruna çevir</button>` : ""}
+          <button class="chip" data-reply="${esc(whoName(m.by))}">Yanıtla</button></div></div>`;
+    }).join("");
+    layer.innerHTML = `<div class="chatview" role="dialog" aria-modal="true" aria-label="${esc(threadTitle(t))}">
+      <header class="cvh gut"><button class="cvb" id="cvBack" aria-label="Geri">‹</button>${threadAvatar(t)}<div style="min-width:0;flex:1"><b>${esc(threadTitle(t))}</b><div class="sm">${esc(sub)}</div></div>
+        ${j && !me.startsWith("c:") && isMgr(me) ? `<button class="chip" data-openjob="${j.id}">İşi aç</button>` : ""}</header>
+      ${pinned ? `<div class="pinbar gut">📌 ${esc(pinned.text)}</div>` : ""}
+      <div class="cvm gut" id="cvm">${body || `<div class="msys">Sohbet başladı. İlk mesajı sen yaz.</div>`}</div>
+      ${canPost ? `<div class="cvc gut">
+        ${!isMgr(me) && !me.startsWith("c:") && t.kind !== "dm" ? `<div class="qr">${QUICK_REPLIES.map(q => `<button class="chip" data-qr="${esc(q)}">${esc(q)}</button>`).join("")}</div>` : ""}
+        <div class="cvrow"><label class="cbtn" aria-label="Fotoğraf gönder">${ico("camera")}<input type="file" accept="image/*" id="cvPhoto"></label>
+          <button class="cbtn" id="cvVoice" aria-label="Sesli mesaj">${ico("mic")}</button>
+          <input id="cvIn" class="in" placeholder="${me.startsWith("c:") ? "Mesajınızı yazın" : "Mesaj yaz · @ ile kişi etiketle"}" autocomplete="off" aria-label="Mesaj">
+          <button class="cbtn send" id="cvSend" aria-label="Gönder">${ico("send")}</button></div></div>` : `<div class="cvc gut ro sm">Bu kanala sadece yönetim yazabilir. Okuduğun görünür.</div>`}
+    </div>`;
+    const cvm = $("#cvm"); cvm.scrollTop = cvm.scrollHeight;
+    const post = (msg) => { t.msgs.push({ id: Math.random().toString(36).slice(2, 9), by: me, at: Date.now(), ...msg }); t.read[me] = Date.now();
+      (msg.text || "").replace(/@([A-Za-zÇĞİÖŞÜçğıöşü]+)/g, (_, n) => { const p = PEOPLE.find(x => lower(first(x.id)) === lower(n)); if (p) D.feed.push({ at: Date.now(), ic: "💬", text: `${whoName(me)} seni bir mesajda etiketledi: ${threadTitle(t)}`, to: [p.id] }); });
+      save(); openThread(id); };
+    $("#cvBack").onclick = () => { layer.innerHTML = ""; render(); };
+    if (canPost) {
+      $("#cvSend").onclick = () => { const v = $("#cvIn").value.trim(); if (v) post({ kind: "text", text: v }); };
+      $("#cvIn").addEventListener("keydown", e => { if (e.key === "Enter") $("#cvSend").click(); });
+      $("#cvVoice").onclick = () => { const sec = 6 + Math.floor(Math.random() * 30); post({ kind: "voice", text: `Sesli mesaj · 0:${pad(sec)}` }); toast("🎙", "Sesli mesaj gönderildi", "Prototipte kayıt taklit ediliyor"); };
+      $("#cvPhoto").onchange = e => { const f = e.target.files[0]; if (f) readPhoto(f, url => post({ kind: "photo", photo: url, text: "Fotoğraf" })); };
+      layer.querySelectorAll("[data-qr]").forEach(b => b.onclick = () => post({ kind: "text", text: b.dataset.qr }));
+    }
+    layer.querySelectorAll("[data-mact]").forEach(b => b.onclick = () => { const a = layer.querySelector(`[data-actfor="${b.dataset.mact}"]`); a.hidden = !a.hidden; });
+    layer.querySelectorAll("[data-reply]").forEach(b => b.onclick = () => { const i = $("#cvIn"); if (i) { i.value = `@${b.dataset.reply} `; i.focus(); } });
+    layer.querySelectorAll("[data-pin]").forEach(b => b.onclick = () => { const [, mid] = b.dataset.pin.split(":"); const m = t.msgs.find(x => x.id === mid); m.pinned = !m.pinned; save(); openThread(id); });
+    layer.querySelectorAll("[data-toissue]").forEach(b => b.onclick = () => { const [, mid] = b.dataset.toissue.split(":"), m = t.msgs.find(x => x.id === mid), s = activeSteps(j).find(x => x.status !== "blocked");
+      if (!s) { toast("ℹ️", "Açık aşama yok", "Bu iş şu an sorunlu ya da bitmiş"); return; }
+      s.status = "blocked"; s.issue = { type: "Sohbetten bildirildi", note: m.text, at: Date.now(), by: m.by };
+      notify(`${whoName(me)} bir mesajı soruna çevirdi: #${j.id} ${s.name} · “${m.text}”`, "⚠️", [s.owner, "kadir", "selim"]); eventRules(j, "issue", s); save(); openThread(id);
+      toast("⚠️", "Soruna çevrildi", `#${j.id} ${s.name} aşaması sorunlu olarak işaretlendi`); });
+    const oj = layer.querySelector("[data-openjob]"); if (oj) oj.onclick = () => { layer.innerHTML = ""; openJob(+oj.dataset.openjob); };
+  }
+  function openNewDm() {
+    sheet(`<div class="stack"><h2>Yeni mesaj</h2><div class="list">${PEOPLE.filter(p => p.id !== me).map(p => `<button class="pr" data-dmto="${p.id}">${avatar(p.id)}<div style="min-width:0"><b>${esc(p.name)}</b><div class="sm">${esc(p.title)}</div></div><span></span></button>`).join("")}</div>
+      <button class="btn ghost block" id="closeS">Vazgeç</button></div>`, () => {
+      $("#closeS").onclick = closeSheet;
+      layer.querySelectorAll("[data-dmto]").forEach(b => b.onclick = () => { const o = b.dataset.dmto;
+        let t = D.chat.threads.find(x => x.kind === "dm" && x.members.includes(me) && x.members.includes(o));
+        if (!t) { t = { id: "t-dm-" + Date.now().toString(36), kind: "dm", members: [me, o], title: "", msgs: [], read: {} }; D.chat.threads.push(t); save(); }
+        openThread(t.id); });
+    });
+  }
   // ----- boss -----
   function renderBoss() {
     if (tab === "rapor" && !D.mods.reports) tab = "panel";
-    const NAV = [["panel", ico("home"), "Panel"], ["isler", ico("list"), "İşler"], ["ekip", ico("team"), "Ekip"], ["rapor", ico("chart"), "Raporlar"], ["ayar", ico("grid"), "Sistem"]].filter(n => n[0] !== "rapor" || D.mods.reports);
+    const NAV = [["panel", ico("home"), "Panel"], ["isler", ico("list"), "İşler"], ...(D.mods.chat ? [["chat", chatIcon(), "Sohbet"]] : []), ["ekip", ico("team"), "Ekip"], ["rapor", ico("chart"), "Raporlar"], ["ayar", ico("grid"), "Sistem"]].filter(n => n[0] !== "rapor" || D.mods.reports);
     if (!NAV.some(n => n[0] === tab)) tab = "panel";
     setNav(NAV, false);
     const app = $("#app");
-    if (tab === "panel") app.innerHTML = bossPanel();
+    if (tab === "chat") app.innerHTML = chatList();
+    else if (tab === "panel") app.innerHTML = bossPanel();
     else if (tab === "isler") app.innerHTML = bossJobs();
     else if (tab === "ekip") app.innerHTML = bossTeam();
     else if (tab === "rapor") app.innerHTML = bossReports();
@@ -1087,6 +1296,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
         return `<div class="set"><div><b>${esc(v)}</b><div class="sm">${n ? deptPeople(k).map(p => esc(first(p.id))).join(", ") : "Henüz çalışan yok, işler ustabaşına düşer"}</div></div><span class="pill ${n ? "mute" : "warn"}">${n} kişi</span></div>`; }).join("")}</div></section>
       <section><h2>Gizlilik ve yetki</h2><div class="list">
         <div class="set"><div><b>Konum yalnızca teslimat sırasında</b><div class="sm">Şoförün konumu sadece “Yola çıktım” ile “Teslim edildi” arasında görünür.</div></div><button class="sw" role="switch" aria-checked="${D.privacy.loc}" data-priv="loc" aria-label="Konum kısıtı"></button></div>
+        ${D.mods.chat ? `<div class="set"><div><b>Mesai dışında sessiz</b><div class="sm">18:00–08:00 arası sohbet bildirimi gitmez; acil sorunlar hariç.</div></div><button class="sw" role="switch" aria-checked="${D.privacy.quiet}" data-priv="quiet" aria-label="Mesai dışı sessiz"></button></div>` : ""}
         <div class="set"><div><b>Performans verisini sadece yönetim görür</b><div class="sm">Çalışanlar birbirinin süre ve hız bilgisini göremez.</div></div><button class="sw" role="switch" aria-checked="${D.privacy.perf}" data-priv="perf" aria-label="Performans gizliliği"></button></div>
       </div></section>
     </main>`;
@@ -1173,6 +1383,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     if (st.some(x => x.type === "approval")) out.rules = "Onay adımların var; kurallar onayları otomatik yönetebilir";
     if (jobs.some(j => j.price > 0) || st.some(x => /fiyat|ödeme|hakediş|tahsilat|teklif/.test(lower(x.name)))) out.finance = "İşlerinde tutar ve ödeme adımı var";
     if (st.some(x => x.pub && x.pub !== x.name) || flows.some(f => f.prefs?.custNotify)) out.customers = "Müşteriye gösterilecek aşama adların hazır";
+    out.chat = "Ekip iletişimi işin içinde kalır, WhatsApp gruplarına gerek kalmaz";
     if (jobs.filter(j => j.done).length >= 3 || (longest && longest.stages.length >= 6)) out.reports = "Aşama sürelerini ölçmeye yetecek iş hacmin var";
     return out;
   }
@@ -1180,7 +1391,8 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     const R = [["Patron", ["Kontrol merkezi", "İş emirleri", "Ekip", ...(mods.reports ? ["Raporlar"] : []), "Sistem"]],
       ["Ustabaşı", ["Sorunlar", "Onaylar", "Ekip yükü"]], ["Üretim", ["Görevlerim"]], ["Depo", ["Görevlerim", ...(mods.stock ? ["Stok"] : []), ...(mods.scan ? ["Barkodla sevkiyat"] : [])]]];
     if (mods.fleet) R.push(["Şoför", ["Teslimatlarım", "İmza ve fotoğraf"]]);
-    if (mods.customers) R.push(["Müşteri", ["Sipariş takibi"]]);
+    if (mods.customers) R.push(["Müşteri", ["Sipariş takibi", ...(mods.chat ? ["Mesajlar"] : [])]]);
+    if (mods.chat) R.forEach(r => { if (r[0] !== "Müşteri") r[1].push("Sohbet"); });
     return R;
   }
   function systemMap() {
@@ -1610,7 +1822,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
 
   // ----- foreman -----
   function renderForeman() {
-    setNav(null, false);
+    setNav(roleNav("Panel"));
     const approvals = D.jobs.flatMap(j => j.done ? [] : j.steps.filter(s => s.type === "approval" && s.status === "ready" && s.owner !== "kadir").map(s => ({ j, s })));
     const issues = D.jobs.flatMap(j => j.done ? [] : j.steps.filter(s => s.status === "blocked").map(s => ({ j, s })));
     const workers = PEOPLE.filter(p => ["uretim", "depo"].includes(p.role));
@@ -1637,7 +1849,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
       .sort((a, b) => (b.s.status === "working") - (a.s.status === "working") || (a.s.deadline || a.j.due) - (b.s.deadline || b.j.due));
   }
   function renderWorker() {
-    setNav(null, false);
+    setNav(roleNav("Görevlerim"));
     const p = person(me), tasks = myTasks(me);
     const queued = D.jobs.filter(j => !j.done).flatMap(j => j.steps.filter(s => s.owner === me && s.status === "locked").map(s => ({ j, s })));
     $("#app").innerHTML = head(`Çalışan paneli · ${esc(p.title)}`, "Görevlerim", bellCount(me)) + `<main class="gut">
@@ -1732,7 +1944,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
   // ----- driver -----
   let stopSig = null;
   function renderDriver() {
-    setNav(null, false);
+    setNav(roleNav("Teslimatlar"));
     const p = person(me);
     const del = D.jobs.flatMap(j => j.done ? [] : j.steps.filter(s => s.owner === me && s.type === "delivery" && ["ready", "working", "blocked"].includes(s.status)).map(s => ({ j, s })));
     const coming = D.jobs.filter(j => !j.done).flatMap(j => j.steps.filter(s => s.owner === me && s.type === "delivery" && s.status === "locked").map(s => ({ j, s })));
@@ -1777,7 +1989,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
 
   // ----- customer -----
   function renderCustomer(name) {
-    setNav(null, false);
+    setNav(roleNav("Siparişlerim"));
     const jobs = D.jobs.filter(j => j.customer === name).sort((a, b) => a.done - b.done || a.due - b.due);
     const pubsOf = j => ["Sipariş alındı", ...[...new Set(j.steps.slice().sort((a, b) => a.g - b.g).map(x => x.pub || x.name))]];
     const stageIdx = j => { const P = pubsOf(j); if (j.done) return P.length; const act = activeSteps(j)[0]; return act ? P.indexOf(act.pub || act.name) : 0; };
@@ -1792,6 +2004,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
           <div class="tsteps" style="grid-template-columns:repeat(${PUB.length},minmax(0,1fr))">${PUB.map((n, i) => `<div class="ts ${i < si ? "on" : i === si ? "cur" : ""}"><i></i>${esc(n)}</div>`).join("")}</div>
           ${del.status === "working" ? `<div class="note info"><b>🚚 Aracınız yolda</b><span>Teslimat aracı yola çıktı. Konum yalnızca teslimat süresince paylaşılır.</span></div>` : ""}
           ${j.done && del.signature ? `<div class="sm">Teslim belgesi imzalı olarak kayıtlı.</div>` : ""}
+          ${D.mods.chat ? `<button class="btn line block" data-custmsg="${j.id}">${ico("chat")} Bu sipariş hakkında mesaj yaz</button>` : ""}
         </div>`; }).join("") || `<div class="empty">Paylaşılan sipariş yok.</div>`}
       ${jobs.length > visible.length ? `<div class="sm">${jobs.length - visible.length} sipariş, işletmenin tercihiyle bu ekranda gösterilmiyor.</div>` : ""}
     </main>`;
@@ -1813,7 +2026,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
   document.addEventListener("click", e => {
     const el = e.target.closest("button, a"); if (!el || el.tagName === "A") return;
     const d = el.dataset;
-    if (el.id === "reset") { D = seed(); syncPeople(); save(); closeSheet(); render(); toast("↺", "Prototip sıfırlandı", "Örnek veriler geri yüklendi"); return; }
+    if (el.id === "reset") { D = seed(); D.chat = seedChat(); syncPeople(); save(); closeSheet(); render(); toast("↺", "Prototip sıfırlandı", "Örnek veriler geri yüklendi"); return; }
     if (d.tab) { tab = d.tab; render(); window.scrollTo(0, 0); return; }
     if (d.goto) { const [t, f] = d.goto.split(":"); tab = t; if (f) jobFilter = f; render(); window.scrollTo(0, 0); return; }
     if (d.filter) { jobFilter = d.filter; render(); return; }
@@ -1822,6 +2035,12 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     if (el.id === "bell") { const mine = D.feed.filter(f => f.to && f.to.includes(me)).reverse();
       sheet(`<div class="stack"><h2>Bildirimler</h2>${feedHtml(mine.length ? mine : [])}<button class="btn ghost block" id="closeS">Kapat</button></div>`, () => $("#closeS").onclick = closeSheet); return; }
     if (d.mod) { openModule(d.mod); return; }
+    if (d.thread) { openThread(d.thread); return; }
+    if (d.cf) { chatFilter = d.cf; render(); return; }
+    if (el.id === "newDm") { openNewDm(); return; }
+    if (d.custmsg) { const j = jobById(+d.custmsg); let t = D.chat.threads.find(x => x.kind === "customer" && x.jobId === j.id && x.members.includes(me));
+      if (!t) { t = { id: "t-c-" + j.id + Date.now().toString(36), kind: "customer", jobId: j.id, members: [me], title: `${j.customer} · #${j.id}`, msgs: [], read: {} }; D.chat.threads.push(t); save(); }
+      openThread(t.id); return; }
     if (el.id === "toDepot") { $("#depot")?.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
     if (el.id === "rebuild") { wz = null; openWizard(1); return; }
     if (d.priv) { D.privacy[d.priv] = !D.privacy[d.priv]; save(); render(); return; }
