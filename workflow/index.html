@@ -591,6 +591,32 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
   const H = 1, MN = 1 / 60, DY = 24;
   const T = (name, dept, type = "task", o = {}) => ({ name, dept, type, par: !!o.par, sla: o.sla ?? 8, photo: !!o.photo, pub: o.pub || name, checklist: o.cl || [] });
   const TEMPLATES = [
+    // ---- core templates: shaped by the kind of work, not the sector; every business starts from one of these ----
+    { id: "gorev", core: true, ico: "✅", name: "Görev ve kontrol", desc: "En sade başlangıç: işi birine ver, bitince sen kontrol et. Sonra ihtiyaç oldukça aşama eklersin.", who: "Her işletme, her ekip",
+      prefs: { signReq: false, custNotify: false, custVisible: false },
+      stages: [T("İşi yap", "Ekip", "task", { sla: 8, cl: ["İş tamamlandı"] }),
+        T("Kontrol", "Patron", "approval", { sla: 4, cl: ["İş istendiği gibi yapıldı"] })] },
+    { id: "uretim", core: true, ico: "⚙️", name: "Sipariş üzerine üretim", desc: "Sipariş gelir, hazırlanır, üretilir, kontrol edilir ve teslim edilir.", who: "Ürün yapan her işletme: atölye, imalathane, matbaa, pastane",
+      stages: [T("Sipariş onayı", "Patron", "approval", { sla: 4, pub: "Sipariş alındı", cl: ["Fiyat ve termin uygun"] }),
+        T("Hazırlık", "Ustabaşı / yönetim", "task", { sla: 8, pub: "Hazırlanıyor", cl: ["Malzeme hazır", "İş planlandı"] }),
+        T("Üretim", "Üretim", "task", { sla: 24, photo: true, pub: "Üretimde" }),
+        T("Kontrol", "Ustabaşı / yönetim", "approval", { sla: 4, pub: "Kontrol ediliyor", cl: ["Sipariş ile uyumlu"] }),
+        T("Teslimat", "Depo ve sevkiyat", "task", { sla: 8, pub: "Teslim edildi" })] },
+    { id: "hizmet", core: true, ico: "🛠️", name: "Hizmet ve saha işi", desc: "Talep gelir, yerinde bakılır, fiyat onaylanır, ekip işi yapar, ödeme alınır.", who: "Müşterinin yerinde iş yapan herkes: tamir, montaj, bakım, temizlik, tadilat",
+      prefs: { signReq: false },
+      stages: [T("Talep", "Müşteri hizmetleri", "task", { sla: 1, pub: "Talebiniz alındı", cl: ["Adres ve iletişim alındı"] }),
+        T("Keşif ve fiyat", "Ustabaşı / yönetim", "task", { sla: 24, photo: true, pub: "İnceleniyor" }),
+        T("Müşteri onayı", "Patron", "approval", { sla: 24, pub: "Onayınız bekleniyor", cl: ["Müşteri fiyatı onayladı"] }),
+        T("Yerinde iş", "Saha ekibi", "task", { sla: 8, photo: true, pub: "Çalışılıyor", cl: ["Önce fotoğrafı", "Sonra fotoğrafı"] }),
+        T("Ödeme", "Muhasebe", "task", { sla: 24, pub: "Tamamlandı", cl: ["Ödeme alındı"] })] },
+    { id: "gonderim", core: true, ico: "📦", name: "Sipariş hazırlama ve gönderim", desc: "Sipariş gelir; ödeme kontrolü ve ürün toplama aynı anda yürür, paketlenip gönderilir.", who: "Ürün satıp gönderen herkes: mağaza, toptancı, e-ticaret, dağıtım",
+      prefs: { signReq: false },
+      stages: [T("Sipariş", "Müşteri hizmetleri", "task", { sla: 1, pub: "Sipariş alındı" }),
+        T("Ödeme kontrolü", "Muhasebe", "task", { sla: 2, pub: "Hazırlanıyor" }),
+        T("Ürün toplama", "Depo ve sevkiyat", "task", { par: true, sla: 2, pub: "Hazırlanıyor" }),
+        T("Paketleme", "Depo ve sevkiyat", "pack", { sla: 2, pub: "Paketlendi" }),
+        T("Gönderim", "Şoför", "delivery", { sla: 24, pub: "Yolda" })] },
+    // ---- sector examples ----
     { id: "metal", ico: "🏭", name: "Metal sanayi", desc: "Sipariş üzerine kapı, korkuluk, konstrüksiyon ve makine parçası üretimi.", who: "Atölye, imalathane, çelik konstrüksiyon",
       stages: [T("Sipariş onayı", "Patron", "approval", { sla: 4, pub: "Sipariş alındı", cl: ["Fiyat ve termin uygun", "Kapora alındı"] }),
         T("Malzeme kontrolü", "Depo ve sevkiyat", "task", { sla: 4, pub: "Planlama", cl: ["Stok kontrol edildi", "Eksikler satın almaya bildirildi"] }),
@@ -1492,8 +1518,11 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
           <div class="flowline">${flowLine(f)}</div>
           <div class="sm" style="margin-top:4px">${D.jobs.filter(j => j.flowId === f.id && !j.done).length} aktif iş · ${f.stages.length} aşama${f.from ? ` · ${esc(f.from)} şablonundan` : ""}</div></div>
           <div style="display:grid;gap:6px"><button class="btn line" data-editflow="${f.id}">Düzenle</button>${f.id !== D.defaultFlow ? `<button class="chip" data-defflow="${f.id}">Varsayılan yap</button>` : ""}</div></div>`).join("")}</div></section>
-      <section><h2>Şablon galerisi</h2><p class="sm" style="margin:0">Her şablon gerçek bir işletmenin işleyişine göre tasarlandı. Önizle, beğenirsen kendi ekibine göre uyarla.</p>
-        <div class="tgrid">${TEMPLATES.map(t => tplCard(t)).join("")}</div></section>
+      <section><h2>Şablon galerisi</h2><p class="sm" style="margin:0">Temel şablonlar işin türüne göre hazırlandı, her sektöre uyar. Önizle, aşamaların adını ve sırasını kendi işine göre değiştir.</p>
+        <div class="cat-h" style="margin-top:4px">Her işe uyan temel şablonlar</div>
+        <div class="tgrid">${TEMPLATES.filter(t => t.core).map(t => tplCard(t)).join("")}</div>
+        <div class="cat-h" style="margin-top:8px">Sektör örnekleri</div>
+        <div class="tgrid">${TEMPLATES.filter(t => !t.core).map(t => tplCard(t)).join("")}</div></section>
     </main>`;
   }
   // ---------- Modül Deposu ----------
@@ -1644,7 +1673,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
   function openStartChooser() {
     sheet(`<div class="stack"><div><div class="eyebrow">Kendi akışını kur</div><h2 style="font-size:1.4rem">Nereden başlamak istersin?</h2></div>
       <button class="choice" id="fromBlank"><span class="tico">✎</span><div><b>Sıfırdan kur</b><div class="sm">Boş bir akış. Aşamaları tek tek sen eklersin.</div></div></button>
-      <button class="choice" id="fromTpl"><span class="tico">⧉</span><div><b>Şablondan başla</b><div class="sm">10 sektör şablonundan birini seç, kendine göre uyarla.</div></div></button>
+      <button class="choice" id="fromTpl"><span class="tico">⧉</span><div><b>Şablondan başla</b><div class="sm">Her işe uyan 4 temel şablondan ya da sektör örneklerinden birini seç, kendine göre uyarla.</div></div></button>
       <div class="sm" style="font-weight:700;margin-top:4px">Mevcut bir akışı kopyala</div>
       ${D.flows.map(f => `<button class="choice" data-copyflow="${f.id}"><span class="tico">${f.ico}</span><div style="min-width:0"><b>${esc(f.name)} kopyası</b><div class="flowline">${flowLine(f)}</div></div></button>`).join("")}
       <button class="btn ghost block" id="closeS">Vazgeç</button></div>`, () => {
