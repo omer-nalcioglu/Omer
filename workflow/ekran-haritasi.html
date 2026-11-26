@@ -1,25 +1,47 @@
 <title>Workflow Ekran Haritası</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=JetBrains+Mono:wght@500&display=swap">
 <style>
 /* Layout: one long blueprint, role by role; each screen = a phone wireframe beside its purpose, sections and where each button leads. Uses the app's own tokens. */
 :root {
-  --bg: #f5f6f8; --surface: #ffffff; --surface-2: #eef1f5; --ink: #111827; --ink-2: #5b6472; --line: #e1e4ea;
-  --accent: #1f3b73; --on-accent: #ffffff; --accent-soft: #e9eef8;
-  --ok: #157a5c; --ok-soft: #e6f4ee; --warn: #a35b06; --warn-soft: #fdf3e4; --bad: #c2372c; --bad-soft: #fcebe9;
-  --display: "Instrument Sans", "Inter", system-ui, sans-serif; --text: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
+  --bg: #eceff3; --surface: #ffffff; --surface-2: #f3f5f8; --sunk: #e3e7ed; --ink: #0f1419; --ink-2: #3f4854; --ink-3: #59626e; --line: #d9dee5; --line-2: #c3cad4;
+  --accent: #1d4ed8; --on-accent: #ffffff; --accent-soft: #e5ecfd;
+  --ok: #0b7a4b; --ok-soft: #dff3e8; --warn: #965a00; --warn-soft: #fcefd6; --bad: #c0291b; --bad-soft: #fde6e3;
+  --display: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; --text: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; --mono: "JetBrains Mono", ui-monospace, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #0f1115; --surface: #171a20; --surface-2: #1e222a; --ink: #e8eaee; --ink-2: #9aa3b2; --line: #2a2f38;
-  --accent: #9db4ec; --on-accent: #0f1115; --accent-soft: #1b2337;
-  --ok: #6fd3ad; --ok-soft: #142a22; --warn: #f0b765; --warn-soft: #2e2414; --bad: #f08176; --bad-soft: #321a18; color-scheme: dark } }
+  --bg: #0c0e11; --surface: #161a1f; --surface-2: #1d2228; --sunk: #0a0c0e; --ink: #eef1f4; --ink-2: #b7bec8; --ink-3: #8a93a0; --line: #2a3038; --line-2: #3a424d;
+  --accent: #8cadff; --on-accent: #0a1022; --accent-soft: #1a2442;
+  --ok: #4fd39c; --ok-soft: #0f2a1e; --warn: #f2b65c; --warn-soft: #2d2311; --bad: #ff8b7c; --bad-soft: #361915; color-scheme: dark } }
 :root[data-theme="dark"] {
-  --bg: #0f1115; --surface: #171a20; --surface-2: #1e222a; --ink: #e8eaee; --ink-2: #9aa3b2; --line: #2a2f38;
-  --accent: #9db4ec; --on-accent: #0f1115; --accent-soft: #1b2337;
-  --ok: #6fd3ad; --ok-soft: #142a22; --warn: #f0b765; --warn-soft: #2e2414; --bad: #f08176; --bad-soft: #321a18; color-scheme: dark }
+  --bg: #0c0e11; --surface: #161a1f; --surface-2: #1d2228; --sunk: #0a0c0e; --ink: #eef1f4; --ink-2: #b7bec8; --ink-3: #8a93a0; --line: #2a3038; --line-2: #3a424d;
+  --accent: #8cadff; --on-accent: #0a1022; --accent-soft: #1a2442;
+  --ok: #4fd39c; --ok-soft: #0f2a1e; --warn: #f2b65c; --warn-soft: #2d2311; --bad: #ff8b7c; --bad-soft: #361915; color-scheme: dark }
 * { box-sizing: border-box; }
-body { background: var(--bg); color: var(--ink); font-family: var(--text); font-size: 15px; line-height: 1.55; }
+body { background: var(--bg); color: var(--ink); font-family: var(--text); font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+/* tasarım dili bölümü */
+.dl { display: grid; gap: 16px; }
+.dl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.card h3 { font-size: 1rem; }
+.sw-row { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 10px; align-items: center; font-size: .88rem; }
+.sw-row i { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--line); }
+.sw-row b { display: block; font-weight: 600; } .sw-row span { color: var(--ink-2); }
+.ts-row { display: grid; grid-template-columns: 4.5rem minmax(0, 1fr); gap: 12px; align-items: baseline; border-bottom: 1px solid var(--line); padding-bottom: 8px; }
+.ts-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.ts-row code { font-family: var(--mono); font-size: .78rem; color: var(--ink-3); }
+.ts-row span { min-width: 0; overflow-wrap: anywhere; line-height: 1.2; }
+.measure { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.mm { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; display: grid; gap: 4px; min-width: 0; }
+.mm .n { font-size: 1.9rem; font-weight: 700; letter-spacing: -.03em; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.mm .n s { color: var(--ink-3); font-weight: 500; font-size: 1.1rem; text-decoration-thickness: 2px; margin-right: 6px; }
+.mm span { font-size: .86rem; color: var(--ink-2); }
+.demo-btns { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.dbtn { min-height: 48px; padding: 0 18px; border-radius: 12px; display: inline-flex; align-items: center; font-weight: 600; background: var(--accent); color: var(--on-accent); }
+.dbtn.l { background: var(--surface); color: var(--ink); border: 1px solid var(--line-2); }
+.dbtn.k { min-height: 56px; background: #0b7a4b; color: #fff; border-radius: 16px; padding: 0 22px; }
+@media (max-width: 640px) { .measure { grid-template-columns: minmax(0, 1fr); } }
 .wrap { max-width: 1120px; margin: 0 auto; padding-block: 40px 80px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 56px; }
 h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; letter-spacing: -.01em; }
 h1 { font-size: clamp(2rem, 5vw, 2.9rem); line-height: 1.1; }
@@ -128,6 +150,50 @@ html { scroll-behavior: smooth; }
     </div>
     <nav class="jump" aria-label="Bölümler" id="jump"></nav>
   </header>
+
+  <section id="tasarim" class="dl">
+    <div class="sec-head"><div class="eyebrow">Görünüm kuralları · v2</div><h2>Tasarım dili</h2>
+      <p class="muted">Uygulama atölyede, şantiyede, arabada ve güneş altında, çoğu zaman tek elle ve acele içinde kullanılıyor. Tasarım dili bu koşullara göre baştan kuruldu. Prototip birebir bu kurallarla çiziliyor; gerçek uygulamada da aynı değerler kullanılmalı.</p></div>
+    <div class="measure">
+      <div class="mm"><div class="n"><s>34</s>0</div><span>Patron, usta ve şoför ekranlarındaki emoji sayısı. Hepsi tek bir çizgi ikon setiyle değiştirildi; akışlara kullanıcının seçtiği simgeler kaldı.</span></div>
+      <div class="mm"><div class="n"><s>%53</s>%29</div><span>Patron panelinde 13 px ve daha küçük yazıların oranı. Gövde artık 16 px; kalan küçük yazılar etiket ve durum bilgisi.</span></div>
+      <div class="mm"><div class="n"><s>28</s>0</div><span>Üç ekranda zeminine göre yeterince okunmayan yazı (4,5:1 altı). İkincil yazılar artık koyu gri.</span></div>
+    </div>
+    <div class="dl-grid">
+      <div class="card"><h3>Renk yalnızca anlam taşır</h3>
+        <div class="sw-row"><i style="background:var(--accent)"></i><div><b>Mavi · dokunulabilir</b><span>Düğme, bağlantı, seçili sekme. Başka hiçbir yerde kullanılmaz.</span></div></div>
+        <div class="sw-row"><i style="background:var(--ok)"></i><div><b>Yeşil · bitti, iyi</b><span>Tamamlanan aşama, onay, zamanında teslim.</span></div></div>
+        <div class="sw-row"><i style="background:var(--warn)"></i><div><b>Sarı · bekliyor, dikkat</b><span>Sırada, onay bekliyor, termin riski, panoda.</span></div></div>
+        <div class="sw-row"><i style="background:var(--bad)"></i><div><b>Kırmızı · durdu, gecikti</b><span>Yalnızca müdahale gereken şeyler. Az kullanıldığı için göze çarpar.</span></div></div>
+        <div class="sw-row"><i style="background:var(--ink-2)"></i><div><b>Griler · her şey</b><span>İkincil yazılar koyu gri; güneşte de okunur (en az 7:1).</span></div></div></div>
+      <div class="card"><h3>Yazı: tek aile, yedi boyut</h3>
+        <div class="ts-row"><code>36 / 700</code><span style="font-size:36px;font-weight:700;letter-spacing:-.035em">8 iş</span></div>
+        <div class="ts-row"><code>28 / 700</code><span style="font-size:28px;font-weight:700;letter-spacing:-.025em">Görevlerim</span></div>
+        <div class="ts-row"><code>22 / 700</code><span style="font-size:22px;font-weight:700;letter-spacing:-.02em">Kaynak: Metal konstrüksiyon</span></div>
+        <div class="ts-row"><code>18 / 650</code><span style="font-size:18px;font-weight:650">Dikkat gerektirenler</span></div>
+        <div class="ts-row"><code>16 / 400</code><span style="font-size:16px">Gövde yazısı, iş adları, form alanları</span></div>
+        <div class="ts-row"><code>14 / 500</code><span style="font-size:14px;color:var(--ink-2)">Müşteri, termin, ikincil bilgiler</span></div>
+        <div class="ts-row"><code>12 / 600</code><span style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3)">Etiketler, durumlar</span></div>
+        <p class="muted" style="font-size:.86rem">Inter (Türkçe karakterler ve rakamlar için güçlü), iş numarası ve sayaç için JetBrains Mono. Tek aile, yavaş bağlantıda da hızlı yüklenir.</p></div>
+      <div class="card"><h3>Dokunma ve ölçüler</h3>
+        <div class="demo-btns"><span class="dbtn k">İşi tamamla ✓</span><span class="dbtn">Yeni iş</span><span class="dbtn l">Vazgeç</span></div>
+        <p style="font-size:.92rem"><b>56 px</b> ana eylem: her kartta tek, ekranın alt yarısında, başparmağın yetiştiği yerde.<br><b>48 px</b> diğer bütün kontroller; eldivenle de isabet edilir.<br><b>4 px ızgara</b>: aralıklar 4 · 8 · 12 · 16 · 24 · 32.<br><b>Köşe</b>: 8 etiket · 12 düğme ve alan · 16 kart · 24 görev kartı ve alt pencere.</p></div>
+      <div class="card"><h3>Düzen kuralları</h3>
+        <p style="font-size:.92rem"><b>Önce özet, sonra ayrıntı.</b> Her panel tek cümlelik durumla başlar ("2 iş gecikmede, 1 işte sorun var").<br><b>Önce dikkat gerektiren.</b> Sorunlu ve geciken işler en üstte; her satır doğrudan işe götürür, her iş bir kez görünür.<br><b>Bir kartta bir karar.</b> Görev kartında yalnızca o an yapılacak tek büyük düğme vardır.<br><b>Ayrıntı alttan açılır.</b> Her pencerenin üstünde kapatma düğmesi; kapatınca kaldığın yere dönersin.<br><b>Durum hem renk hem şekil.</b> Etiketlerde renkli nokta + yazı; renk körü kullanıcı da ayırt eder.</p></div>
+    </div>
+    <div class="tbl"><table>
+      <thead><tr><th>Alan</th><th>Önce</th><th>Şimdi</th></tr></thead>
+      <tbody>
+        <tr><td>Patron paneli</td><td>4 ekran boyu; uyarılar uzun paragraf; darboğaz grafiği ilk ekranda</td><td>Tek cümlelik durum özeti en üstte; dikkat listesi tıklanabilir satırlar, her iş bir kez; darboğaz radarı Raporlar'a taşındı; son hareketler 4 satır + Tümü</td></tr>
+        <tr><td>Görev kartı</td><td>Emoji bilgiler yan yana sıkışık; ince çerçeve ile durum</td><td>Üstte durum şeridi (sarı bekliyor, mavi çalışıyor, kırmızı sorun); konum, teslim ve miktar alt alta ikonlu; 56 px ana düğme; araçlar 72 px kutular</td></tr>
+        <tr><td>İş satırı</td><td>Numara başta, yüzde büyük, bilgiler etiketlerin arasında</td><td>Önce iş adı, numara sağda soluk; ikinci satırda müşteri ve termin; altta ilerleme ve durum</td></tr>
+        <tr><td>Alt menü</td><td>Küçük ikon, ince seçili rengi</td><td>64 px yükseklik; seçili sekmede ikon arkasında yumuşak hap; rozetler kırmızı ve çerçeveli</td></tr>
+        <tr><td>Alt pencereler</td><td>Kapatmak için en alta kaydırmak gerekiyordu</td><td>Üstte sabit tutamak ve kapatma düğmesi</td></tr>
+        <tr><td>Müşteri ekranı</td><td>7 aşama adı dar sütunlarda bölünüyordu</td><td>Etiketsiz ilerleme çubuğu + “Şu an: Teslimat · adım 6 / 7”</td></tr>
+        <tr><td>Bildirimler</td><td>Her olayda farklı emoji</td><td>Olay türüne göre ikon ve renk: yeşil bitti, sarı dikkat, kırmızı sorun, mavi bilgi</td></tr>
+        <tr><td>Prototip bandı</td><td>Uygulamanın parçası gibi görünüyordu</td><td>Koyu ve ince; uygulamadan açıkça ayrı</td></tr>
+      </tbody></table></div>
+  </section>
 
   <section id="dongu">
     <div class="sec-head"><div class="eyebrow">Uygulamanın kalbi</div><h2>Ana döngü</h2>
@@ -283,7 +349,7 @@ html { scroll-behavior: smooth; }
     ${r.sheets ? `<div class="sheets"><h3>Alttan açılan pencereler</h3><dl>${r.sheets.map(([a, b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join("")}</dl></div>` : ""}
   </section>`).join("");
 
-  document.getElementById("jump").innerHTML = [["dongu", "Ana döngü"], ...ROLES.map(r => [r.id, r.name]), ["bildirim", "Bildirimler"], ["durumlar", "Durumlar"], ["moduller", "Modüller"], ["ilkeler", "İlkeler"]]
+  document.getElementById("jump").innerHTML = [["tasarim", "Tasarım dili"], ["dongu", "Ana döngü"], ...ROLES.map(r => [r.id, r.name]), ["bildirim", "Bildirimler"], ["durumlar", "Durumlar"], ["moduller", "Modüller"], ["ilkeler", "İlkeler"]]
     .map(([id, n]) => `<a href="#${id}">${esc(n)}</a>`).join("");
 
   const NOTIF = [
