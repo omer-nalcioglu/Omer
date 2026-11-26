@@ -1,0 +1,1020 @@
+<title>Workflow</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: phone-width operations app; a slim prototype band on top picks whose eyes you see through; each role gets its own screen; sheets slide up for details */
+:root {
+  --bg: #eceff3;
+  --surface: #ffffff;
+  --surface-2: #f5f7f9;
+  --ink: #12161d;
+  --ink-2: #5a6473;
+  --line: #dce1e8;
+  --accent: #e8611a;
+  --accent-soft: #fde6d8;
+  --ok: #12845a;
+  --ok-soft: #dbf1e6;
+  --warn: #a86a0c;
+  --warn-soft: #fbefd6;
+  --bad: #cc3329;
+  --bad-soft: #fbe1de;
+  --info: #2a64c9;
+  --info-soft: #e0eafb;
+  --band: #12161d;
+  --band-ink: #e9edf2;
+  --shadow: 0 1px 2px #12161d12, 0 6px 18px #12161d0c;
+  --display: "Archivo", "Inter", system-ui, sans-serif;
+  --text: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b0e13; --surface: #141920; --surface-2: #1a2029; --ink: #e8ecf1; --ink-2: #97a1b0; --line: #27303c;
+    --accent: #ff7b30; --accent-soft: #3b2213; --ok: #3cc58c; --ok-soft: #10301f; --warn: #e9b14f; --warn-soft: #33270e;
+    --bad: #ff6e62; --bad-soft: #3b1815; --info: #6ea3ff; --info-soft: #14243f; --band: #000000; --band-ink: #e8ecf1;
+    --shadow: 0 1px 2px #0007, 0 6px 18px #0005; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b0e13; --surface: #141920; --surface-2: #1a2029; --ink: #e8ecf1; --ink-2: #97a1b0; --line: #27303c;
+  --accent: #ff7b30; --accent-soft: #3b2213; --ok: #3cc58c; --ok-soft: #10301f; --warn: #e9b14f; --warn-soft: #33270e;
+  --bad: #ff6e62; --bad-soft: #3b1815; --info: #6ea3ff; --info-soft: #14243f; --band: #000000; --band-ink: #e8ecf1;
+  --shadow: 0 1px 2px #0007, 0 6px 18px #0005; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--text); font-size: 15px; line-height: 1.42; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; border: 0; background: none; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.gut { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--band); }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.sm { font-size: .82rem; color: var(--ink-2); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* prototype band */
+.band { background: var(--band); color: var(--band-ink); position: sticky; top: env(safe-area-inset-top, 0px); z-index: 8; }
+.band-in { max-width: 520px; margin: 0 auto; display: flex; align-items: center; gap: 8px; padding-block: 8px; font-size: .78rem; }
+.band-in span { opacity: .65; white-space: nowrap; }
+.band select { flex: 1; min-width: 0; background: #ffffff14; border: 1px solid #ffffff2a; color: var(--band-ink); border-radius: 8px; padding: 6px 8px; font-size: .85rem; font-weight: 600; }
+.band select option { color: #12161d; background: #fff; }
+.band button { color: var(--band-ink); opacity: .7; font-size: .78rem; text-decoration: underline; }
+
+.app { max-width: 520px; margin: 0 auto; min-height: calc(100% - 44px); display: flex; flex-direction: column; padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+.top { padding-block: 16px 6px; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.eyebrow { font-family: var(--mono); font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+h1 { font-family: var(--display); font-weight: 800; font-size: 1.75rem; letter-spacing: -.02em; margin: 2px 0 0; line-height: 1.1; text-wrap: balance; }
+h2 { font-family: var(--display); font-weight: 800; font-size: 1.15rem; margin: 0; letter-spacing: -.01em; }
+.bell { position: relative; width: 44px; height: 44px; border-radius: 12px; background: var(--surface); box-shadow: var(--shadow); display: grid; place-items: center; font-size: 1.15rem; flex: none; }
+.bell b { position: absolute; top: -4px; right: -4px; min-width: 20px; height: 20px; border-radius: 10px; background: var(--accent); color: #fff; font-size: .7rem; display: grid; place-items: center; padding: 0 5px; }
+main { display: flex; flex-direction: column; gap: 18px; padding-block: 10px 24px; }
+section { display: flex; flex-direction: column; gap: 10px; }
+.sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.link { color: var(--accent); font-weight: 600; font-size: .85rem; }
+
+/* KPI */
+.kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.kpi { background: var(--surface); border-radius: 16px; padding: 14px; box-shadow: var(--shadow); text-align: left; }
+.kpi .v { font-family: var(--display); font-weight: 800; font-size: 2.1rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.kpi .l { font-size: .8rem; color: var(--ink-2); margin-top: 6px; font-weight: 600; }
+.kpi.bad .v { color: var(--bad); }
+.kpi.ok .v { color: var(--ok); }
+
+/* AI card */
+.ai { background: var(--surface); border-radius: 16px; padding: 14px; box-shadow: var(--shadow); border: 1px solid var(--accent-soft); display: grid; gap: 8px; }
+.ai-h { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.spark { width: 26px; height: 26px; border-radius: 8px; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: .9rem; flex: none; }
+.ai ul { margin: 0; padding-left: 18px; display: grid; gap: 5px; font-size: .9rem; }
+.ai li b { font-weight: 700; }
+
+/* job rows */
+.list { background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+.jr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; padding: 13px 14px; border-bottom: 1px solid var(--line); text-align: left; width: 100%; }
+.jr:last-child { border-bottom: 0; }
+.jr .t { font-weight: 700; overflow-wrap: anywhere; }
+.jr .pct { font-family: var(--display); font-weight: 800; font-size: 1.15rem; font-variant-numeric: tabular-nums; align-self: start; }
+.jr .st { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: .82rem; color: var(--ink-2); }
+.prog { grid-column: 1 / -1; height: 6px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+.prog i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+.prog.ok i { background: var(--ok); }
+.prog.bad i { background: var(--bad); }
+.pill { display: inline-flex; align-items: center; gap: 4px; font-size: .72rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.info { background: var(--info-soft); color: var(--info); }
+.pill.mute { background: var(--surface-2); color: var(--ink-2); }
+.pill.acc { background: var(--accent-soft); color: var(--accent); }
+
+/* feed */
+.feed { display: grid; gap: 0; background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); padding: 4px 14px; }
+.fi { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto; gap: 10px; padding-block: 10px; border-bottom: 1px solid var(--line); font-size: .87rem; align-items: start; }
+.fi:last-child { border-bottom: 0; }
+.fi .ic { font-size: 1rem; line-height: 1.3; }
+.fi time { font-size: .74rem; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+/* buttons */
+a.btn { text-decoration: none; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 16px; border-radius: 12px; font-weight: 700; background: var(--accent); color: #fff; }
+.btn.ghost { background: var(--surface-2); color: var(--ink); }
+.btn.line { background: var(--surface); color: var(--ink); border: 1.5px solid var(--line); }
+.btn.ok { background: var(--ok); color: #fff; }
+.btn.bad { background: var(--bad-soft); color: var(--bad); }
+.btn.dark { background: var(--ink); color: var(--surface); }
+.btn.block { width: 100%; }
+.btn.xl { padding-block: 18px; font-size: 1.1rem; border-radius: 16px; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.tool { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 6px; border-radius: 14px; background: var(--surface-2); font-weight: 600; font-size: .84rem; text-align: center; position: relative; }
+.tool .i { font-size: 1.35rem; line-height: 1; }
+.tool input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+/* worker task card */
+.task { background: var(--surface); border-radius: 20px; box-shadow: var(--shadow); padding: 16px; display: grid; gap: 12px; border: 2px solid transparent; }
+.task.working { border-color: var(--accent); }
+.task.blocked { border-color: var(--bad); }
+.task-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.wo { font-family: var(--mono); font-size: .76rem; letter-spacing: .08em; color: var(--ink-2); font-weight: 700; }
+.task h3 { font-family: var(--display); font-size: 1.35rem; line-height: 1.15; margin: 0; font-weight: 800; text-wrap: balance; }
+.task p { margin: 0; color: var(--ink-2); }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 16px; font-weight: 600; font-size: .9rem; }
+.file { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; background: var(--info-soft); color: var(--info); font-weight: 700; text-align: left; width: 100%; }
+.timer { font-family: var(--mono); font-size: 1.8rem; font-weight: 700; text-align: center; color: var(--accent); font-variant-numeric: tabular-nums; }
+.attach { display: flex; gap: 8px; flex-wrap: wrap; }
+.attach img { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; }
+.vn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; border-radius: 999px; background: var(--surface-2); font-size: .8rem; font-weight: 600; }
+.issue { background: var(--bad-soft); color: var(--ink); border-radius: 12px; padding: 10px 12px; font-size: .9rem; }
+.issue b { color: var(--bad); }
+.scan { display: grid; grid-template-columns: 28px minmax(0,1fr) auto; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.scan:last-child { border-bottom: 0; }
+.scan .bx { width: 28px; height: 28px; border-radius: 8px; border: 2px solid var(--line); display: grid; place-items: center; font-weight: 800; color: transparent; }
+.scan.on .bx { background: var(--ok); border-color: var(--ok); color: #fff; }
+.scanrow { display: flex; gap: 8px; }
+.scanrow input { flex: 1; min-width: 0; padding: 12px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface-2); font-family: var(--mono); }
+.sig { width: 100%; height: 150px; border-radius: 12px; border: 1.5px dashed var(--line); background: var(--surface-2); touch-action: none; display: block; }
+.map { border-radius: 14px; overflow: hidden; background: var(--surface-2); border: 1px solid var(--line); }
+.map svg { display: block; width: 100%; height: auto; }
+
+/* team */
+.pr { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 11px 14px; border-bottom: 1px solid var(--line); text-align: left; width: 100%; }
+.pr:last-child { border-bottom: 0; }
+.av { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: .85rem; color: #fff; flex: none; }
+.load { height: 5px; border-radius: 3px; background: var(--surface-2); margin-top: 5px; overflow: hidden; }
+.load i { display: block; height: 100%; background: var(--accent); }
+
+/* reports */
+.bars { display: grid; gap: 10px; background: var(--surface); border-radius: 16px; padding: 14px; box-shadow: var(--shadow); }
+.bar { display: grid; grid-template-columns: 112px minmax(0, 1fr) 54px; gap: 10px; align-items: center; font-size: .84rem; }
+.bar .tr { height: 12px; border-radius: 6px; background: var(--surface-2); overflow: hidden; }
+.bar .tr i { display: block; height: 100%; border-radius: 6px; background: var(--accent); }
+.bar .tr i.hi { background: var(--bad); }
+.bar .v { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+.tbl-wrap { overflow-x: auto; background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); }
+table { border-collapse: collapse; width: 100%; font-size: .84rem; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-size: .7rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); font-weight: 700; }
+td.r, th.r { text-align: right; font-variant-numeric: tabular-nums; }
+tr:last-child td { border-bottom: 0; }
+
+/* settings */
+.set { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--line); }
+.set:last-child { border-bottom: 0; }
+.sw { width: 48px; height: 28px; border-radius: 14px; background: var(--line); position: relative; flex: none; transition: background .15s; }
+.sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform .15s; box-shadow: 0 1px 2px #0003; }
+.sw[aria-checked="true"] { background: var(--ok); }
+.sw[aria-checked="true"]::after { transform: translateX(20px); }
+.flowline { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; font-size: .8rem; color: var(--ink-2); margin-top: 3px; }
+.flowline span.s { background: var(--surface-2); border-radius: 6px; padding: 1px 6px; color: var(--ink); font-weight: 600; }
+
+/* tabs */
+nav.tabs { position: fixed; z-index: 6; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 520px; background: var(--surface); border-top: 1px solid var(--line); display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+.tab { padding-block: 9px 11px; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: .72rem; font-weight: 600; color: var(--ink-2); }
+.tab .i { font-size: 1.15rem; line-height: 1; }
+.tab[aria-selected="true"] { color: var(--accent); }
+.fab { position: fixed; z-index: 6; right: max(16px, calc(50% - 244px)); bottom: calc(76px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-radius: 16px; background: var(--ink); color: var(--surface); font-weight: 700; box-shadow: 0 10px 26px #0004; }
+.fab .spark { width: 24px; height: 24px; }
+
+/* sheets */
+.scrim { position: fixed; inset: 0; z-index: 20; background: #05080c99; display: flex; align-items: flex-end; justify-content: center; }
+.sheet { width: 100%; max-width: 520px; max-height: 92%; overflow-y: auto; background: var(--surface); border-radius: 22px 22px 0 0; padding-top: 10px; padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); animation: up .22s ease-out; }
+.sheet.still { animation: none; }
+@keyframes up { from { transform: translateY(40px); opacity: 0; } }
+.grab { width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto 12px; }
+.stack { display: flex; flex-direction: column; gap: 14px; }
+textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface-2); resize: vertical; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { padding: 7px 11px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); font-size: .8rem; font-weight: 600; text-align: left; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+
+/* job detail graph */
+.graph { display: flex; flex-direction: column; }
+.gstep { display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; position: relative; padding-bottom: 12px; }
+.gstep::before { content: ""; position: absolute; left: 14px; top: 30px; bottom: 0; width: 2px; background: var(--line); }
+.gstep:last-child::before { display: none; }
+.gstep.done::before { background: var(--ok); }
+.dotn { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: .8rem; background: var(--surface-2); border: 2px solid var(--line); color: var(--ink-2); position: relative; }
+.gstep.done .dotn { background: var(--ok); border-color: var(--ok); color: #fff; }
+.gstep.cur .dotn { border-color: var(--accent); color: var(--accent); background: var(--surface); }
+.gstep.blk .dotn { border-color: var(--bad); color: var(--bad); background: var(--surface); }
+.par { display: grid; gap: 6px; }
+.pcard { background: var(--surface-2); border-radius: 12px; padding: 9px 11px; display: grid; gap: 3px; }
+.pcard .h { display: flex; justify-content: space-between; gap: 8px; align-items: center; font-weight: 700; }
+.ptag { font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--info); }
+
+/* plan */
+.plan { border: 1.5px solid var(--accent); border-radius: 16px; padding: 14px; display: grid; gap: 12px; background: var(--surface); }
+.plan-h { display: grid; gap: 4px; }
+.pl { display: grid; grid-template-columns: 26px minmax(0, 1fr) 132px; gap: 10px; align-items: center; padding-block: 6px; border-bottom: 1px solid var(--line); }
+.pl:last-child { border-bottom: 0; }
+.pl .n { width: 26px; height: 26px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-weight: 800; font-size: .78rem; display: grid; place-items: center; }
+.pl select { width: 100%; min-width: 0; padding: 7px 8px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); font-size: .82rem; }
+.note { background: var(--warn-soft); border-radius: 12px; padding: 10px 12px; font-size: .86rem; display: grid; gap: 4px; }
+.note.info { background: var(--info-soft); }
+.thinking { display: flex; gap: 10px; align-items: center; color: var(--ink-2); font-weight: 600; }
+.thinking i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: blink 1s infinite; }
+.thinking i:nth-child(2) { animation-delay: .2s; } .thinking i:nth-child(3) { animation-delay: .4s; }
+@keyframes blink { 50% { opacity: .2; } }
+
+/* customer */
+.track { background: var(--surface); border-radius: 20px; box-shadow: var(--shadow); padding: 18px; display: grid; gap: 14px; }
+.tsteps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+.ts { display: grid; gap: 6px; text-align: center; font-size: .7rem; font-weight: 600; color: var(--ink-2); }
+.ts i { height: 6px; border-radius: 3px; background: var(--surface-2); }
+.ts.on i { background: var(--ok); }
+.ts.cur i { background: var(--accent); }
+.ts.cur { color: var(--ink); }
+.eta { font-family: var(--display); font-weight: 800; font-size: 1.6rem; }
+
+.toast { position: fixed; z-index: 30; left: 50%; transform: translateX(-50%); top: calc(54px + env(safe-area-inset-top, 0px)); width: min(488px, calc(100% - 32px)); background: var(--ink); color: var(--surface); border-radius: 14px; padding: 12px 14px; display: flex; gap: 10px; align-items: center; box-shadow: 0 10px 30px #0005; animation: drop .25s ease-out; }
+@keyframes drop { from { transform: translate(-50%, -16px); opacity: 0; } }
+.toast b { display: block; }
+.toast .sm { color: inherit; opacity: .75; }
+.empty { text-align: center; color: var(--ink-2); padding: 28px 12px; background: var(--surface); border-radius: 16px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="band"><div class="band-in gut">
+  <span>Prototip · Görünüm</span>
+  <select id="who" aria-label="Kimin ekranını görmek istiyorsun"></select>
+  <button id="reset">Sıfırla</button>
+</div></div>
+<div class="app" id="app"></div>
+<div id="nav"></div>
+<div id="layer"></div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const lower = s => s.toLocaleLowerCase("tr");
+  const MIN = 60000, HOUR = 3600000, DAY = 86400000;
+  const sod = (t = Date.now()) => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
+  const pad = n => String(n).padStart(2, "0");
+  const DAYS = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
+  const MON = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+  const hm = t => { const d = new Date(t); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+  function dayLabel(t) {
+    const diff = Math.round((sod(t) - sod()) / DAY), d = new Date(t);
+    if (diff === 0) return "Bugün"; if (diff === 1) return "Yarın"; if (diff === -1) return "Dün";
+    if (diff > 1 && diff < 7) return DAYS[d.getDay()];
+    return `${d.getDate()} ${MON[d.getMonth()]}`;
+  }
+  const when = t => `${dayLabel(t)} ${hm(t)}`;
+  const tl = n => new Intl.NumberFormat("tr-TR", { maximumFractionDigits: 0 }).format(n) + " ₺";
+  const lastV = n => { const m = lower(n).match(/[aeıioöuü](?=[^aeıioöuü]*$)/); return m ? m[0] : "e"; };
+  const endsV = n => /[aeıioöuü]$/.test(lower(n));
+  const dat = n => n + "'" + (endsV(n) ? "y" : "") + (/[aıou]/.test(lastV(n)) ? "a" : "e");
+
+  // ---------------- model ----------------
+  const PEOPLE = [
+    { id: "selim", name: "Selim Demirtaş", role: "patron", title: "Patron", color: "#12161d" },
+    { id: "kadir", name: "Kadir Usta", role: "ustabasi", title: "Ustabaşı", color: "#7c3aed" },
+    { id: "murat", name: "Murat Kaya", role: "uretim", title: "Teknik personel", skills: ["olcum"], color: "#2a64c9" },
+    { id: "emre", name: "Emre Şahin", role: "uretim", title: "Kesimci", skills: ["kesim"], color: "#0f766e" },
+    { id: "huseyin", name: "Hüseyin Arslan", role: "uretim", title: "Kaynak ustası", skills: ["kaynak", "montaj"], color: "#c2410c" },
+    { id: "okan", name: "Okan Yıldız", role: "uretim", title: "Kaynakçı", skills: ["kaynak", "kesim", "montaj"], color: "#b45309" },
+    { id: "cem", name: "Cem Aydın", role: "uretim", title: "Boyacı", skills: ["boya"], color: "#be185d" },
+    { id: "zeynep", name: "Zeynep Koç", role: "uretim", title: "Kalite kontrol", skills: ["kalite"], color: "#4d7c0f" },
+    { id: "yusuf", name: "Yusuf Demir", role: "depo", title: "Depo ve sevkiyat", skills: ["depo"], color: "#475569" },
+    { id: "mehmet", name: "Mehmet Çelik", role: "sofor", title: "Şoför", skills: ["sofor"], vehicle: "34 ABC 128 · Kamyonet", color: "#0e7490" },
+    { id: "ali", name: "Ali Özkan", role: "sofor", title: "Şoför", skills: ["sofor"], vehicle: "34 KLM 552 · Kamyon", color: "#1d4ed8" },
+  ];
+  const METAL = [
+    { key: "malzeme", name: "Malzeme kontrolü", skill: "depo", g: 0, type: "task", pub: "Planlama", checklist: "Malzeme ve aksesuar stoğunu kontrol et, eksikleri satın almaya bildir." },
+    { key: "olcum", name: "Ölçüm ve planlama", skill: "olcum", g: 0, type: "task", pub: "Planlama", checklist: "Müşteri ölçülerini teyit et, teknik çizimi hazırla." },
+    { key: "kesim", name: "Kesim", skill: "kesim", g: 1, type: "task", pub: "Üretim", checklist: "Profilleri çizime göre kes, parçaları numarala." },
+    { key: "kaynak", name: "Kaynak ve üretim", skill: "kaynak", g: 2, type: "task", pub: "Üretim", checklist: "Parçaları teknik çizime uygun kaynatın, çapakları alın." },
+    { key: "boya", name: "Boya ve kaplama", skill: "boya", g: 3, type: "task", pub: "Üretim", checklist: "Astar ve son kat elektrostatik boya." },
+    { key: "aksesuar", name: "Aksesuar ve kilit hazırlığı", skill: "depo", g: 3, type: "task", pub: "Üretim", checklist: "Kilit, menteşe ve vida setlerini hazırla." },
+    { key: "kalite", name: "Kalite kontrol", skill: "kalite", g: 4, type: "approval", pub: "Kalite kontrol", checklist: "Ölçü, kaynak dikişi ve boya yüzeyini kontrol et." },
+    { key: "sevk", name: "Sevkiyat hazırlığı", skill: "depo", g: 5, type: "pack", pub: "Sevkiyata hazırlanıyor", checklist: "Ürünleri barkodla say, paketle, araca yükle." },
+    { key: "teslim", name: "Nakliye ve teslimat", skill: "sofor", g: 6, type: "delivery", pub: "Teslimat", checklist: "Müşteriye teslim et, fotoğraf ve imza al." },
+  ];
+  const SECTORS = [
+    ["🏭", "Metal sanayi", ["Kesim", "Kaynak", "Boya", "Sevkiyat"]], ["🪑", "Mobilya", ["Ölçüm", "Tasarım", "Üretim", "Montaj"]],
+    ["🚗", "Otomobil servisi", ["Araç kabul", "Arıza tespiti", "Onarım", "Teslim"]], ["🏗️", "İnşaat", ["Planlama", "Malzeme", "Uygulama", "Kontrol"]],
+    ["🚚", "Lojistik", ["Yük kabul", "Yükleme", "Nakliye", "Teslim"]], ["🧵", "Tekstil", ["Kesim", "Dikim", "Ütü", "Paketleme"]],
+    ["🍽️", "Restoran", ["Sipariş", "Hazırlık", "Pişirme", "Servis"]], ["🏠", "Emlak", ["Müşteri", "Portföy", "Görüşme", "Satış"]],
+    ["🧽", "Temizlik", ["Talep", "Ekip atama", "Hizmet", "Kontrol"]], ["📦", "E-ticaret", ["Sipariş", "Paketleme", "Kargo", "Teslim"]],
+  ];
+  const MODULES = [
+    ["ai", "Workflow AI", "Konuşarak iş oluşturma, günlük özet"], ["fleet", "Workflow Fleet", "Şoför, araç ve teslimat"],
+    ["stock", "Workflow Stock", "Depo, barkod ve stok uyarıları"], ["finance", "Workflow Finance", "İş maliyeti ve kârlılık"],
+    ["customers", "Workflow Customers", "Müşterinin sipariş takip ekranı"],
+  ];
+  const ROADMAP = ["Workflow Chat · işe özel mesajlaşma", "Workflow Forms · özel formlar", "Workflow Offline · internetsiz kayıt", "Workflow Locations · çoklu şube", "Workflow Connect · ERP ve muhasebe"];
+
+  const person = id => PEOPLE.find(p => p.id === id) || { id, name: id, title: "", color: "#64748b" };
+  const first = id => person(id).name.split(" ")[0];
+  const avatar = (id, size) => { const p = person(id), ini = p.name.split(" ").map(x => x[0]).slice(0, 2).join("");
+    return `<span class="av" style="background:${p.color}${size ? `;width:${size}px;height:${size}px;font-size:${size * .36}px` : ""}" aria-hidden="true">${esc(ini)}</span>`; };
+
+  function mkJob(o) {
+    const now = Date.now();
+    const steps = METAL.map(st => ({ ...st, owner: (o.owners && o.owners[st.key]) || defaultOwner(st.skill), status: "locked", photos: [], notes: [], log: [] }));
+    const j = { id: o.id, title: o.title, desc: o.desc || "", customer: o.customer, address: o.address || "", qty: o.qty || "", due: o.due,
+      createdAt: o.createdAt || now - 6 * DAY, price: o.price || 0, cost: o.cost || 0, urgent: !!o.urgent, steps, done: false };
+    let t = j.createdAt;
+    steps.forEach(s => {
+      if (s.g < o.at) { s.status = "done"; s.readyAt = t; s.startedAt = t + 2 * HOUR; s.doneAt = t + (o.dur?.[s.key] ?? 6) * HOUR; }
+      else if (s.g === o.at) { s.status = "ready"; s.readyAt = now - (o.waiting ?? 3) * HOUR; }
+    });
+    // stagger done times by group
+    for (let g = 0; g < o.at; g++) { const gs = steps.filter(s => s.g === g); if (!gs.length) continue; const st = t; gs.forEach(s => { s.readyAt = st; s.startedAt = st + HOUR; s.doneAt = st + (o.dur?.[s.key] ?? 7) * HOUR; }); t = Math.max(...gs.map(s => s.doneAt)); }
+    if (o.at > 8) { j.done = true; j.doneAt = t; }
+    return j;
+  }
+  function defaultOwner(skill) { return (PEOPLE.find(p => (p.skills || []).includes(skill)) || PEOPLE[1]).id; }
+
+  function seed() {
+    const now = Date.now(), at = (d, h = 17, m = 0) => sod() + d * DAY + h * HOUR + m * MIN;
+    const jobs = [
+      mkJob({ id: 1042, title: "Metal konstrüksiyon", customer: "Kaya İnşaat", qty: "24 profil", due: at(2), at: 2, waiting: 2, price: 186000, cost: 121000,
+        createdAt: now - 4 * DAY, owners: { kaynak: "huseyin" } }),
+      mkJob({ id: 1043, title: "Çelik kapı siparişi", customer: "Yıldız Sitesi", qty: "12 adet", due: at(1), at: 5, waiting: 1, price: 228000, cost: 151000, createdAt: now - 7 * DAY }),
+      mkJob({ id: 1044, title: "Makine parçası · flanş", customer: "Öztürk Makine", qty: "40 adet", due: at(4), at: 1, waiting: 30, price: 64000, cost: 39000, createdAt: now - 3 * DAY, owners: { kesim: "emre" } }),
+      mkJob({ id: 1045, title: "Merdiven korkuluğu montajı", customer: "Defne Hanım · Kadıköy", qty: "14 m", due: at(-1), at: 3, waiting: 26, price: 52000, cost: 33500, createdAt: now - 8 * DAY }),
+      mkJob({ id: 1046, title: "Bahçe kapısı", customer: "Can Bey · Beykoz", qty: "1 adet", due: at(3), at: 4, waiting: 3, price: 41000, cost: 24800, createdAt: now - 6 * DAY }),
+      mkJob({ id: 1047, title: "Depo rafı sistemi", customer: "Ekin Lojistik", qty: "8 ünite", due: at(0, 18), at: 6, waiting: 2, price: 132000, cost: 88000, createdAt: now - 9 * DAY,
+        address: "Aydınlı Mah. Organize Sanayi Cd. No: 14, Tuzla / İstanbul", owners: { teslim: "mehmet" } }),
+      mkJob({ id: 1048, title: "Çatı makası", customer: "Kaya İnşaat", qty: "6 adet", due: at(10), at: 0, waiting: 5, price: 97000, cost: 64000, createdAt: now - 6 * HOUR }),
+      mkJob({ id: 1049, title: "Kepenk", customer: "Ekin Lojistik", qty: "3 adet", due: at(5), at: 2, waiting: 1, price: 45000, cost: 29500, createdAt: now - 2 * DAY, owners: { kaynak: "huseyin" } }),
+      // finished, for reports
+      mkJob({ id: 1038, title: "Pergola", customer: "Can Bey · Beykoz", qty: "1 adet", due: at(-9), at: 9, price: 74000, cost: 47200, createdAt: now - 18 * DAY, dur: { kaynak: 16, boya: 12, kalite: 3 } }),
+      mkJob({ id: 1039, title: "Yangın merdiveni", customer: "Kaya İnşaat", qty: "1 adet", due: at(-6), at: 9, price: 168000, cost: 118000, createdAt: now - 16 * DAY, dur: { kaynak: 30, boya: 14, kesim: 9 } }),
+      mkJob({ id: 1040, title: "Çelik kapı", customer: "Yıldız Sitesi", qty: "6 adet", due: at(-4), at: 9, price: 112000, cost: 70500, createdAt: now - 12 * DAY, dur: { kaynak: 12, boya: 20, sevk: 5 } }),
+      mkJob({ id: 1041, title: "Platform ve korkuluk", customer: "Ekin Lojistik", qty: "1 takım", due: at(-2), at: 9, price: 89000, cost: 61000, createdAt: now - 9 * DAY, dur: { kaynak: 22, boya: 18, olcum: 10 } }),
+    ];
+    const J = id => jobs.find(j => j.id === id), S = (id, k) => J(id).steps.find(s => s.key === k);
+    // 1042: Hüseyin's welding task, the spec example
+    Object.assign(S(1042, "kaynak"), { detail: "24 adet çelik profilin teknik çizime uygun şekilde kaynatılması.", place: "Atölye 2", deadline: at(0, 16, 30), file: "Teknik çizim.pdf" });
+    Object.assign(S(1049, "kaynak"), { detail: "3 adet kepenk kasasının kaynağı, ray yuvaları dahil.", place: "Atölye 1", deadline: at(1, 12), file: "Kepenk ölçüleri.pdf" });
+    // 1044 blocked by material
+    Object.assign(S(1044, "kesim"), { status: "blocked", issue: { type: "Malzeme eksik", note: "20 mm sac levha stokta yok, tedarikçi cumartesi diyor.", at: now - 29 * HOUR, by: "emre" } });
+    // 1045 parallel: paint working, accessories done
+    Object.assign(S(1045, "boya"), { status: "working", startedAt: now - 3 * HOUR });
+    Object.assign(S(1045, "aksesuar"), { status: "done", startedAt: now - 25 * HOUR, doneAt: now - 20 * HOUR });
+    // 1043 packing list
+    S(1043, "sevk").items = [
+      { name: "Çelik kapı kanadı", code: "KP-1043-01", n: 12, scanned: false }, { name: "Kasa takımı", code: "KS-1043-02", n: 12, scanned: false },
+      { name: "Kilit ve menteşe seti", code: "AK-1043-03", n: 12, scanned: true }, { name: "Montaj vidası kolisi", code: "VD-1043-04", n: 2, scanned: false } ];
+    S(1047, "teslim").load = "8 raf ünitesi · 1,2 ton · 14 koli";
+    const feed = [
+      { at: now - 26 * HOUR, ic: "🎨", text: "Cem, #1045 boya aşamasına geçti" },
+      { at: now - 29 * HOUR, ic: "⚠️", text: "Emre sorun bildirdi: #1044 malzeme eksik (20 mm sac)", to: ["selim", "kadir"] },
+      { at: now - 3 * HOUR, ic: "✅", text: "Zeynep onayı bekliyor: #1046 Bahçe kapısı", to: ["zeynep"] },
+      { at: now - 2 * HOUR, ic: "🔥", text: "#1042 kaynak aşamasına geçti, Hüseyin'e iletildi", to: ["huseyin"] },
+      { at: now - 2 * HOUR, ic: "🚚", text: "#1047 sevkiyata hazır, Mehmet'e teslimat görevi düştü", to: ["mehmet"] },
+      { at: now - 1 * HOUR, ic: "📦", text: "Yusuf #1043 paketlemeye başladı" },
+    ];
+    const stock = [
+      { name: "Profil 40×40 mm", qty: 38, min: 60, unit: "boy" }, { name: "Sac levha 20 mm", qty: 0, min: 10, unit: "plaka" },
+      { name: "Kilit takımı", qty: 30, min: 20, unit: "adet" }, { name: "Elektrostatik boya · RAL 7016", qty: 42, min: 25, unit: "kg" },
+      { name: "Menteşe", qty: 220, min: 80, unit: "adet" } ];
+    return { jobs, feed, stock, nextId: 1050, mods: { ai: true, fleet: true, stock: true, finance: true, customers: true },
+      privacy: { loc: true, perf: true } };
+  }
+
+  let D;
+  try { D = JSON.parse(localStorage.getItem("wf-proto-1")); } catch (e) {}
+  if (!D || !D.jobs) D = seed();
+  const save = () => { try { localStorage.setItem("wf-proto-1", JSON.stringify(D)); } catch (e) {} };
+
+  const VIEWS = [
+    ["selim", "Selim · Patron"], ["kadir", "Kadir · Ustabaşı"], ["huseyin", "Hüseyin · Kaynak ustası"], ["cem", "Cem · Boyacı"],
+    ["zeynep", "Zeynep · Kalite kontrol"], ["yusuf", "Yusuf · Depo ve sevkiyat"], ["mehmet", "Mehmet · Şoför"],
+    ["c:Ekin Lojistik", "Ekin Lojistik · Müşteri"], ["c:Kaya İnşaat", "Kaya İnşaat · Müşteri"] ];
+  let me = "selim", tab = "panel", jobFilter = "aktif";
+
+  // ---------------- engine ----------------
+  const jobById = id => D.jobs.find(j => j.id === id);
+  const curGroup = j => { const open = j.steps.filter(s => s.status !== "done"); return open.length ? Math.min(...open.map(s => s.g)) : null; };
+  const activeSteps = j => j.steps.filter(s => ["ready", "working", "blocked"].includes(s.status));
+  const pct = j => j.done ? 100 : Math.round(j.steps.reduce((a, s) => a + (s.status === "done" ? 1 : s.status === "working" ? .5 : 0), 0) / j.steps.length * 100);
+  const isLate = j => !j.done && j.due < Date.now();
+  function jobState(j) {
+    if (j.done) return { label: "Tamamlandı", cls: "ok" };
+    const act = activeSteps(j), blk = act.find(s => s.status === "blocked");
+    if (blk) return { label: blk.issue?.type === "Malzeme eksik" ? "Malzeme bekliyor" : `Sorun: ${blk.issue?.type || "bildirildi"}`, cls: "bad" };
+    if (act.some(s => s.type === "approval" && s.status === "ready")) return { label: "Onay bekliyor", cls: "warn" };
+    if (act.some(s => s.type === "pack")) return { label: "Sevkiyata hazırlanıyor", cls: "info" };
+    if (act.some(s => s.type === "delivery")) return { label: act.some(s => s.status === "working") ? "Yolda" : "Teslimata hazır", cls: "info" };
+    const names = act.map(s => s.name.split(" ")[0]).join(" + ");
+    return { label: `${names} aşamasında`, cls: "mute" };
+  }
+  function notify(text, ic, to) { D.feed.push({ at: Date.now(), ic, text, to }); }
+  function activateGroup(j, g) {
+    const gs = j.steps.filter(s => s.g === g);
+    gs.forEach(s => { s.status = "ready"; s.readyAt = Date.now(); delete s.issue; });
+    gs.forEach(s => notify(`#${j.id} ${s.name} aşamasına geçti · ${first(s.owner)} bilgilendirildi`, "➡️", [s.owner]));
+    return gs;
+  }
+  function completeStep(j, s, by, how = "done") {
+    s.status = "done"; s.doneAt = Date.now(); if (!s.startedAt) s.startedAt = s.readyAt;
+    s.log.push({ at: Date.now(), by, act: how });
+    const g = s.g;
+    if (j.steps.some(x => x.g === g && x.status !== "done")) {
+      const wait = j.steps.filter(x => x.g === g && x.status !== "done");
+      notify(`${first(by)} #${j.id} ${s.name} işini bitirdi · paralel aşama bekleniyor: ${wait.map(x => x.name).join(", ")}`, "✅");
+      return { next: null, waitingParallel: wait };
+    }
+    const nextG = curGroup(j);
+    if (nextG == null) {
+      j.done = true; j.doneAt = Date.now();
+      notify(`#${j.id} ${j.title} teslim edildi · rapor hazır`, "🏁", ["selim"]);
+      return { finished: true };
+    }
+    const next = activateGroup(j, nextG);
+    return { next };
+  }
+  function sendBack(j, s, by, note) {
+    const prevG = Math.max(...j.steps.filter(x => x.g < s.g).map(x => x.g));
+    s.status = "locked"; s.log.push({ at: Date.now(), by, act: "back", note });
+    let prev = j.steps.filter(x => x.g === prevG);
+    if (prev.length > 1 && prev.some(x => x.skill !== "depo")) prev = prev.filter(x => x.skill !== "depo");
+    prev.forEach(x => { x.status = "ready"; x.readyAt = Date.now(); delete x.startedAt; x.notes.push({ kind: "text", text: `Geri gönderildi: ${note || "düzeltme gerekli"}`, by, at: Date.now() }); });
+    notify(`${first(by)} #${j.id} işini ${prev.map(x => x.name).join(", ")} aşamasına geri gönderdi${note ? `: “${note}”` : ""}`, "↩️", prev.map(x => x.owner).concat("selim"));
+    return prev;
+  }
+
+  // ---------------- UI helpers ----------------
+  const layer = $("#layer");
+  function sheet(html, mount, still) {
+    const old = layer.querySelector(".sheet"), top = still && old ? old.scrollTop : 0;
+    layer.innerHTML = `<div class="scrim" id="scrim"><div class="sheet gut${still ? " still" : ""}" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`;
+    $("#scrim").addEventListener("click", e => { if (e.target.id === "scrim") closeSheet(); });
+    if (still) layer.querySelector(".sheet").scrollTop = top;
+    mount && mount();
+  }
+  const closeSheet = () => { layer.innerHTML = ""; stopSig = null; };
+  let toastT;
+  function toast(ic, title, sub) {
+    document.querySelector(".toast")?.remove();
+    const el = document.createElement("div"); el.className = "toast"; el.setAttribute("role", "status");
+    el.innerHTML = `<span style="font-size:1.3rem">${ic}</span><div style="min-width:0"><b>${esc(title)}</b>${sub ? `<div class="sm">${esc(sub)}</div>` : ""}</div>`;
+    document.body.appendChild(el); clearTimeout(toastT); toastT = setTimeout(() => el.remove(), 4200);
+  }
+  const ago = t => { const m = Math.max(0, Math.round((Date.now() - t) / MIN)); if (m < 60) return `${m} dk`; const h = Math.round(m / 60); return h < 48 ? `${h} sa` : `${Math.round(h / 24)} gün`; };
+  function jobRow(j) {
+    const st = jobState(j), late = isLate(j), p = pct(j);
+    return `<button class="jr" data-job="${j.id}">
+      <div><span class="mono sm">#${j.id}</span> <span class="t">${esc(j.title)}</span></div><div class="pct">%${p}</div>
+      <div class="prog ${j.done ? "ok" : st.cls === "bad" || late ? "bad" : ""}"><i style="width:${p}%"></i></div>
+      <div class="st"><span class="pill ${st.cls}">${esc(st.label)}</span>${late ? `<span class="pill bad">Gecikme mevcut</span>` : ""}${j.urgent ? `<span class="pill acc">Acil</span>` : ""}
+        <span>${esc(j.customer)} · Termin ${esc(dayLabel(j.due))}</span></div>
+    </button>`;
+  }
+  const loadOf = id => D.jobs.reduce((a, j) => a + (j.done ? 0 : j.steps.filter(s => s.owner === id && ["ready", "working", "blocked"].includes(s.status)).length), 0);
+  const queuedOf = id => D.jobs.reduce((a, j) => a + (j.done ? 0 : j.steps.filter(s => s.owner === id && s.status === "locked").length), 0);
+  function personStatus(id) {
+    const my = D.jobs.flatMap(j => j.done ? [] : j.steps.filter(s => s.owner === id && s.status !== "done" && s.status !== "locked").map(s => ({ j, s })));
+    if (my.some(x => x.s.status === "blocked")) return { label: "Sorun bildirdi", cls: "bad" };
+    if (my.some(x => x.s.status === "working")) return { label: "Çalışıyor", cls: "ok" };
+    if (my.length) return { label: "Görev bekliyor", cls: "warn" };
+    return { label: "Boşta", cls: "mute" };
+  }
+
+  // ---------------- render ----------------
+  function render() {
+    const sel = $("#who");
+    sel.innerHTML = VIEWS.filter(([id]) => !(id === "mehmet" && !D.mods.fleet) && !(id.startsWith("c:") && !D.mods.customers))
+      .map(([id, l]) => `<option value="${esc(id)}"${id === me ? " selected" : ""}>${esc(l)}</option>`).join("");
+    if (me.startsWith("c:")) return renderCustomer(me.slice(2));
+    const p = person(me);
+    if (p.role === "patron") return renderBoss();
+    if (p.role === "ustabasi") return renderForeman();
+    if (p.role === "sofor") return renderDriver();
+    return renderWorker();
+  }
+  function setNav(items, showFab) {
+    $("#nav").innerHTML = (items ? `<nav class="tabs" role="tablist">${items.map(([k, i, l]) => `<button class="tab" role="tab" data-tab="${k}" aria-selected="${tab === k}"><span class="i">${i}</span>${l}</button>`).join("")}</nav>` : "")
+      + (showFab && D.mods.ai ? `<button class="fab" id="aiFab"><span class="spark">✦</span>Workflow AI</button>` : "");
+  }
+  const bellCount = id => D.feed.filter(f => f.to && f.to.includes(id) && f.at > Date.now() - 6 * HOUR).length;
+
+  // ----- boss -----
+  function renderBoss() {
+    const NAV = [["panel", "◉", "Panel"], ["isler", "☰", "İşler"], ["ekip", "👥", "Ekip"], ["rapor", "▤", "Raporlar"], ["ayar", "⚙", "Ayarlar"]];
+    if (!NAV.some(n => n[0] === tab)) tab = "panel";
+    setNav(NAV, tab === "panel" || tab === "isler");
+    const app = $("#app");
+    if (tab === "panel") app.innerHTML = bossPanel();
+    else if (tab === "isler") app.innerHTML = bossJobs();
+    else if (tab === "ekip") app.innerHTML = bossTeam();
+    else if (tab === "rapor") app.innerHTML = bossReports();
+    else app.innerHTML = bossSettings();
+  }
+  function head(eyebrow, title, bell) {
+    return `<div class="top gut"><div style="min-width:0"><div class="eyebrow">${eyebrow}</div><h1>${title}</h1></div>${bell != null ? `<button class="bell" id="bell" aria-label="Bildirimler">🔔${bell ? `<b>${bell}</b>` : ""}</button>` : ""}</div>`;
+  }
+  function bossPanel() {
+    const active = D.jobs.filter(j => !j.done), late = active.filter(isLate);
+    const staff = PEOPLE.filter(p => p.role !== "patron").length;
+    const deliveriesToday = D.jobs.filter(j => j.steps.some(s => s.type === "delivery" && ((s.status !== "locked" && s.status !== "done") || (s.status === "done" && sod(s.doneAt) === sod())))).length
+      + active.filter(j => sod(j.due) === sod() && !j.steps.some(s => s.type === "delivery" && s.status !== "locked")).length;
+    const order = j => (jobState(j).cls === "bad" || isLate(j) ? 0 : 1) * 1e13 + j.due;
+    return head("Workflow Business", "İşletme kontrol merkezi") + `<main class="gut">
+      <div class="kpis">
+        <button class="kpi" data-goto="isler:aktif"><div class="v">${active.length}</div><div class="l">Aktif işler</div></button>
+        <button class="kpi" data-goto="ekip"><div class="v">${staff}</div><div class="l">Çalışan personel</div></button>
+        <button class="kpi ${late.length ? "bad" : "ok"}" data-goto="isler:geciken"><div class="v">${late.length}</div><div class="l">Geciken işler</div></button>
+        <button class="kpi" data-goto="isler:aktif"><div class="v">${deliveriesToday}</div><div class="l">Bugünkü teslimatlar</div></button>
+      </div>
+      ${D.mods.ai ? aiSummary() : ""}
+      <section><div class="sec-h"><h2>Devam eden işler</h2><button class="link" data-goto="isler:aktif">Tümü</button></div>
+        <div class="list">${active.sort((a, b) => order(a) - order(b)).slice(0, 5).map(jobRow).join("")}</div>
+        <button class="btn block" id="newJob">＋ Yeni iş oluştur</button></section>
+      <section><div class="sec-h"><h2>Canlı akış</h2><span class="sm">Telefon açmadan, işler nerede</span></div>${feedHtml(D.feed.slice().reverse().slice(0, 6))}</section>
+    </main>`;
+  }
+  function feedHtml(items) {
+    if (!items.length) return `<div class="empty">Henüz hareket yok.</div>`;
+    return `<div class="feed">${items.map(f => `<div class="fi"><span class="ic">${f.ic}</span><span>${esc(f.text)}</span><time>${ago(f.at)}</time></div>`).join("")}</div>`;
+  }
+  function aiSummary() {
+    const lines = [];
+    D.jobs.filter(j => !j.done).forEach(j => {
+      const blk = j.steps.find(s => s.status === "blocked");
+      if (blk) lines.push(`<b>#${j.id}</b> ${esc(blk.issue.type.toLowerCase())}: ${esc(blk.issue.note)} ${ago(blk.issue.at)} bekliyor. Termin ${esc(dayLabel(j.due))}, risk yüksek.`);
+      if (isLate(j)) lines.push(`<b>#${j.id}</b> termini geçti. Şu an ${esc(jobState(j).label.toLowerCase())}.`);
+    });
+    const idle = PEOPLE.filter(p => p.role === "uretim" && loadOf(p.id) === 0);
+    const busy = PEOPLE.filter(p => p.role === "uretim").sort((a, b) => (loadOf(b.id) + queuedOf(b.id)) - (loadOf(a.id) + queuedOf(a.id)))[0];
+    if (idle.length && busy && loadOf(busy.id) > 1) lines.push(`<b>${esc(first(busy.id))}</b> üzerinde ${loadOf(busy.id)} açık görev var, <b>${esc(idle.map(p => first(p.id)).join(", "))}</b> boşta. Görev aktarılabilir.`);
+    const low = D.mods.stock ? D.stock.filter(s => s.qty < s.min) : [];
+    if (low.length) lines.push(`Stok uyarısı: ${low.map(s => `${esc(s.name)} (${s.qty}/${s.min} ${s.unit})`).join(", ")}.`);
+    const del = D.jobs.find(j => j.steps.some(s => s.type === "delivery" && (s.status === "ready" || s.status === "working")));
+    if (del) lines.push(`Bugün <b>#${del.id}</b> ${esc(dat(del.customer))} teslim edilecek, şoför ${esc(first(del.steps.find(s => s.type === "delivery").owner))}.`);
+    return `<div class="ai"><div class="ai-h"><span class="spark">✦</span>Workflow AI · günlük özet</div><ul>${lines.slice(0, 5).map(l => `<li>${l}</li>`).join("") || "<li>Her şey yolunda, gecikme riski yok.</li>"}</ul></div>`;
+  }
+  function bossJobs() {
+    const F = [["aktif", "Aktif"], ["geciken", "Geciken"], ["sorun", "Sorunlu"], ["onay", "Onay bekleyen"], ["biten", "Biten"]];
+    const match = j => jobFilter === "aktif" ? !j.done : jobFilter === "geciken" ? isLate(j) : jobFilter === "sorun" ? !j.done && j.steps.some(s => s.status === "blocked")
+      : jobFilter === "onay" ? !j.done && j.steps.some(s => s.type === "approval" && s.status === "ready") : j.done;
+    const list = D.jobs.filter(match).sort((a, b) => a.due - b.due);
+    return head("Workflow Jobs", "İşler") + `<main class="gut">
+      <div class="chips">${F.map(([k, l]) => `<button class="chip" data-filter="${k}" aria-pressed="${jobFilter === k}">${l} · ${D.jobs.filter(j => { const o = jobFilter; jobFilter = k; const r = match(j); jobFilter = o; return r; }).length}</button>`).join("")}</div>
+      ${list.length ? `<div class="list">${list.map(jobRow).join("")}</div>` : `<div class="empty">Bu filtrede iş yok.</div>`}
+      <button class="btn block" id="newJob">＋ Yeni iş oluştur</button>
+    </main>`;
+  }
+  function bossTeam() {
+    const groups = [["ustabasi", "Yönetim"], ["uretim", "Üretim"], ["depo", "Depo"], ["sofor", "Şoförler"]].filter(([r]) => r !== "sofor" || D.mods.fleet);
+    return head("Workflow Team", "Ekip") + `<main class="gut">
+      ${groups.map(([r, l]) => `<section><h2>${l}</h2><div class="list">${PEOPLE.filter(p => p.role === r).map(p => {
+        const st = personStatus(p.id), ld = loadOf(p.id), q = queuedOf(p.id);
+        return `<div class="pr">${avatar(p.id)}<div style="min-width:0"><b>${esc(p.name)}</b> <span class="sm">· ${esc(p.title)}</span>
+          <div class="sm">${ld} açık, ${q} sırada bekleyen görev${p.vehicle ? ` · ${esc(p.vehicle)}` : ""}</div><div class="load"><i style="width:${Math.min(100, (ld + q) * 20)}%"></i></div></div>
+          <span class="pill ${st.cls}">${esc(st.label)}</span></div>`; }).join("")}</div></section>`).join("")}
+      <section><h2>Gizlilik ve yetki</h2><div class="list">
+        <div class="set"><div><b>Konum yalnızca teslimat sırasında</b><div class="sm">Şoförün konumu sadece “Yola çıktım” ile “Teslim edildi” arasında görünür.</div></div><button class="sw" role="switch" aria-checked="${D.privacy.loc}" data-priv="loc" aria-label="Konum kısıtı"></button></div>
+        <div class="set"><div><b>Performans verisini sadece yönetim görür</b><div class="sm">Çalışanlar birbirinin süre ve hız bilgisini göremez.</div></div><button class="sw" role="switch" aria-checked="${D.privacy.perf}" data-priv="perf" aria-label="Performans gizliliği"></button></div>
+      </div></section>
+    </main>`;
+  }
+  function bossReports() {
+    const done = D.jobs.filter(j => j.done);
+    const onTime = done.filter(j => j.doneAt <= j.due + DAY).length;
+    const avgDays = done.length ? done.reduce((a, j) => a + (j.doneAt - j.createdAt), 0) / done.length / DAY : 0;
+    const rev = done.reduce((a, j) => a + j.price, 0), cost = done.reduce((a, j) => a + j.cost, 0);
+    const stageAvg = METAL.map(st => { const ds = done.map(j => j.steps.find(s => s.key === st.key)).filter(s => s && s.doneAt && s.readyAt);
+      return { name: st.name, h: ds.length ? ds.reduce((a, s) => a + (s.doneAt - s.readyAt), 0) / ds.length / HOUR : 0 }; });
+    const max = Math.max(...stageAvg.map(s => s.h), 1), top = stageAvg.reduce((a, b) => b.h > a.h ? b : a, stageAvg[0]);
+    return head("Workflow Reports", "Raporlar") + `<main class="gut">
+      <p class="sm" style="margin:0">Son ${done.length} tamamlanan işe göre · örnek veriler</p>
+      <div class="kpis">
+        <div class="kpi ok"><div class="v">%${done.length ? Math.round(onTime / done.length * 100) : 0}</div><div class="l">Zamanında teslim</div></div>
+        <div class="kpi"><div class="v">${avgDays.toFixed(1).replace(".", ",")}</div><div class="l">Ortalama iş süresi (gün)</div></div>
+        ${D.mods.finance ? `<div class="kpi"><div class="v" style="font-size:1.45rem">${tl(rev)}</div><div class="l">Ciro</div></div>
+        <div class="kpi ok"><div class="v">%${rev ? Math.round((rev - cost) / rev * 100) : 0}</div><div class="l">Ortalama kâr marjı</div></div>` : ""}
+      </div>
+      <section><h2>Aşamalarda ortalama süre</h2><div class="bars">
+        ${stageAvg.map(s => `<div class="bar"><span>${esc(s.name)}</span><span class="tr"><i class="${s === top ? "hi" : ""}" style="width:${s.h / max * 100}%"></i></span><span class="v">${s.h.toFixed(0)} sa</span></div>`).join("")}
+        <div class="sm">En uzun süren aşama: <b>${esc(top.name)}</b>. Kapasite artırmak en çok burada kazandırır.</div>
+      </div></section>
+      <section><h2>Tamamlanan işler</h2><div class="tbl-wrap"><table>
+        <thead><tr><th>İş</th><th class="r">Süre</th>${D.mods.finance ? `<th class="r">Tutar</th><th class="r">Maliyet</th><th class="r">Kâr</th>` : ""}<th>Termin</th></tr></thead>
+        <tbody>${done.map(j => `<tr><td><span class="mono">#${j.id}</span> ${esc(j.title)}</td><td class="r">${((j.doneAt - j.createdAt) / DAY).toFixed(1).replace(".", ",")} gün</td>
+          ${D.mods.finance ? `<td class="r">${tl(j.price)}</td><td class="r">${tl(j.cost)}</td><td class="r">${tl(j.price - j.cost)}</td>` : ""}
+          <td>${j.doneAt <= j.due + DAY ? `<span class="pill ok">Zamanında</span>` : `<span class="pill bad">Gecikti</span>`}</td></tr>`).join("")}</tbody></table></div></section>
+    </main>`;
+  }
+  function bossSettings() {
+    return head("Workflow Settings", "Ayarlar") + `<main class="gut">
+      <section><h2>Modüller</h2><p class="sm" style="margin:0">İşletme yalnızca ihtiyacı olanı açar. Kapatılan modül hiçbir ekranda görünmez.</p>
+        <div class="list">${MODULES.map(([k, n, d]) => `<div class="set"><div><b>${n}</b><div class="sm">${d}</div></div><button class="sw" role="switch" aria-checked="${D.mods[k]}" data-mod="${k}" aria-label="${n}"></button></div>`).join("")}</div>
+        <div class="sm">Yol haritasında: ${ROADMAP.map(esc).join(" · ")}</div></section>
+      <section><h2>İş akışları</h2>
+        <div class="list"><div class="set"><div style="min-width:0"><b>🏭 Metal imalat · aktif</b><div class="flowline">${[...new Set(METAL.map(s => s.g))].map(g => `<span class="s">${METAL.filter(s => s.g === g).map(s => esc(s.name.split(" ")[0])).join(" ∥ ")}</span>`).join(" → ")}</div>
+          <div class="sm" style="margin-top:4px">∥ aynı anda çalışan departmanlar</div></div></div></div></section>
+      <section><h2>Sektör şablonları</h2><p class="sm" style="margin:0">Uygulama sektöre göre değil, işletmenin düzenine göre şekillenir. Şablon sadece başlangıç noktasıdır, her aşama düzenlenebilir.</p>
+        <div class="list">${SECTORS.map(([i, n, st]) => `<div class="set"><div style="min-width:0"><b>${i} ${esc(n)}</b><div class="flowline">${st.map(s => `<span class="s">${esc(s)}</span>`).join(" → ")}</div></div><button class="btn line" data-sector="${esc(n)}">Kullan</button></div>`).join("")}</div></section>
+    </main>`;
+  }
+
+  // ----- job detail (boss / foreman) -----
+  function openJob(id, still) {
+    const j = jobById(id); if (!j) return;
+    const groups = [...new Set(j.steps.map(s => s.g))];
+    const canManage = ["patron", "ustabasi"].includes(person(me).role);
+    const graph = groups.map((g, gi) => {
+      const gs = j.steps.filter(s => s.g === g), all = gs.every(s => s.status === "done"), blk = gs.some(s => s.status === "blocked"), act = gs.some(s => !["done", "locked"].includes(s.status));
+      return `<div class="gstep ${all ? "done" : blk ? "blk" : act ? "cur" : ""}"><span class="dotn">${all ? "✓" : gi + 1}</span><div class="par">
+        ${gs.length > 1 ? `<span class="ptag">∥ Paralel · ${gs.length} departman aynı anda</span>` : ""}
+        ${gs.map(s => `<div class="pcard"><div class="h"><span>${esc(s.name)}</span>${stepPill(s)}</div>
+          <div class="sm" style="display:flex;align-items:center;gap:6px">${avatar(s.owner, 20)} ${esc(person(s.owner).name)}${s.doneAt && s.status === "done" ? ` · ${esc(when(s.doneAt))}` : s.status !== "locked" && s.readyAt ? ` · ${ago(s.readyAt)}dır bu aşamada` : ""}</div>
+          ${s.issue && s.status === "blocked" ? `<div class="issue"><b>${esc(s.issue.type)}</b> · ${esc(s.issue.note)}</div>` : ""}
+          ${s.photos.length || s.notes.length ? `<div class="attach">${s.photos.map(p => `<img src="${p}" alt="İş fotoğrafı">`).join("")}${s.notes.map(n => `<span class="vn">${n.kind === "voice" ? "🎙 " + n.text : "📝 " + esc(n.text)}</span>`).join("")}</div>` : ""}
+          ${s.signature ? `<div class="attach"><img src="${s.signature}" alt="Müşteri imzası" style="width:120px;background:#fff"></div>` : ""}
+          ${canManage && !["done", "locked"].includes(s.status) ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
+            <button class="chip" data-reassign="${j.id}:${s.key}">Başkasına ata</button>
+            ${s.status === "blocked" ? `<button class="chip" data-resolve="${j.id}:${s.key}">Sorun çözüldü</button>` : ""}
+            ${s.type === "approval" && s.status === "ready" ? `<button class="chip" data-approve="${j.id}:${s.key}">Onayla</button>` : ""}</div>` : ""}
+        </div>`).join("")}</div></div>`;
+    }).join("");
+    sheet(`<div class="stack">
+      <div><div class="eyebrow">İş emri #${j.id}</div><h2 style="font-size:1.45rem">${esc(j.title)}</h2>
+        <div class="sm">${esc(j.customer)} · ${esc(j.qty)} · Termin ${esc(when(j.due))}</div>
+        <div class="chips" style="margin-top:8px"><span class="pill ${jobState(j).cls}">${esc(jobState(j).label)}</span>${isLate(j) ? `<span class="pill bad">Gecikme mevcut</span>` : ""}<span class="pill mute">%${pct(j)}</span></div></div>
+      ${D.mods.finance && canManage ? `<div class="grid3"><div class="kpi"><div class="l">Tutar</div><div class="num" style="font-weight:700">${tl(j.price)}</div></div><div class="kpi"><div class="l">Tahmini maliyet</div><div class="num" style="font-weight:700">${tl(j.cost)}</div></div><div class="kpi"><div class="l">Kâr</div><div class="num" style="font-weight:700;color:var(--ok)">${tl(j.price - j.cost)}</div></div></div>` : ""}
+      <div class="graph">${graph}</div>
+      ${j.done ? `<div class="note info"><b>🏁 İş tamamlandı · rapor</b><span>Toplam süre ${((j.doneAt - j.createdAt) / DAY).toFixed(1).replace(".", ",")} gün · ${j.doneAt <= j.due + DAY ? "zamanında teslim" : "gecikmeli teslim"}${D.mods.finance ? ` · kâr ${tl(j.price - j.cost)}` : ""}</span></div>` : ""}
+      <button class="btn ghost block" id="closeS">Kapat</button>
+    </div>`, () => { $("#closeS").onclick = closeSheet; }, still);
+  }
+  function stepPill(s) {
+    return s.status === "done" ? `<span class="pill ok">Bitti</span>` : s.status === "working" ? `<span class="pill acc">${s.type === "delivery" ? "Yolda" : "Çalışıyor"}</span>`
+      : s.status === "blocked" ? `<span class="pill bad">Sorun</span>` : s.status === "ready" ? `<span class="pill warn">${s.type === "approval" ? "Onay bekliyor" : "Sırada"}</span>` : `<span class="pill mute">Bekliyor</span>`;
+  }
+  function openReassign(jid, key) {
+    const j = jobById(jid), s = j.steps.find(x => x.key === key);
+    const cands = PEOPLE.filter(p => (p.skills || []).includes(s.skill) || p.role === "ustabasi");
+    sheet(`<div class="stack"><div><div class="eyebrow">#${j.id} · ${esc(s.name)}</div><h2>Görevi başkasına ata</h2><div class="sm">Yük bilgisi açık ve sıradaki görevlere göre.</div></div>
+      <div class="list">${cands.map(p => `<button class="pr" data-pick="${p.id}">${avatar(p.id)}<div style="min-width:0"><b>${esc(p.name)}</b> <span class="sm">· ${esc(p.title)}</span><div class="sm">${loadOf(p.id)} açık · ${queuedOf(p.id)} sırada</div></div>${p.id === s.owner ? `<span class="pill mute">Şu an</span>` : loadOf(p.id) === 0 ? `<span class="pill ok">Boşta</span>` : ""}</button>`).join("")}</div>
+      <button class="btn ghost block" id="closeS">Vazgeç</button></div>`, () => {
+      $("#closeS").onclick = () => openJob(jid);
+      layer.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => {
+        const from = s.owner; s.owner = b.dataset.pick; if (s.status === "working") { s.status = "ready"; delete s.startedAt; }
+        notify(`#${j.id} ${s.name} görevi ${first(from)} yerine ${dat(first(s.owner))} verildi`, "🔁", [s.owner]); save(); render(); openJob(jid);
+        toast("🔁", `${first(s.owner)} görevlendirildi`, `#${j.id} ${s.name}`);
+      });
+    });
+  }
+
+  // ----- AI composer -----
+  const EXAMPLES = [
+    "Ahmet Bey'in 50 adet demir kapı siparişi var. Cumaya kadar üretimi bitirelim, Mehmet şoförümüz müşteriye teslim etsin.",
+    "Öztürk Makine için 120 adet flanş, acil, 5 gün içinde teslim. Kaynağı Okan yapsın.",
+    "Kaya İnşaat'ın 30 metre korkuluk işi, haftaya teslim, Ali götürsün.",
+  ];
+  function parseOrder(txt) {
+    const t = " " + txt.replace(/\s+/g, " ") + " ", l = lower(t);
+    let customer = null, m = t.match(/([A-ZÇĞİÖŞÜ][\wçğıöşüÇĞİÖŞÜ]*(?:\s(?:Bey|Hanım|İnşaat|Makine|Lojistik|Sitesi|Ltd\.?|A\.Ş\.))?)['’](?:in|ın|un|ün|nin|nın|nun|nün)\b/);
+    if (m) customer = m[1];
+    if (!customer) { m = t.match(/([A-ZÇĞİÖŞÜ][\wçğıöşü]*(?:\s[A-ZÇĞİÖŞÜ][\wçğıöşü]*)?)\s+için/); if (m) customer = m[1]; }
+    let qty = null, product = null;
+    m = t.match(/(\d+)\s*(adet|tane|metre|m|ton|takım)?\s+([a-zçğıöşü]+(?:\s[a-zçğıöşü]+)?)/i);
+    if (m) { qty = `${m[1]} ${m[2] || "adet"}`; product = m[3].replace(/\s(siparişi|siparişi var|işi|lazım|var|için|üretimi)$/i, "").replace(/(siparişi|işi)$/i, "").trim(); }
+    product = product ? product.replace(/\b(siparişi|işi)\b/g, "").trim() : "Yeni iş";
+    const title = product.charAt(0).toLocaleUpperCase("tr") + product.slice(1);
+    let due = null; const now = new Date();
+    const wd = { pazartesi: 1, salı: 2, çarşamba: 3, perşembe: 4, cuma: 5, cumartesi: 6, pazar: 0 };
+    m = l.match(/(pazartesi|salı|çarşamba|perşembe|cumartesi|cuma|pazar)(?:ya|ye|'?ya|'?ye)?\s*(?:kadar|günü)?/);
+    if (m) { const off = ((wd[m[1]] - now.getDay() + 7) % 7) || 7; due = sod() + off * DAY + 17 * HOUR; }
+    else if ((m = l.match(/(\d+)\s*gün\s*(?:içinde|sonra)/))) due = sod() + +m[1] * DAY + 17 * HOUR;
+    else if (/haftaya/.test(l)) due = sod() + 7 * DAY + 17 * HOUR;
+    else if (/yarın/.test(l)) due = sod() + DAY + 17 * HOUR;
+    const urgent = /acil|hemen|ivedi/.test(l);
+    if (!due) due = sod() + (urgent ? 4 : 10) * DAY + 17 * HOUR;
+    const named = {};
+    PEOPLE.forEach(p => { const fn = lower(p.name.split(" ")[0]); if (new RegExp(`(^|\\s)${fn}`).test(l)) (p.skills || []).forEach(sk => {
+      if (sk === "sofor" || p.skills.length === 1 || (sk === "kaynak" && new RegExp(`kayna\\S*\\s+${fn}|${fn}\\S*\\s+kayna`).test(l))) named[sk] = p.id; }); });
+    return { customer: customer || "Yeni müşteri", title, qty: qty || "1 adet", due, urgent, named };
+  }
+  function planOwners(parsed) {
+    const owners = {};
+    METAL.forEach(st => {
+      if (parsed.named[st.skill]) { owners[st.key] = parsed.named[st.skill]; return; }
+      const cands = PEOPLE.filter(p => (p.skills || []).includes(st.skill)).sort((a, b) => (loadOf(a.id) + queuedOf(a.id) * .3) - (loadOf(b.id) + queuedOf(b.id) * .3));
+      owners[st.key] = cands[0]?.id || "kadir";
+    });
+    return owners;
+  }
+  function openAI(prefill) {
+    sheet(`<div class="stack">
+      <div class="ai-h"><span class="spark">✦</span><div><h2>Workflow AI</h2><div class="sm">Akıllı operasyon asistanı. Siparişi normal konuşur gibi yaz.</div></div></div>
+      <textarea id="aiIn" rows="4" placeholder="Ör: Ahmet Bey'in 50 adet demir kapı siparişi var, cumaya kadar…">${esc(prefill || "")}</textarea>
+      <div class="chips">${EXAMPLES.map((e, i) => `<button class="chip" data-ex="${i}">${esc(e.length > 46 ? e.slice(0, 46) + "…" : e)}</button>`).join("")}</div>
+      <button class="btn block" id="aiGo">✦ İş planı hazırla</button>
+      <div id="aiOut"></div>
+      <div class="sm">Prototip: plan, örnek bir kural motoruyla üretiliyor. Gerçek sürümde dil modeli sesli ve serbest anlatımı anlayacak.</div>
+    </div>`, () => {
+      layer.querySelectorAll("[data-ex]").forEach(b => b.onclick = () => { $("#aiIn").value = EXAMPLES[+b.dataset.ex]; });
+      $("#aiGo").onclick = () => {
+        const v = $("#aiIn").value.trim(); if (!v) { $("#aiIn").focus(); return; }
+        $("#aiOut").innerHTML = `<div class="thinking"><i></i><i></i><i></i> İş planlanıyor, ekip yükü ve stok kontrol ediliyor…</div>`;
+        setTimeout(() => showPlan(parseOrder(v)), 900);
+      };
+      if (!prefill) setTimeout(() => $("#aiIn").focus(), 60);
+    });
+  }
+  function showPlan(P) {
+    const owners = planOwners(P);
+    const groups = [...new Set(METAL.map(s => s.g))];
+    const daysLeft = (P.due - Date.now()) / DAY, need = groups.length * 0.6;
+    const notes = [];
+    if (daysLeft < need) notes.push(`Termin sıkı: ${groups.length} aşama için yaklaşık ${Math.ceil(need)} gün gerekiyor, ${Math.max(0, daysLeft).toFixed(1).replace(".", ",")} gün var. Kaynakta ikinci kişi önerilir.`);
+    const n = parseInt(P.qty) || 1;
+    if (D.mods.stock && /kapı/.test(lower(P.title))) { const k = D.stock.find(s => s.name === "Kilit takımı"); if (k && k.qty < n) notes.push(`Stok: ${n} kilit takımı gerekiyor, depoda ${k.qty} var. ${n - k.qty} adet eksik, malzeme kontrol görevine eklendi.`); }
+    const busiest = METAL.filter(s => s.skill !== "depo").map(s => ({ s, id: owners[s.key], l: loadOf(owners[s.key]) })).sort((a, b) => b.l - a.l)[0];
+    if (busiest && busiest.l >= 2) notes.push(`${first(busiest.id)} şu an ${busiest.l} açık görevle yoğun. ${busiest.s.name} aşamasında gecikme riski var.`);
+    $("#aiOut").innerHTML = `<div class="plan">
+      <div class="plan-h"><span class="pill ok" style="justify-self:start">İş planı hazırlandı</span>
+        <h2>${esc(P.qty)} ${esc(P.title.toLocaleLowerCase("tr"))} · iş emri</h2>
+        <div class="sm">Müşteri: <b>${esc(P.customer)}</b> · Termin: <b>${esc(when(P.due))}</b>${P.urgent ? ` · <span class="pill acc">Acil</span>` : ""}</div></div>
+      <div>${METAL.map((s, i) => `<div class="pl"><span class="n">${s.g + 1}</span><div style="min-width:0"><b style="font-size:.9rem">${esc(s.name)}</b>${METAL.filter(x => x.g === s.g).length > 1 ? ` <span class="ptag">∥ paralel</span>` : ""}</div>
+        <select data-owner="${s.key}" aria-label="${esc(s.name)} sorumlusu">${PEOPLE.filter(p => (p.skills || []).includes(s.skill) || p.role === "ustabasi").map(p => `<option value="${p.id}"${p.id === owners[s.key] ? " selected" : ""}>${esc(first(p.id))} · ${loadOf(p.id)} açık</option>`).join("")}</select></div>`).join("")}</div>
+      ${notes.length ? `<div class="note"><b>✦ Dikkat</b>${notes.map(x => `<span>${esc(x)}</span>`).join("")}</div>` : ""}
+      <div class="sm">Sorumlular en az yüklü kişiye göre seçildi, istersen değiştir. Plan onaylanınca çalışanlara dağıtılır.</div>
+      <button class="btn ok block" id="aiOk">Onayla ve dağıt</button>
+    </div>`;
+    $("#aiOk").onclick = () => {
+      layer.querySelectorAll("[data-owner]").forEach(s => owners[s.dataset.owner] = s.value);
+      const j = mkJob({ id: D.nextId++, title: P.title, customer: P.customer, qty: P.qty, due: P.due, at: 0, waiting: 0, price: 0, cost: 0, createdAt: Date.now(), owners, urgent: P.urgent });
+      j.steps.forEach(s => { s.readyAt = s.status === "ready" ? Date.now() : s.readyAt; });
+      const kapi = j.steps.find(s => s.key === "malzeme"); if (notes.some(x => x.startsWith("Stok"))) kapi.notes.push({ kind: "text", text: notes.find(x => x.startsWith("Stok")), by: "selim", at: Date.now() });
+      if (/kapı/.test(lower(P.title))) Object.assign(j.steps.find(s => s.key === "kaynak"), { detail: `${P.qty} ${P.title.toLocaleLowerCase("tr")} kasası ve kanadının kaynağı.`, place: "Atölye 2", file: "Kapı çizimi.pdf" });
+      D.jobs.push(j);
+      notify(`Selim yeni iş açtı: #${j.id} ${P.title} (${P.customer}) · ${j.steps.filter(s => s.g === 0).map(s => first(s.owner)).join(" ve ")} bilgilendirildi`, "✦", j.steps.filter(s => s.g === 0).map(s => s.owner));
+      save(); closeSheet(); tab = "panel"; render(); window.scrollTo(0, 0);
+      toast("✦", `#${j.id} iş emri dağıtıldı`, `${j.steps.length} görev · ilk aşama: ${j.steps.filter(s => s.g === 0).map(s => first(s.owner)).join(" ∥ ")}`);
+    };
+  }
+
+  // ----- foreman -----
+  function renderForeman() {
+    setNav(null, false);
+    const approvals = D.jobs.flatMap(j => j.done ? [] : j.steps.filter(s => s.type === "approval" && s.status === "ready").map(s => ({ j, s })));
+    const issues = D.jobs.flatMap(j => j.done ? [] : j.steps.filter(s => s.status === "blocked").map(s => ({ j, s })));
+    const workers = PEOPLE.filter(p => ["uretim", "depo"].includes(p.role));
+    const inProd = D.jobs.filter(j => !j.done).sort((a, b) => a.due - b.due);
+    $("#app").innerHTML = head("Ustabaşı paneli", `Günaydın Kadir Usta`, bellCount("kadir")) + `<main class="gut">
+      <section><div class="sec-h"><h2>Sorun bildirimleri</h2><span class="pill ${issues.length ? "bad" : "ok"}">${issues.length}</span></div>
+        ${issues.length ? issues.map(({ j, s }) => `<div class="task blocked"><div class="task-top"><span class="wo">İŞ EMRİ #${j.id} · ${esc(s.name.toUpperCase())}</span><span class="pill bad">${ago(s.issue.at)}</span></div>
+          <div class="issue"><b>${esc(s.issue.type)}</b> · ${esc(s.issue.note)}<div class="sm">Bildiren: ${esc(person(s.issue.by || s.owner).name)}</div></div>
+          <div class="grid2"><button class="btn ok" data-resolve="${j.id}:${s.key}">Çözüldü, devam</button><button class="btn line" data-reassign="${j.id}:${s.key}">Başkasına ata</button></div></div>`).join("") : `<div class="empty">Açık sorun yok 👍</div>`}</section>
+      <section><div class="sec-h"><h2>Onay bekleyenler</h2><span class="pill ${approvals.length ? "warn" : "ok"}">${approvals.length}</span></div>
+        ${approvals.length ? `<div class="list">${approvals.map(({ j, s }) => `<div class="pr" style="grid-template-columns:minmax(0,1fr) auto"><div><span class="mono sm">#${j.id}</span> <b>${esc(j.title)}</b><div class="sm">${esc(s.name)} · ${esc(first(s.owner))} kontrol ediyor · ${ago(s.readyAt)}</div></div>
+          <button class="btn ok" data-approve="${j.id}:${s.key}">Onayla</button></div>`).join("")}</div>` : `<div class="empty">Onay bekleyen iş yok.</div>`}</section>
+      <section><h2>Ekip yükü</h2><div class="list">${workers.map(p => { const st = personStatus(p.id);
+        return `<div class="pr">${avatar(p.id)}<div style="min-width:0"><b>${esc(first(p.id))}</b> <span class="sm">· ${esc(p.title)}</span><div class="load"><i style="width:${Math.min(100, (loadOf(p.id) + queuedOf(p.id)) * 20)}%"></i></div></div><span class="pill ${st.cls}">${esc(st.label)}</span></div>`; }).join("")}</div></section>
+      <section><h2>Üretimdeki işler</h2><div class="list">${inProd.map(jobRow).join("")}</div></section>
+    </main>`;
+  }
+
+  // ----- worker (production, QC, warehouse) -----
+  let tick = null;
+  function myTasks(id) {
+    return D.jobs.flatMap(j => j.done ? [] : j.steps.filter(s => s.owner === id && ["ready", "working", "blocked"].includes(s.status)).map(s => ({ j, s })))
+      .sort((a, b) => (b.s.status === "working") - (a.s.status === "working") || (a.s.deadline || a.j.due) - (b.s.deadline || b.j.due));
+  }
+  function renderWorker() {
+    setNav(null, false);
+    const p = person(me), tasks = myTasks(me);
+    const queued = D.jobs.filter(j => !j.done).flatMap(j => j.steps.filter(s => s.owner === me && s.status === "locked").map(s => ({ j, s })));
+    $("#app").innerHTML = head(`Çalışan paneli · ${esc(p.title)}`, "Görevlerim", bellCount(me)) + `<main class="gut">
+      <p style="margin:0;font-size:1.05rem;font-weight:600">${tasks.length ? `Bugün ${tasks.length} görevin var.` : "Şu an bekleyen görevin yok."}</p>
+      ${tasks.map(({ j, s }) => taskCard(j, s)).join("")}
+      ${queued.length ? `<section><h2>Sırada gelecek</h2><div class="list">${queued.map(({ j, s }) => `<div class="pr" style="grid-template-columns:minmax(0,1fr) auto"><div><span class="mono sm">#${j.id}</span> <b>${esc(j.title)}</b><div class="sm">${esc(s.name)} · önceki aşama bitince bildirim gelir</div></div><span class="pill mute">Bekliyor</span></div>`).join("")}</div></section>` : ""}
+      ${p.role === "depo" && D.mods.stock ? stockHtml() : ""}
+    </main>`;
+    clearInterval(tick);
+    if (tasks.some(x => x.s.status === "working")) tick = setInterval(() => document.querySelectorAll("[data-timer]").forEach(el => el.textContent = clock(+el.dataset.timer)), 1000);
+  }
+  const clock = t => { const s = Math.max(0, Math.floor((Date.now() - t) / 1000)); return `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}`; };
+  function taskCard(j, s) {
+    const k = `${j.id}:${s.key}`;
+    const status = s.status === "working" ? `<span class="pill acc">Çalışıyor</span>` : s.status === "blocked" ? `<span class="pill bad">Sorun bildirildi</span>` : `<span class="pill warn">${s.type === "approval" ? "Onayını bekliyor" : "Bekliyor"}</span>`;
+    const facts = `<div class="facts">${s.place ? `<span>📍 ${esc(s.place)}</span>` : ""}<span>⏰ Teslim: ${esc(s.deadline ? when(s.deadline) : dayLabel(j.due))}</span><span>📦 ${esc(j.qty)}</span></div>`;
+    const attach = s.photos.length || s.notes.length ? `<div class="attach">${s.photos.map(p => `<img src="${p}" alt="Eklenen fotoğraf">`).join("")}${s.notes.map(n => `<span class="vn">${n.kind === "voice" ? "🎙 " + esc(n.text) : "📝 " + esc(n.text)}</span>`).join("")}</div>` : "";
+    const tools = `<div class="grid3">
+        <label class="tool"><span class="i">📷</span>Fotoğraf ekle<input type="file" accept="image/*" data-photo="${k}"></label>
+        <button class="tool" data-voice="${k}"><span class="i">🎙</span>Sesli not</button>
+        <button class="tool" data-issue="${k}"><span class="i">⚠️</span>Sorun bildir</button></div>`;
+    let body = "";
+    if (s.status === "blocked") body = `<div class="issue"><b>${esc(s.issue.type)}</b> · ${esc(s.issue.note)}<div class="sm">Ustabaşı ve patron bilgilendirildi. Çözülünce bildirim gelecek.</div></div>`;
+    else if (s.type === "approval") body = `${tools}<div class="grid2"><button class="btn ok xl" data-approve="${k}">Onayla ✓</button><button class="btn bad xl" data-back="${k}">Geri gönder</button></div>`;
+    else if (s.type === "pack") {
+      const items = s.items || [{ name: j.title, code: `UR-${j.id}`, n: parseInt(j.qty) || 1, scanned: false }]; s.items = items;
+      const doneN = items.filter(i => i.scanned).length;
+      body = `<div class="list" style="box-shadow:none;background:var(--surface-2);padding:0 12px">${items.map(i => `<div class="scan ${i.scanned ? "on" : ""}"><span class="bx">✓</span><div style="min-width:0"><b>${esc(i.name)}</b><div class="sm mono">${esc(i.code)} · ${i.n} adet</div></div>${i.scanned ? `<span class="pill ok">Okundu</span>` : `<button class="chip" data-scanone="${k}:${esc(i.code)}">Okut</button>`}</div>`).join("")}</div>
+        <div class="scanrow"><input class="mono" id="scan-${j.id}" placeholder="Barkod / QR kodu" aria-label="Barkod kodu" autocomplete="off"><button class="btn dark" data-scan="${k}">▣ Okut</button></div>
+        <div class="sm">Gerçek uygulamada kamera ile okutulur. Burada kodu yaz ya da satırdaki “Okut”a dokun.</div>
+        ${D.mods.fleet ? `<select class="in" data-vehicle="${k}" aria-label="Yüklenecek araç"><option value="">Yüklenecek aracı seç</option>${PEOPLE.filter(p => p.role === "sofor").map(p => `<option value="${p.id}"${s.vehicle === p.id ? " selected" : ""}>${esc(p.vehicle)} · ${esc(first(p.id))}</option>`).join("")}</select>` : ""}
+        <button class="btn ok xl block" data-done="${k}"${doneN < items.length || (D.mods.fleet && !s.vehicle) ? " disabled" : ""}>Araca yüklendi ✓ (${doneN}/${items.length})</button>`;
+    } else if (s.status === "working") body = `<div class="timer" data-timer="${s.startedAt}">${clock(s.startedAt)}</div>${tools}<button class="btn ok xl block" data-done="${k}">İşi tamamla ✓</button>`;
+    else body = `<button class="btn xl block" data-start="${k}">▶ İşe başla</button>${tools}`;
+    return `<article class="task ${s.status}">
+      <div class="task-top"><span class="wo">İŞ EMRİ #${j.id}</span>${status}</div>
+      <div><h3>${esc(s.detail ? s.name.split(" ")[0] + ": " + j.title : `${s.name} · ${j.title}`)}</h3><p style="margin-top:6px">${esc(s.detail || s.checklist)}</p></div>
+      ${facts}
+      ${s.file ? `<button class="file" data-file="${esc(s.file)}">📄 ${esc(s.file)}<span class="sm" style="margin-left:auto">Aç</span></button>` : ""}
+      ${s.notes.filter(n => n.text.startsWith("Geri gönderildi") || n.text.startsWith("Stok")).map(n => `<div class="note"><b>Not</b><span>${esc(n.text)}</span></div>`).join("")}
+      ${body}${attach}
+    </article>`;
+  }
+  function stockHtml() {
+    return `<section><h2>Stok</h2><div class="list">${D.stock.map(s => `<div class="pr" style="grid-template-columns:minmax(0,1fr) auto"><div><b>${esc(s.name)}</b><div class="sm">Minimum ${s.min} ${esc(s.unit)}</div></div>
+      <span class="pill ${s.qty === 0 ? "bad" : s.qty < s.min ? "warn" : "ok"}">${s.qty} ${esc(s.unit)}</span></div>`).join("")}</div></section>`;
+  }
+  const parseK = k => { const [id, key] = k.split(":"); const j = jobById(+id); return { j, s: j.steps.find(x => x.key === key) }; };
+  function afterComplete(j, s, r) {
+    save(); render();
+    if (r.finished) toast("🏁", `#${j.id} tamamlandı`, "Patrona teslimat, süre ve maliyet raporu gitti");
+    else if (r.waitingParallel) toast("✅", "Görev tamamlandı", `Paralel aşama bekleniyor: ${r.waitingParallel.map(x => x.name).join(", ")}`);
+    else toast("➡️", "Görev tamamlandı", `Sıradaki: ${r.next.map(x => `${x.name} (${first(x.owner)})`).join(" ∥ ")} · bildirim gönderildi`);
+  }
+  function openIssue(k) {
+    const { j, s } = parseK(k);
+    const types = ["Malzeme eksik", "Makine arızası", "Çizim / ölçü hatalı", "İş güvenliği", "Diğer"];
+    let pick = types[0];
+    sheet(`<div class="stack"><div><div class="eyebrow">#${j.id} · ${esc(s.name)}</div><h2>Sorun bildir</h2><div class="sm">Ustabaşı ve patron anında haberdar olur.</div></div>
+      <div class="chips">${types.map((t, i) => `<button class="chip" data-type="${esc(t)}" aria-pressed="${i === 0}">${esc(t)}</button>`).join("")}</div>
+      <textarea id="issNote" rows="3" placeholder="Kısaca ne oldu? (ör: 40×40 profil bitti)"></textarea>
+      <button class="btn bad xl block" id="issGo" style="background:var(--bad);color:#fff">Sorunu bildir</button>
+      <button class="btn ghost block" id="closeS">Vazgeç</button></div>`, () => {
+      layer.querySelectorAll("[data-type]").forEach(b => b.onclick = () => { pick = b.dataset.type; layer.querySelectorAll("[data-type]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
+      $("#closeS").onclick = closeSheet;
+      $("#issGo").onclick = () => {
+        s.status = "blocked"; s.issue = { type: pick, note: $("#issNote").value.trim() || "Ayrıntı yazılmadı", at: Date.now(), by: me };
+        notify(`${first(me)} sorun bildirdi: #${j.id} ${pick.toLowerCase()}`, "⚠️", ["kadir", "selim"]); save(); closeSheet(); render();
+        toast("⚠️", "Sorun bildirildi", "Kadir Usta ve Selim Bey'e bildirim gitti");
+      };
+    });
+  }
+  function openBack(k) {
+    const { j, s } = parseK(k);
+    sheet(`<div class="stack"><div><div class="eyebrow">#${j.id} · ${esc(s.name)}</div><h2>Önceki aşamaya geri gönder</h2><div class="sm">Hatalı iş, önceki departmana not ile döner.</div></div>
+      <textarea id="backNote" rows="3" placeholder="Ne düzeltilmeli? (ör: sol kanatta boya akması var)"></textarea>
+      <button class="btn bad xl block" id="backGo" style="background:var(--bad);color:#fff">Geri gönder</button><button class="btn ghost block" id="closeS">Vazgeç</button></div>`, () => {
+      $("#closeS").onclick = closeSheet;
+      $("#backGo").onclick = () => { const prev = sendBack(j, s, me, $("#backNote").value.trim()); save(); closeSheet(); render();
+        toast("↩️", "Geri gönderildi", `${prev.map(x => `${x.name} (${first(x.owner)})`).join(", ")} bilgilendirildi`); };
+    });
+  }
+  function openDrawing(name) {
+    sheet(`<div class="stack"><div><div class="eyebrow">Teknik çizim</div><h2>${esc(name)}</h2><div class="sm">Örnek çizim · ölçüler mm</div></div>
+      <div class="map" style="background:var(--surface-2)"><svg viewBox="0 0 360 220" role="img" aria-label="Profil konstrüksiyon çizimi">
+        <g fill="none" stroke="currentColor" stroke-width="2" style="color:var(--ink)"><rect x="40" y="40" width="280" height="140"/><line x1="40" y1="110" x2="320" y2="110"/><line x1="133" y1="40" x2="133" y2="180"/><line x1="226" y1="40" x2="226" y2="180"/><line x1="40" y1="40" x2="133" y2="110"/><line x1="226" y1="110" x2="320" y2="180"/></g>
+        <g fill="var(--accent)"><circle cx="40" cy="40" r="5"/><circle cx="320" cy="40" r="5"/><circle cx="40" cy="180" r="5"/><circle cx="320" cy="180" r="5"/><circle cx="133" cy="110" r="5"/><circle cx="226" cy="110" r="5"/></g>
+        <g font-family="JetBrains Mono, monospace" font-size="11" fill="var(--ink-2)"><text x="150" y="28">2400</text><text x="330" y="114">1200</text><text x="62" y="200">Profil 40×40×2</text><text x="226" y="200">● kaynak noktası</text></g>
+      </svg></div><button class="btn ghost block" id="closeS">Kapat</button></div>`, () => { $("#closeS").onclick = closeSheet; });
+  }
+
+  // ----- driver -----
+  let stopSig = null;
+  function renderDriver() {
+    setNav(null, false);
+    const p = person(me);
+    const del = D.jobs.flatMap(j => j.done ? [] : j.steps.filter(s => s.owner === me && s.type === "delivery" && ["ready", "working", "blocked"].includes(s.status)).map(s => ({ j, s })));
+    const coming = D.jobs.filter(j => !j.done).flatMap(j => j.steps.filter(s => s.owner === me && s.type === "delivery" && s.status === "locked").map(s => ({ j, s })));
+    $("#app").innerHTML = head(`Şoför paneli · ${esc(p.vehicle)}`, "Teslimatlarım", bellCount(me)) + `<main class="gut">
+      <p style="margin:0;font-size:1.05rem;font-weight:600">${del.length ? `Bugün ${del.length} teslimatın var.` : "Şu an hazır teslimat yok."}</p>
+      ${del.map(({ j, s }) => driverCard(j, s)).join("")}
+      ${coming.length ? `<section><h2>Hazırlanıyor</h2><div class="list">${coming.map(({ j }) => `<div class="pr" style="grid-template-columns:minmax(0,1fr) auto"><div><span class="mono sm">#${j.id}</span> <b>${esc(j.title)}</b><div class="sm">${esc(j.customer)} · ${esc(jobState(j).label)}</div></div><span class="pill mute">%${pct(j)}</span></div>`).join("")}</div></section>` : ""}
+    </main>`;
+    const c = document.querySelector(".sig"); if (c) initSig(c);
+  }
+  function driverCard(j, s) {
+    const k = `${j.id}:${s.key}`, addr = j.address || `${j.customer} adresi`;
+    const mapUrl = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(addr);
+    const route = `<div class="map"><svg viewBox="0 0 360 120" role="img" aria-label="Rota önizlemesi"><rect width="360" height="120" fill="var(--surface-2)"/>
+      <g stroke="var(--line)" stroke-width="10" stroke-linecap="round"><path d="M0 90 H360"/><path d="M120 0 V120"/><path d="M250 0 V120"/></g>
+      <path d="M40 90 H120 V40 H250 V70 H320" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="${s.status === "working" ? "0" : "8 6"}"/>
+      <circle cx="40" cy="90" r="7" fill="var(--ink)"/><circle cx="320" cy="70" r="8" fill="var(--accent)"/>${s.status === "working" ? `<circle cx="160" cy="40" r="6" fill="var(--info)"/>` : ""}</svg></div>`;
+    let body;
+    if (s.status === "ready") body = `<div class="grid2"><a class="btn line" href="${mapUrl}" target="_blank" rel="noopener">🧭 Navigasyon</a><button class="btn" data-go="${k}">🚚 Yola çıktım</button></div>`;
+    else body = `<div class="grid2"><a class="btn line" href="${mapUrl}" target="_blank" rel="noopener">🧭 Navigasyon</a><label class="btn line" style="position:relative">📷 Teslim fotoğrafı<input type="file" accept="image/*" data-photo="${k}" style="position:absolute;inset:0;opacity:0"></label></div>
+      ${s.photos.length ? `<div class="attach">${s.photos.map(p => `<img src="${p}" alt="Teslim fotoğrafı">`).join("")}</div>` : ""}
+      <div><div class="sec-h"><b>Müşteri imzası</b><button class="link" id="sigClear">Temizle</button></div><canvas class="sig" data-sig="${k}" aria-label="İmza alanı, parmakla imzalayın"></canvas></div>
+      <button class="btn ok xl block" data-deliver="${k}">Teslim edildi ✓</button>
+      <div class="sm">Teslim için imza gerekli. Fotoğraf isteğe bağlı ama önerilir.</div>`;
+    return `<article class="task ${s.status === "working" ? "working" : ""}">
+      <div class="task-top"><span class="wo">İŞ EMRİ #${j.id}</span>${s.status === "working" ? `<span class="pill acc">Yolda · ${ago(s.startedAt)}</span>` : `<span class="pill warn">Yüklendi, çıkış bekliyor</span>`}</div>
+      <div><h3>${esc(j.customer)}</h3><p style="margin-top:4px">📍 ${esc(addr)}</p></div>
+      <div class="facts"><span>📦 ${esc(j.title)} · ${esc(s.load || j.qty)}</span><span>⏰ ${esc(when(j.due))}</span></div>
+      ${route}${body}</article>`;
+  }
+  function initSig(c) {
+    const r = c.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+    c.width = r.width * dpr; c.height = r.height * dpr;
+    const x = c.getContext("2d"); x.scale(dpr, dpr); x.lineWidth = 2.4; x.lineCap = "round"; x.strokeStyle = getComputedStyle(document.body).color;
+    let down = false; c.dataset.inked = "";
+    const pt = e => { const b = c.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; };
+    c.onpointerdown = e => { down = true; c.setPointerCapture(e.pointerId); const [a, b] = pt(e); x.beginPath(); x.moveTo(a, b); };
+    c.onpointermove = e => { if (!down) return; const [a, b] = pt(e); x.lineTo(a, b); x.stroke(); c.dataset.inked = "1"; };
+    c.onpointerup = c.onpointercancel = () => { down = false; };
+    const cl = $("#sigClear"); if (cl) cl.onclick = () => { x.clearRect(0, 0, c.width, c.height); c.dataset.inked = ""; };
+  }
+
+  // ----- customer -----
+  function renderCustomer(name) {
+    setNav(null, false);
+    const jobs = D.jobs.filter(j => j.customer === name).sort((a, b) => a.done - b.done || a.due - b.due);
+    const PUB = ["Sipariş alındı", "Planlama", "Üretim", "Kalite kontrol", "Teslimat"];
+    const stageIdx = j => { if (j.done) return 5; const g = curGroup(j); return g === 0 ? 1 : g <= 3 ? 2 : g === 4 ? 3 : 4; };
+    $("#app").innerHTML = head("Müşteri takip ekranı", esc(name)) + `<main class="gut">
+      <p class="sm" style="margin:0">Demirtaş Metal'in sizinle paylaştığı sipariş durumları. İç notlar, maliyetler ve çalışan bilgileri gösterilmez.</p>
+      ${jobs.map(j => { const si = stageIdx(j), del = j.steps.find(s => s.type === "delivery");
+        const eta = j.done ? `Teslim edildi · ${when(j.doneAt)}` : del.status === "working" ? `Yolda · tahmini varış ${hm(Date.now() + 40 * MIN)}` : `Tahmini teslim: ${when(j.due)}`;
+        return `<div class="track"><div class="task-top"><span class="wo">SİPARİŞ #${j.id}</span>${j.done ? `<span class="pill ok">Teslim edildi</span>` : del.status === "working" ? `<span class="pill acc">Yolda</span>` : `<span class="pill info">${esc(PUB[Math.min(si, 4)])}</span>`}</div>
+          <div><h2 style="font-size:1.25rem">${esc(j.title)}</h2><div class="sm">${esc(j.qty)}</div></div>
+          <div class="eta">${esc(eta)}</div>
+          <div class="tsteps">${PUB.map((n, i) => `<div class="ts ${i < si ? "on" : i === si ? "cur" : ""}"><i></i>${esc(n)}</div>`).join("")}</div>
+          ${del.status === "working" ? `<div class="note info"><b>🚚 Aracınız yolda</b><span>Teslimat aracı yola çıktı. Konum yalnızca teslimat süresince paylaşılır.</span></div>` : ""}
+          ${j.done && del.signature ? `<div class="sm">Teslim belgesi imzalı olarak kayıtlı.</div>` : ""}
+        </div>`; }).join("") || `<div class="empty">Sipariş yok.</div>`}
+    </main>`;
+  }
+
+  // ---------------- events ----------------
+  function readPhoto(file, cb) {
+    const r = new FileReader();
+    r.onload = () => { const img = new Image(); img.onload = () => { const c = document.createElement("canvas"), sc = 200 / Math.max(img.width, img.height);
+      c.width = img.width * sc; c.height = img.height * sc; c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); cb(c.toDataURL("image/jpeg", .7)); }; img.src = r.result; };
+    r.readAsDataURL(file);
+  }
+  document.addEventListener("change", e => {
+    const el = e.target;
+    if (el.id === "who") { me = el.value; tab = "panel"; closeSheet(); render(); window.scrollTo(0, 0); return; }
+    if (el.dataset.photo && el.files[0]) { const { j, s } = parseK(el.dataset.photo); readPhoto(el.files[0], url => { s.photos.push(url); notify(`${first(me)} #${j.id} için fotoğraf ekledi`, "📷"); save(); render(); toast("📷", "Fotoğraf eklendi", `#${j.id} ${s.name}`); }); }
+    if (el.dataset.vehicle != null) { const { s } = parseK(el.dataset.vehicle); s.vehicle = el.value; if (el.value) { const { j } = parseK(el.dataset.vehicle); j.steps.find(x => x.type === "delivery").owner = el.value; } save(); render(); }
+  });
+  document.addEventListener("click", e => {
+    const el = e.target.closest("button, a"); if (!el || el.tagName === "A") return;
+    const d = el.dataset;
+    if (el.id === "reset") { D = seed(); save(); closeSheet(); render(); toast("↺", "Prototip sıfırlandı", "Örnek veriler geri yüklendi"); return; }
+    if (d.tab) { tab = d.tab; render(); window.scrollTo(0, 0); return; }
+    if (d.goto) { const [t, f] = d.goto.split(":"); tab = t; if (f) jobFilter = f; render(); window.scrollTo(0, 0); return; }
+    if (d.filter) { jobFilter = d.filter; render(); return; }
+    if (d.job) { openJob(+d.job); return; }
+    if (el.id === "newJob" || el.id === "aiFab") { D.mods.ai ? openAI(el.id === "newJob" ? EXAMPLES[0] : "") : toast("✦", "Workflow AI kapalı", "Ayarlar › Modüller'den açabilirsin"); return; }
+    if (el.id === "bell") { const mine = D.feed.filter(f => f.to && f.to.includes(me)).reverse();
+      sheet(`<div class="stack"><h2>Bildirimler</h2>${feedHtml(mine.length ? mine : [])}<button class="btn ghost block" id="closeS">Kapat</button></div>`, () => $("#closeS").onclick = closeSheet); return; }
+    if (d.mod) { D.mods[d.mod] = !D.mods[d.mod]; save(); render(); toast("⚙", `${MODULES.find(m => m[0] === d.mod)[1]} ${D.mods[d.mod] ? "açıldı" : "kapatıldı"}`, D.mods[d.mod] ? "İlgili ekranlar görünür oldu" : "İlgili ekranlar gizlendi"); return; }
+    if (d.priv) { D.privacy[d.priv] = !D.privacy[d.priv]; save(); render(); return; }
+    if (d.sector) { toast("🧩", `${d.sector} şablonu`, "Gerçek uygulamada aşamalar, roller ve formlar bu şablonla kurulur, sonra serbestçe düzenlenir."); return; }
+    if (d.reassign) { const [a, b] = d.reassign.split(":"); openReassign(+a, b); return; }
+    if (d.resolve) { const { j, s } = parseK(d.resolve); s.status = "ready"; s.readyAt = Date.now(); s.log.push({ at: Date.now(), by: me, act: "resolved", note: s.issue?.note }); delete s.issue;
+      notify(`${first(me)} #${j.id} sorununu çözdü, ${first(s.owner)} devam edebilir`, "🛠", [s.owner]); save(); render(); if (layer.innerHTML) openJob(j.id, true); toast("🛠", "Sorun çözüldü", `${first(s.owner)} bilgilendirildi`); return; }
+    if (d.approve) { const { j, s } = parseK(d.approve); const r = completeStep(j, s, me, "approved"); if (layer.innerHTML) { save(); render(); openJob(j.id, true); toast("✅", "Onaylandı", r.next ? `Sıradaki: ${r.next.map(x => x.name).join(", ")}` : ""); } else afterComplete(j, s, r); return; }
+    if (d.back) { openBack(d.back); return; }
+    if (d.start) { const { j, s } = parseK(d.start); s.status = "working"; s.startedAt = Date.now(); notify(`${first(me)} #${j.id} ${s.name} işine başladı`, "▶️"); save(); render(); return; }
+    if (d.done) { const { j, s } = parseK(d.done); afterComplete(j, s, completeStep(j, s, me)); return; }
+    if (d.voice) { const { j, s } = parseK(d.voice); const sec = 8 + Math.floor(Math.random() * 20);
+      s.notes.push({ kind: "voice", text: `Sesli not · 0:${pad(sec)}`, by: me, at: Date.now() }); save(); render();
+      toast("🎙", "Sesli not eklendi", "Prototipte kayıt taklit ediliyor; gerçek uygulamada basılı tutup konuşursun"); return; }
+    if (d.issue) { openIssue(d.issue); return; }
+    if (d.file) { openDrawing(d.file); return; }
+    if (d.scanone || d.scan) {
+      let k, code;
+      if (d.scanone) { const parts = d.scanone.split(":"); k = parts[0] + ":" + parts[1]; code = parts.slice(2).join(":"); }
+      else { k = d.scan; const j0 = parseK(k).j; code = ($(`#scan-${j0.id}`)?.value || "").trim().toUpperCase(); }
+      const { j, s } = parseK(k), it = s.items.find(i => i.code === code);
+      if (!it) { toast("✕", "Kod bulunamadı", code ? `${code} bu sevkiyatta yok` : "Bir kod yaz ya da satırdan okut"); return; }
+      it.scanned = true; save(); render(); toast("▣", "Okundu", `${it.name} · ${it.n} adet`); return; }
+    if (d.go) { const { j, s } = parseK(d.go); s.status = "working"; s.startedAt = Date.now(); notify(`${first(me)} #${j.id} için yola çıktı · müşteri bilgilendirildi`, "🚚", ["selim"]); save(); render(); toast("🚚", "İyi yolculuklar", `${j.customer} takip ekranında “Yolda” görünüyor`); return; }
+    if (d.deliver) { const { j, s } = parseK(d.deliver), c = document.querySelector(`[data-sig="${d.deliver}"]`);
+      if (!c || !c.dataset.inked) { toast("✍️", "İmza gerekli", "Müşteriye imza alanına imzalatın"); return; }
+      s.signature = c.toDataURL("image/png"); afterComplete(j, s, completeStep(j, s, me)); return; }
+  });
+
+  render();
+  setInterval(() => { if (!layer.innerHTML && !document.querySelector(".sig")) render(); }, 60000);
+})();
+</script>
