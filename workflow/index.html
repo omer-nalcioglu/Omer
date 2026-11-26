@@ -396,6 +396,36 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
 .in, textarea { border: 1px solid var(--line); background: var(--surface); }
 .in:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 .flowline span.s { background: var(--surface); border: 1px solid var(--line); font-weight: 500; }
+.mi { width: 36px; height: 36px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; flex: none; font-weight: 600; }
+.mi svg { width: 20px; height: 20px; }
+.mi.big { width: 52px; height: 52px; border-radius: 14px; } .mi.big svg { width: 28px; height: 28px; }
+.mi.sm2 { width: 20px; height: 20px; border-radius: 6px; background: none; color: var(--ink-2); display: inline-grid; vertical-align: -5px; margin-right: 4px; } .mi.sm2 svg { width: 15px; height: 15px; }
+.sysmap { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px; display: grid; gap: 14px; }
+.core { display: flex; gap: 12px; align-items: center; padding: 12px; border-radius: 14px; background: var(--accent); color: var(--on-accent); }
+.core .sm { color: inherit; opacity: .8; } .core .mi { background: color-mix(in srgb, var(--on-accent) 18%, transparent); color: var(--on-accent); }
+.blocks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; position: relative; }
+.mblock { display: flex; gap: 10px; align-items: center; padding: 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); text-align: left; font-weight: 600; font-size: .86rem; min-width: 0; }
+.mblock > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.mblock .mi { width: 30px; height: 30px; } .mblock .mi svg { width: 17px; height: 17px; }
+.mblock.add { border-style: dashed; color: var(--ink-2); } .mblock.add .mi { background: var(--surface-2); color: var(--ink-2); font-size: 1.1rem; }
+.roles { display: grid; gap: 6px; border-top: 1px solid var(--line); padding-top: 12px; font-size: .84rem; }
+.roles div { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 8px; }
+.roles b { font-weight: 600; } .roles span { color: var(--ink-2); }
+.recs { display: grid; gap: 8px; background: var(--accent-soft); border-radius: 16px; padding: 12px; }
+.recs > b { font-size: .8rem; font-weight: 600; color: var(--accent); }
+.rec { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px; border-radius: 12px; background: var(--surface); text-align: left; }
+.cat { display: grid; gap: 8px; }
+.cat-h { font-size: .74rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+.mgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+@media (max-width: 360px) { .mgrid, .blocks { grid-template-columns: 1fr; } }
+.mcard .cat-h { font-size: .66rem; }
+.mcard { display: grid; gap: 6px; align-content: start; padding: 14px; border-radius: 16px; border: 1px solid var(--line); background: var(--surface); text-align: left; min-width: 0; }
+.mcard.on { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.mcard .mh { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin-bottom: 4px; }
+.mcard b { font-weight: 600; } .mcard .req { color: var(--warn); }
+.soon { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .84rem; color: var(--ink-2); }
+.wzlist { display: grid; gap: 8px; max-height: 52vh; overflow-y: auto; }
+.choice.sel { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
 </style>
 
 <div class="band"><div class="band-in gut">
@@ -564,11 +594,27 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
   ];
   const QUICK = ["Sipariş", "Onay", "Ölçüm", "Üretim", "Montaj", "Kalite kontrol", "Paketleme", "Teslimat", "Ödeme"];
   const fmtH = h => h == null ? "—" : h < 1 ? `${Math.round(h * 60)} dk` : h < 48 ? `${+h.toFixed(1)} sa`.replace(".", ",") : `${+(h / 24).toFixed(1)} gün`.replace(".", ",");
-  const MODULES = [
-    ["fleet", "Workflow Fleet", "Şoför, araç ve teslimat"],
-    ["stock", "Workflow Stock", "Depo, barkod ve stok uyarıları"], ["finance", "Workflow Finance", "İş maliyeti ve kârlılık"],
-    ["customers", "Workflow Customers", "Müşterinin sipariş takip ekranı"],
+  // ---- Modül Deposu: building blocks a business snaps onto the core (jobs + flow engine + team) ----
+  const CATALOG = [
+    { id: "planning", ico: "clock", cat: "Planlama", name: "Akıllı termin ve kapasite", desc: "Her işin tahmini bitişini hesaplar, termin riskini ve darboğazı önceden gösterir.",
+      adds: ["Tahmini bitiş ve termin riski", "Darboğaz radarı ve yük dengeleme", "Kapasite takvimi"], where: ["Patron paneli", "Yeni iş formu", "İş detayı"] },
+    { id: "rules", ico: "bolt", cat: "Otomasyon", name: "Kural motoru", desc: "“Eğer… ise… yap” kurallarıyla kod yazmadan otomasyon kurar.",
+      adds: ["Akış başına kurallar", "Otomatik onay ekleme", "Boştaki çalışana aktarma"], where: ["Akış düzenleyici", "İş açılışı", "İş sırasında"] },
+    { id: "fleet", ico: "truck", cat: "Saha", name: "Saha ve teslimat", desc: "Şoför ekranı, teslimat aşaması, rota ve müşteri imzası ekler.",
+      adds: ["Şoför rolü ve ekranı", "Teslimat (imza) aşama tipi", "Teslim fotoğrafı ve imza"], where: ["Şoför ekranı", "Akış düzenleyici"] },
+    { id: "stock", ico: "box", cat: "Depo", name: "Depo ve stok", desc: "Malzeme stoğunu tutar, kritik seviyede uyarır, yeni işte eksik malzemeyi söyler.",
+      adds: ["Stok listesi", "Kritik stok uyarısı", "İş açarken stok kontrolü"], where: ["Depo ekranı", "Patron paneli", "Yeni iş formu"] },
+    { id: "scan", ico: "scan", cat: "Depo", name: "Barkod ve QR", desc: "Sevkiyatta ürünleri okutarak sayar, eksik ürünle araç yüklenmez.", requires: ["stock"],
+      adds: ["Sevkiyat (barkod) aşama tipi", "Okut ve say listesi", "Araç seçimi"], where: ["Depo ekranı", "Akış düzenleyici"] },
+    { id: "finance", ico: "money", cat: "Finans", name: "Maliyet ve kârlılık", desc: "İşe tutar ve maliyet girer, iş başına kârı ve ciroyu gösterir.",
+      adds: ["Tutar ve maliyet alanları", "İş başına kâr", "Tutara göre kurallar"], where: ["Yeni iş formu", "İş detayı", "Raporlar"] },
+    { id: "customers", ico: "user", cat: "Müşteri", name: "Müşteri takip", desc: "Müşteriye kendi siparişini izleyebileceği sade bir ekran ve otomatik mesaj.",
+      adds: ["Müşteri takip ekranı", "Aşama değişince müşteri mesajı", "Müşteriye görünen aşama adları"], where: ["Müşteri ekranı", "Akış tercihleri"] },
+    { id: "reports", ico: "chart", cat: "Yönetim", name: "Performans ve raporlar", desc: "Zamanında teslim oranı, ortalama iş süresi ve aşama süreleri.",
+      adds: ["Raporlar sekmesi", "Aşama süre analizi", "Tamamlanan iş tablosu"], where: ["Patron alt menüsü"] },
   ];
+  const SOON = [["chat", "İşe özel mesajlaşma"], ["forms", "Özel formlar"], ["offline", "İnternetsiz çalışma"], ["branch", "Çoklu şube"], ["erp", "Muhasebe ve ERP bağlantısı"], ["ai", "Konuşarak iş oluşturma"]];
+  const modOn = id => !!D.mods[id];
   const ROADMAP = ["Workflow AI · konuşarak iş oluşturma", "Workflow Chat · işe özel mesajlaşma", "Workflow Forms · özel formlar", "Workflow Offline · internetsiz kayıt", "Workflow Locations · çoklu şube", "Workflow Connect · ERP ve muhasebe"];
 
   const PEOPLE = [];
@@ -655,13 +701,14 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
       { name: "Profil 40×40 mm", qty: 38, min: 60, unit: "boy" }, { name: "Sac levha 20 mm", qty: 0, min: 10, unit: "plaka" },
       { name: "Kilit takımı", qty: 30, min: 20, unit: "adet" }, { name: "Elektrostatik boya · RAL 7016", qty: 42, min: 25, unit: "kg" },
       { name: "Menteşe", qty: 220, min: 80, unit: "adet" } ];
-    return { people: JSON.parse(JSON.stringify(PEOPLE_SEED)), depts: { ...DEPTS_SEED }, flows, defaultFlow: "metal", jobs, feed, stock, nextId: 1050, mods: { fleet: true, stock: true, finance: true, customers: true },
+    return { people: JSON.parse(JSON.stringify(PEOPLE_SEED)), depts: { ...DEPTS_SEED }, flows, defaultFlow: "metal", jobs, feed, stock, nextId: 1050, mods: { planning: true, rules: true, fleet: true, stock: true, scan: true, finance: true, customers: true, reports: true },
       privacy: { loc: true, perf: true } };
   }
 
   let D;
   try { D = JSON.parse(localStorage.getItem("wf-proto-4")); } catch (e) {}
   if (!D || !D.jobs || !D.flows || !D.people) D = seed();
+  D.mods = { planning: true, rules: true, scan: true, reports: true, ...D.mods };
   const syncPeople = () => { PEOPLE.length = 0; PEOPLE.push(...D.people); D.people = PEOPLE; };
   syncPeople();
   const save = () => { try { localStorage.setItem("wf-proto-4", JSON.stringify(D)); } catch (e) {} };
@@ -748,6 +795,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
   }
   // applied to a brand-new job (also used for the live preview in the new-job form)
   function applyCreateRules(j, dry) {
+    if (!D.mods.rules) return [];
     const out = [];
     (flowOf(j).rules || []).filter(r => r.on && CONDS[r.cond].ev === "create" && condMatch(r, j)).forEach(r => {
       if (r.act === "add_approval" && !j.steps.some(s => s.key === "r-onay")) {
@@ -762,6 +810,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     return out;
   }
   function eventRules(j, cond, s) {
+    if (!D.mods.rules) return;
     (flowOf(j).rules || []).filter(r => r.on && r.cond === cond && (cond !== "stage_done" || r.cstage === s.key)).forEach(r => {
       const what = cond === "sla_over" ? `${s.name} hedef süreyi aştı` : cond === "issue" ? `${s.name} aşamasında sorun` : `${s.name} bitti`;
       if (r.act === "reassign_idle") {
@@ -852,8 +901,8 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     return { res, book, avail };
   }
   let SIM = { res: {}, book: [], avail: {} };
-  const etaOf = j => SIM.res[j.id]?.eta;
-  const atRisk = j => !j.done && !isLate(j) && SIM.res[j.id]?.risk;
+  const etaOf = j => D.mods.planning ? SIM.res[j.id]?.eta : undefined;
+  const atRisk = j => D.mods.planning && !j.done && !isLate(j) && SIM.res[j.id]?.risk;
   function earliestFree(skill, avail) {
     const c = PEOPLE.filter(p => (p.skills || []).includes(skill)); if (!c.length) return (PEOPLE.find(p => p.role === "ustabasi") || PEOPLE[0]).id;
     return c.sort((a, b) => (avail[a.id] || 0) - (avail[b.id] || 0))[0].id;
@@ -892,11 +941,22 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     list: '<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
     team: '<circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9.5" r="2.4"/><path d="M15.5 14.3c2.4-.4 4.4 1.1 5 4.2"/>',
     chart: '<path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/>',
+    grid: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><path d="M16.5 13v7M13 16.5h7"/>',
+    clock: '<circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/>',
+    bolt: '<path d="M13 3 5 13.5h6L10 21l9-11h-6z"/>',
+    truck: '<path d="M3 7h11v9H3zM14 10h4l3 3v3h-7z"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17.5" cy="17.5" r="1.8"/>',
+    box: '<path d="M4 8 12 4l8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/>',
+    scan: '<path d="M4 8V5h3M17 5h3v3M20 16v3h-3M7 19H4v-3M7 9v6M10 9v6M13 9v6M16.5 9v6"/>',
+    money: '<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6.5 9.5v5M17.5 9.5v5"/>',
+    user: '<circle cx="12" cy="8.5" r="3.5"/><path d="M5 20c.8-3.8 3.6-6 7-6s6.2 2.2 7 6"/>',
+    core: '<path d="M12 3 20 7.5v9L12 21l-8-4.5v-9z"/><path d="M12 12 20 7.5M12 12v9M12 12 4 7.5"/>',
+    lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8.5 11V8a3.5 3.5 0 0 1 7 0v3"/>',
     gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M4.2 7.5l2.1 1.2M17.7 15.3l2.1 1.2M4.2 16.5l2.1-1.2M17.7 8.7l2.1-1.2"/><circle cx="12" cy="12" r="7"/>' };
   const ico = n => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
   // ----- boss -----
   function renderBoss() {
-    const NAV = [["panel", ico("home"), "Panel"], ["isler", ico("list"), "İşler"], ["ekip", ico("team"), "Ekip"], ["rapor", ico("chart"), "Raporlar"], ["ayar", ico("gear"), "Ayarlar"]];
+    if (tab === "rapor" && !D.mods.reports) tab = "panel";
+    const NAV = [["panel", ico("home"), "Panel"], ["isler", ico("list"), "İşler"], ["ekip", ico("team"), "Ekip"], ["rapor", ico("chart"), "Raporlar"], ["ayar", ico("grid"), "Sistem"]].filter(n => n[0] !== "rapor" || D.mods.reports);
     if (!NAV.some(n => n[0] === tab)) tab = "panel";
     setNav(NAV, false);
     const app = $("#app");
@@ -961,6 +1021,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     return hi.h - lo.h > WD_H && movable.length ? { hi: hi.p, lo: lo.p, gap: hi.h - lo.h } : null;
   }
   function radarHtml(compact) {
+    if (!D.mods.planning) return "";
     const C = capacity(), rows = C.rows.sort((a, b) => b.util - a.util).slice(0, compact ? 5 : 99);
     if (!rows.length) return "";
     const cls = u => u > 1 ? "bad" : u > .8 ? "warn" : "ok";
@@ -973,6 +1034,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     </div></section>`;
   }
   function heatHtml() {
+    if (!D.mods.planning) return "";
     const C = capacity(); if (!C.rows.length) return "";
     const lvl = (h, cap) => { const u = h / cap; return u <= 0 ? 0 : u < .4 ? 1 : u < .8 ? 2 : u <= 1 ? 3 : 4; };
     return `<section><h2>Kapasite takvimi</h2><div class="sm" style="margin-top:-6px">Departman başına günlük doluluk · 0 boş, 4 kapasite aşımı</div><div class="tbl-wrap"><table class="heat">
@@ -1083,7 +1145,10 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     </main>`;
   }
   function bossSettings() {
-    return head("İşletme ayarları", "Ayarlar") + `<main class="gut">
+    return head("Demirtaş Metal", "Sistemin") + `<main class="gut">
+      ${systemMap()}
+      <button class="btn block xl" id="rebuild">Sistemi baştan kur</button>
+      ${depotHtml()}
       <section><div class="sec-h"><h2>İş akışların</h2></div>
         <p class="sm" style="margin:0">Uygulama sektöre göre değil, senin çalışma düzenine göre şekillenir. Aşamaları, sorumluları, onayları ve tercihleri sen belirlersin.</p>
         <button class="btn block xl" id="newFlow">＋ Kendi akışını kur</button>
@@ -1093,11 +1158,117 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
           <div style="display:grid;gap:6px"><button class="btn line" data-editflow="${f.id}">Düzenle</button>${f.id !== D.defaultFlow ? `<button class="chip" data-defflow="${f.id}">Varsayılan yap</button>` : ""}</div></div>`).join("")}</div></section>
       <section><h2>Şablon galerisi</h2><p class="sm" style="margin:0">Her şablon gerçek bir işletmenin işleyişine göre tasarlandı. Önizle, beğenirsen kendi ekibine göre uyarla.</p>
         <div class="tgrid">${TEMPLATES.map(t => tplCard(t)).join("")}</div></section>
-      <section><h2>Modüller</h2><p class="sm" style="margin:0">İşletme yalnızca ihtiyacı olanı açar. Kapatılan modül hiçbir ekranda görünmez.</p>
-        <div class="list">${MODULES.map(([k, n, d]) => `<div class="set"><div><b>${n}</b><div class="sm">${d}</div></div><button class="sw" role="switch" aria-checked="${D.mods[k]}" data-mod="${k}" aria-label="${n}"></button></div>`).join("")}</div>
-        <div class="sm">Yol haritasında: ${ROADMAP.map(esc).join(" · ")}</div></section>
     </main>`;
   }
+  // ---------- Modül Deposu ----------
+  function recsFor(flows, jobs) {
+    const out = {}, st = flows.flatMap(f => f.stages.map(x => ({ ...x, flow: f.name })));
+    const hit = (re, type) => st.find(x => (type && x.type === type) || re.test(lower(x.name)));
+    let h;
+    if ((h = hit(/teslim|nakliye|kargo|yerinde/, "delivery"))) out.fleet = `Akışında “${h.name}” aşaması var`;
+    if ((h = hit(/paketleme|sevkiyat|yükleme/, "pack"))) out.scan = `“${h.name}” aşamasında ürünler okutularak sayılabilir`;
+    if ((h = hit(/malzeme|depo|stok|toplama|kumaş|parça/))) out.stock = `“${h.name}” aşaması stok bilgisi ister`;
+    const longest = flows.reduce((a, f) => f.stages.length > (a?.stages.length || 0) ? f : a, null);
+    if (longest && longest.stages.filter(x => !x.par).length >= 6) out.planning = `${longest.stages.length} aşamalı “${longest.name}” akışında termin hesabı en çok fark yaratır`;
+    if (st.some(x => x.type === "approval")) out.rules = "Onay adımların var; kurallar onayları otomatik yönetebilir";
+    if (jobs.some(j => j.price > 0) || st.some(x => /fiyat|ödeme|hakediş|tahsilat|teklif/.test(lower(x.name)))) out.finance = "İşlerinde tutar ve ödeme adımı var";
+    if (st.some(x => x.pub && x.pub !== x.name) || flows.some(f => f.prefs?.custNotify)) out.customers = "Müşteriye gösterilecek aşama adların hazır";
+    if (jobs.filter(j => j.done).length >= 3 || (longest && longest.stages.length >= 6)) out.reports = "Aşama sürelerini ölçmeye yetecek iş hacmin var";
+    return out;
+  }
+  function screensByRole(mods) {
+    const R = [["Patron", ["Kontrol merkezi", "İş emirleri", "Ekip", ...(mods.reports ? ["Raporlar"] : []), "Sistem"]],
+      ["Ustabaşı", ["Sorunlar", "Onaylar", "Ekip yükü"]], ["Üretim", ["Görevlerim"]], ["Depo", ["Görevlerim", ...(mods.stock ? ["Stok"] : []), ...(mods.scan ? ["Barkodla sevkiyat"] : [])]]];
+    if (mods.fleet) R.push(["Şoför", ["Teslimatlarım", "İmza ve fotoğraf"]]);
+    if (mods.customers) R.push(["Müşteri", ["Sipariş takibi"]]);
+    return R;
+  }
+  function systemMap() {
+    const on = CATALOG.filter(m => D.mods[m.id]);
+    return `<section><div class="sec-h"><h2>Senin sistemin</h2><span class="sm">${on.length} modül</span></div>
+      <div class="sysmap">
+        <div class="core"><span class="mi">${ico("core")}</span><div><b>Çekirdek</b><div class="sm">İş emirleri · Akış motoru · Ekip ve departmanlar</div></div></div>
+        <div class="blocks">${on.map(m => `<button class="mblock" data-mod="${m.id}"><span class="mi">${ico(m.ico)}</span><span>${esc(m.name)}</span></button>`).join("")}
+          <button class="mblock add" id="toDepot"><span class="mi">＋</span><span>Modül ekle</span></button></div>
+        <div class="roles">${screensByRole(D.mods).map(([r, sc]) => `<div><b>${r}</b><span>${sc.map(esc).join(" · ")}</span></div>`).join("")}</div>
+      </div></section>`;
+  }
+  function depotHtml() {
+    const rec = recsFor(D.flows, D.jobs);
+    const recOff = CATALOG.filter(m => !D.mods[m.id] && rec[m.id]);
+    return `<section id="depot"><div class="sec-h"><h2>Modül deposu</h2><span class="sm">${CATALOG.length} yapı taşı</span></div>
+      <p class="sm" style="margin:0">Hazır uygulama indirmek yok. Çekirdeğin üstüne, iş akışının ihtiyaç duyduğu parçaları ekleyerek kendi sistemini kurarsın. Eklediğin her modül yalnızca ilgili ekranlara yerleşir.</p>
+      ${recOff.length ? `<div class="recs"><b>Akışına göre önerilen</b>${recOff.map(m => `<button class="rec" data-mod="${m.id}"><span class="mi">${ico(m.ico)}</span><div style="min-width:0"><b>${esc(m.name)}</b><div class="sm">${esc(rec[m.id])}</div></div><span class="pill info">Ekle</span></button>`).join("")}</div>` : ""}
+      <div class="mgrid">${CATALOG.map(m => `<button class="mcard${D.mods[m.id] ? " on" : ""}" data-mod="${m.id}">
+        <div class="mh"><span class="mi">${ico(m.ico)}</span>${D.mods[m.id] ? `<span class="pill ok">Sistemde</span>` : rec[m.id] ? `<span class="pill info">Önerilen</span>` : ""}</div>
+        <span class="cat-h">${esc(m.cat)}</span><b>${esc(m.name)}</b><span class="sm">${esc(m.desc)}</span>${m.requires ? `<span class="sm req">Gerektirir: ${m.requires.map(r => esc(CATALOG.find(x => x.id === r).name)).join(", ")}</span>` : ""}</button>`).join("")}</div>
+      <div class="cat"><div class="cat-h">Yakında</div><div class="soon">${SOON.map(([k, n]) => `<span><span class="mi sm2">${ico("lock")}</span>${esc(n)}</span>`).join("")}</div></div>
+    </section>`;
+  }
+  function openModule(id) {
+    const m = CATALOG.find(x => x.id === id), on = !!D.mods[id], rec = recsFor(D.flows, D.jobs)[id];
+    const dependents = CATALOG.filter(x => (x.requires || []).includes(id) && D.mods[x.id]);
+    const needs = (m.requires || []).filter(r => !D.mods[r]);
+    sheet(`<div class="stack">
+      <div class="th"><span class="mi big">${ico(m.ico)}</span><div><div class="eyebrow">${esc(m.cat)} modülü</div><h2 style="font-size:1.4rem">${esc(m.name)}</h2></div></div>
+      <p style="margin:0">${esc(m.desc)}</p>
+      ${rec ? `<div class="note info"><b>Neden senin için?</b><span>${esc(rec)}.</span></div>` : ""}
+      <section><h2>Sistemine ne ekler</h2><div class="list">${m.adds.map(a => `<div class="set" style="grid-template-columns:1fr"><span>＋ ${esc(a)}</span></div>`).join("")}</div></section>
+      <section><h2>Nerede görünür</h2><div class="chips">${m.where.map(w => `<span class="chip">${esc(w)}</span>`).join("")}</div></section>
+      ${needs.length ? `<div class="note"><b>Birlikte eklenecek</b><span>${needs.map(r => esc(CATALOG.find(x => x.id === r).name)).join(", ")} bu modülün çalışması için gerekli.</span></div>` : ""}
+      ${on && dependents.length ? `<div class="note"><b>Birlikte çıkacak</b><span>${dependents.map(x => esc(x.name)).join(", ")} bu modüle bağlı.</span></div>` : ""}
+      ${on ? `<button class="btn line xl block" id="modOff" style="color:var(--bad)">Sistemden çıkar</button><div class="sm" style="text-align:center">Veriler silinmez; modül geri eklenince her şey yerine gelir.</div>` : `<button class="btn xl block" id="modOn">Sistemime ekle</button>`}
+      <button class="btn ghost block" id="closeS">Kapat</button></div>`, () => {
+      $("#closeS").onclick = closeSheet;
+      const on1 = $("#modOn"), off1 = $("#modOff");
+      if (on1) on1.onclick = () => { [...needs, id].forEach(k => D.mods[k] = true); save(); closeSheet(); render(); toast("＋", `${m.name} sisteme eklendi`, needs.length ? `${needs.map(r => CATALOG.find(x => x.id === r).name).join(", ")} da eklendi` : m.where.join(" · ")); };
+      if (off1) off1.onclick = () => { [id, ...dependents.map(x => x.id)].forEach(k => D.mods[k] = false); save(); closeSheet(); render(); toast("−", `${m.name} çıkarıldı`, "İlgili ekranlar gizlendi"); };
+    });
+  }
+  // wizard: build the whole system from scratch around one workflow
+  let wz = null;
+  function openWizard(step = 1, still) {
+    if (step === 1 && !wz) wz = { flow: null, tpl: null, mods: {} };
+    if (step === 1) wz = { flow: null, tpl: null, mods: {} };
+    if (step === 1.5) step = 1;
+    const flowsHtml = D.flows.map(f => `<button class="choice${wz.flow === f.id ? " sel" : ""}" data-wzflow="${f.id}"><span class="tico">${f.ico}</span><div style="min-width:0"><b>${esc(f.name)}</b><div class="sm">${f.stages.length} aşama · şu anki akışın</div></div></button>`).join("")
+      + TEMPLATES.map(t => `<button class="choice${wz.tpl === t.id ? " sel" : ""}" data-wztpl="${t.id}"><span class="tico">${t.ico}</span><div style="min-width:0"><b>${esc(t.name)}</b><div class="sm">${esc(t.who)}</div></div></button>`).join("");
+    const pickedFlows = () => wz.flow ? [flowById(wz.flow)] : wz.tpl ? [{ name: TEMPLATES.find(t => t.id === wz.tpl).name, prefs: { ...DEFAULT_PREFS, ...(TEMPLATES.find(t => t.id === wz.tpl).prefs || {}) }, stages: TEMPLATES.find(t => t.id === wz.tpl).stages }] : [];
+    let body = "";
+    if (step === 1) body = `<div><div class="eyebrow">1 / 3 · İş akışın</div><h2 style="font-size:1.4rem">İşin nasıl ilerliyor?</h2><div class="sm">Sistem bu akışın etrafında kurulur.</div></div><div class="wzlist">${flowsHtml}</div>
+      <button class="btn xl block" id="wzNext"${wz.flow || wz.tpl ? "" : " disabled"}>Devam</button>`;
+    if (step === 2) { const rec = recsFor(pickedFlows(), wz.flow ? D.jobs.filter(j => j.flowId === wz.flow) : []);
+      if (!wz.touched) { wz.mods = {}; CATALOG.forEach(m => wz.mods[m.id] = !!rec[m.id]); }
+      body = `<div><div class="eyebrow">2 / 3 · Modüller</div><h2 style="font-size:1.4rem">Akışına göre seçtiklerimiz</h2><div class="sm">İşaretlileri öneriyoruz. İstediğini ekle ya da çıkar.</div></div>
+        <div class="list">${CATALOG.map(m => `<div class="set"><div style="min-width:0;display:flex;gap:10px;align-items:center"><span class="mi">${ico(m.ico)}</span><div style="min-width:0"><b>${esc(m.name)}</b><div class="sm">${esc(rec[m.id] || m.desc)}</div></div></div><button class="sw" role="switch" aria-checked="${!!wz.mods[m.id]}" data-wzmod="${m.id}" aria-label="${esc(m.name)}"></button></div>`).join("")}</div>
+        <div class="grid2"><button class="btn ghost" id="wzBack">Geri</button><button class="btn" id="wzNext">Devam</button></div>`; }
+    if (step === 3) { CATALOG.forEach(m => (m.requires || []).forEach(r => { if (wz.mods[m.id]) wz.mods[r] = true; }));
+      const f = pickedFlows()[0], n = CATALOG.filter(m => wz.mods[m.id]).length;
+      body = `<div><div class="eyebrow">3 / 3 · Hazır</div><h2 style="font-size:1.4rem">Sistemin böyle olacak</h2></div>
+        <div class="sysmap"><div class="core"><span class="mi">${ico("core")}</span><div><b>Çekirdek + ${esc(f.name)}</b><div class="sm">${f.stages.length} aşama · ${n} modül</div></div></div>
+          <div class="blocks">${CATALOG.filter(m => wz.mods[m.id]).map(m => `<span class="mblock"><span class="mi">${ico(m.ico)}</span><span>${esc(m.name)}</span></span>`).join("")}</div>
+          <div class="roles">${screensByRole(wz.mods).map(([r, sc]) => `<div><b>${r}</b><span>${sc.map(esc).join(" · ")}</span></div>`).join("")}</div></div>
+        <div class="sm">Mevcut işlerin ve ekibin korunur. Modülleri sonra da Modül deposundan ekleyip çıkarabilirsin.</div>
+        <div class="grid2"><button class="btn ghost" id="wzBack">Geri</button><button class="btn ok" id="wzGo">Sistemimi oluştur</button></div>`; }
+    sheet(`<div class="stack">${body}<button class="btn ghost block" id="closeS">Vazgeç</button></div>`, () => {
+      $("#closeS").onclick = closeSheet;
+      layer.querySelectorAll("[data-wzflow]").forEach(b => b.onclick = () => { wz.flow = b.dataset.wzflow; wz.tpl = null; wz.touched = false; openWizard(1.5, true); });
+      layer.querySelectorAll("[data-wztpl]").forEach(b => b.onclick = () => { wz.tpl = b.dataset.wztpl; wz.flow = null; wz.touched = false; openWizard(1.5, true); });
+      layer.querySelectorAll("[data-wzmod]").forEach(b => b.onclick = () => { wz.touched = true; wz.mods[b.dataset.wzmod] = !wz.mods[b.dataset.wzmod]; b.setAttribute("aria-checked", wz.mods[b.dataset.wzmod]); });
+      const nx = $("#wzNext"); if (nx) nx.onclick = () => openWizard(Math.floor(step) + 1);
+      const bk = $("#wzBack"); if (bk) bk.onclick = () => openWizard(step - 1 === 1 ? 1.5 : step - 1);
+      const go = $("#wzGo"); if (go) go.onclick = () => {
+        let fid = wz.flow;
+        if (wz.tpl) { const d = fromTemplate(TEMPLATES.find(t => t.id === wz.tpl)); let g = -1; d.stages.forEach((x, i) => { if (!i) x.par = false; g += x.par ? 0 : 1; x.g = g; });
+          d.stages.forEach(x => { if ((x.type === "pack" && !wz.mods.scan) || (x.type === "delivery" && !wz.mods.fleet)) x.type = "task"; });
+          d.id = "f" + Date.now().toString(36); D.flows.push(d); fid = d.id; }
+        D.defaultFlow = fid; CATALOG.forEach(m => D.mods[m.id] = !!wz.mods[m.id]);
+        save(); closeSheet(); tab = "ayar"; render(); window.scrollTo(0, 0);
+        toast("✓", "Sistemin kuruldu", `${flowById(fid).name} · ${CATALOG.filter(m => D.mods[m.id]).length} modül`);
+      };
+    }, !!still);
+  }
+
   function tplStats(t) {
     const st = t.stages, groups = []; st.forEach((x, i) => { if (!x.par || !groups.length) groups.push([x]); else groups[groups.length - 1].push(x); });
     return { n: st.length, par: st.filter(x => x.par).length, appr: st.filter(x => x.type === "approval").length, depts: new Set(st.map(x => x.dept)).size,
@@ -1167,7 +1338,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
   function fromTemplate(t) {
     return { id: null, ico: t.ico, name: `${t.name} akışı`, from: t.name, prefs: { ...DEFAULT_PREFS, ...(t.prefs || {}) },
       rules: [{ id: newKey(), cond: "urgent", act: "front", on: true }, { id: newKey(), cond: "sla_over", act: "notify_foreman", on: true }],
-      stages: t.stages.map(x => ({ key: newKey(), name: x.name, skill: deptKey(x.dept), type: x.type === "delivery" && !D.mods.fleet ? "task" : x.type, par: x.par, sla: x.sla, photo: x.photo, pub: x.pub, checklist: [...x.checklist] })) };
+      stages: t.stages.map(x => ({ key: newKey(), name: x.name, skill: deptKey(x.dept), type: (x.type === "delivery" && !D.mods.fleet) || (x.type === "pack" && !D.mods.scan) ? "task" : x.type, par: x.par, sla: x.sla, photo: x.photo, pub: x.pub, checklist: [...x.checklist] })) };
   }
   function openFlowEditor(src, still) {
     if (!still) {
@@ -1189,7 +1360,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
         <button class="ed-b" data-mv="${i}:-1" aria-label="Yukarı"${i === 0 ? " disabled" : ""}>↑</button><button class="ed-b" data-mv="${i}:1" aria-label="Aşağı"${i === draft.stages.length - 1 ? " disabled" : ""}>↓</button>
         <button class="ed-b del" data-del="${i}" aria-label="Sil">✕</button></div>
       <div class="ed-two"><label class="sm">Kim yapar<select data-i="${i}" data-f="owner">${ownerOpts(st)}</select></label>
-        <label class="sm">Aşama tipi<select data-i="${i}" data-f="type">${Object.entries(TYPES).filter(([k]) => k !== "delivery" || D.mods.fleet).map(([k, v]) => `<option value="${k}"${st.type === k ? " selected" : ""}>${TYPE_ICON[k]} ${v}</option>`).join("")}</select></label></div>
+        <label class="sm">Aşama tipi<select data-i="${i}" data-f="type">${Object.entries(TYPES).filter(([k]) => (k !== "delivery" || D.mods.fleet) && (k !== "pack" || D.mods.scan)).map(([k, v]) => `<option value="${k}"${st.type === k ? " selected" : ""}>${TYPE_ICON[k]} ${v}</option>`).join("")}</select></label></div>
       <div class="newdept" data-nd="${i}" hidden><input class="in" placeholder="Departman adı (ör: Döşeme)" aria-label="Yeni departman adı"><button class="btn dark" data-ndok="${i}">Ekle</button></div>
       ${empty ? `<div class="sm" style="color:var(--warn)">Bu departmanda çalışan yok; çalışan ekleyene kadar iş ustabaşına düşer.</div>` : ""}
       <div class="ed-two"><label class="sm">Hedef süre<span class="slarow"><input data-i="${i}" data-f="slav" type="number" min="1" value="${uval(st.sla)}" inputmode="decimal"><select data-i="${i}" data-f="slau">${["dk", "sa", "gün"].map(u => `<option${unit(st.sla) === u ? " selected" : ""}>${u}</option>`).join("")}</select></span></label>
@@ -1208,7 +1379,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
         ${draft.stages.length ? `<div class="ed-list">${rows}</div>` : `<div class="empty" style="background:var(--surface-2)">Henüz aşama yok. Aşağıdan hazır bir aşamaya dokun ya da boş aşama ekle.</div>`}
         <div class="chips">${QUICK.map(q => `<button class="chip" data-quick="${esc(q)}">＋ ${esc(q)}</button>`).join("")}</div>
         <button class="btn ghost block" id="edAdd">＋ Boş aşama ekle</button></section>
-      <section><div class="sec-h"><h2>Kurallar</h2><span class="sm">Eğer… ise… yap</span></div>
+      ${D.mods.rules ? `<section><div class="sec-h"><h2>Kurallar</h2><span class="sm">Eğer… ise… yap</span></div>
         <p class="sm" style="margin:0">Kod yazmadan otomasyon. Kurallar iş açılırken ya da iş sırasında kendiliğinden çalışır.</p>
         ${(draft.rules || []).length ? `<div class="list">${draft.rules.map((r, i) => `<div class="set"><div style="min-width:0"><b style="font-weight:600">${esc(ruleText(r, draft))}</b></div>
           <div style="display:flex;gap:6px;align-items:center"><button class="sw" role="switch" aria-checked="${r.on}" data-ron="${i}" aria-label="Kuralı aç/kapat"></button><button class="ed-b del" data-rdel="${i}" aria-label="Kuralı sil" style="width:36px">✕</button></div></div>`).join("")}</div>` : `<div class="empty" style="background:var(--surface-2);padding:16px">Henüz kural yok.</div>`}
@@ -1220,7 +1391,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
           <button class="btn dark block" id="rAdd">＋ Kuralı ekle</button>
           <div class="chips">${[["price_gt", 100000, "add_approval", "100.000 ₺ üstü → patron onayı"], ["urgent", null, "front", "Acil → kuyruğun başı"], ["sla_over", null, "reassign_idle", "Süre aşımı → boştakine aktar"], ["issue", null, "notify_patron", "Sorun → patrona bildir"]]
             .map(([c, v, a, l]) => `<button class="chip" data-rp="${c}|${v ?? ""}|${a}">⚡ ${l}</button>`).join("")}</div>
-        </div></section>
+        </div></section>` : ""}
       <section><h2>Akış tercihleri</h2><div class="list">${PREF_TEXT.filter(([k]) => (k !== "signReq" || D.mods.fleet) && (!k.startsWith("cust") || D.mods.customers)).map(([k, n, dsc]) => `<div class="set"><div><b>${n}</b><div class="sm">${dsc}</div></div><button class="sw" role="switch" aria-checked="${!!draft.prefs[k]}" data-dpref="${k}" aria-label="${n}"></button></div>`).join("")}</div></section>
       <div class="sm" id="edMsg" style="color:var(--bad)"></div>
       <div class="grid2"><button class="btn ghost" id="edCancel">Vazgeç</button><button class="btn ok" id="edSave">${draft.id ? "Kaydet" : "Akışı oluştur"}</button></div>
@@ -1232,8 +1403,8 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
         $("#rcx").innerHTML = c.v ? `<label class="sm">Değer (${c.v})<input id="rv" type="number" min="0" inputmode="numeric" value="${c.v === "₺" ? 100000 : 10}"></label>` : c.stage ? `<label class="sm">Aşama${stageSel("rcs")}</label>` : "";
         $("#ra").innerHTML = Object.entries(ACTS).filter(([, a]) => a.ev.includes(c.ev)).map(([k, a]) => `<option value="${k}">${a.t}</option>`).join(""); drawAct(); };
       const drawAct = () => { $("#rax").innerHTML = ACTS[$("#ra").value]?.stage ? `<label class="sm">Atlanacak aşama${stageSel("ras")}</label>` : ""; };
-      $("#rc").onchange = drawRule; $("#ra").onchange = drawAct; drawRule();
-      $("#rAdd").onclick = () => { const r = { id: newKey(), cond: $("#rc").value, act: $("#ra").value, on: true };
+      if ($("#rc")) { $("#rc").onchange = drawRule; $("#ra").onchange = drawAct; drawRule(); }
+      if ($("#rAdd")) $("#rAdd").onclick = () => { const r = { id: newKey(), cond: $("#rc").value, act: $("#ra").value, on: true };
         if ($("#rv")) r.val = +$("#rv").value || 0; if ($("#rcs")) r.cstage = $("#rcs").value; if ($("#ras")) r.stage = $("#ras").value;
         if ((CONDS[r.cond].stage && !r.cstage) || (ACTS[r.act].stage && !r.stage)) { $("#edMsg").textContent = "Önce aşama ekle."; return; }
         draft.rules.push(r); redraw(); };
@@ -1288,7 +1459,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
         ${gs.length > 1 ? `<span class="ptag">∥ Paralel · ${gs.length} departman aynı anda</span>` : ""}
         ${gs.map(s => `<div class="pcard"><div class="h"><span>${esc(s.name)}</span>${stepPill(s)}</div>${slaPill(j, s)}
           <div class="sm" style="display:flex;align-items:center;gap:6px">${avatar(s.owner, 20)} ${esc(person(s.owner).name)}${s.doneAt && s.status === "done" ? ` · ${esc(when(s.doneAt))}` : s.status !== "locked" && s.readyAt ? ` · ${ago(s.readyAt)}dır bu aşamada` : ""}</div>
-          ${s.status !== "done" && SIM.res[j.id]?.steps[s.key] ? `<div class="sm">🗓 Plan: ${esc(when(SIM.res[j.id].steps[s.key].start))} → ${esc(when(SIM.res[j.id].steps[s.key].end))}${SIM.res[j.id].steps[s.key].wait > 2 * HOUR ? ` · <span style="color:var(--warn);font-weight:700">${fmtH(SIM.res[j.id].steps[s.key].wait / HOUR)} sıra bekliyor</span>` : ""}</div>` : ""}
+          ${D.mods.planning && s.status !== "done" && SIM.res[j.id]?.steps[s.key] ? `<div class="sm">🗓 Plan: ${esc(when(SIM.res[j.id].steps[s.key].start))} → ${esc(when(SIM.res[j.id].steps[s.key].end))}${SIM.res[j.id].steps[s.key].wait > 2 * HOUR ? ` · <span style="color:var(--warn);font-weight:700">${fmtH(SIM.res[j.id].steps[s.key].wait / HOUR)} sıra bekliyor</span>` : ""}</div>` : ""}
           ${s.issue && s.status === "blocked" ? `<div class="issue"><b>${esc(s.issue.type)}</b> · ${esc(s.issue.note)}</div>` : ""}
           ${s.photos.length || s.notes.length ? `<div class="attach">${s.photos.map(p => `<img src="${p}" alt="İş fotoğrafı">`).join("")}${s.notes.map(n => `<span class="vn">${n.kind === "voice" ? "🎙 " + n.text : "📝 " + esc(n.text)}</span>`).join("")}</div>` : ""}
           ${s.signature ? `<div class="attach"><img src="${s.signature}" alt="Müşteri imzası" style="width:120px;background:#fff"></div>` : ""}
@@ -1385,6 +1556,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
         return j;
       };
       const smart = () => {
+        if (!D.mods.planning) { $("#nEta").innerHTML = ""; return; }
         const j = draftJob(), applied = applyCreateRules(j, true), r = simulate(j).res[0];
         const steps = Object.entries(r.steps), worst = steps.sort((a, b) => b[1].wait - a[1].wait)[0];
         const ws = worst && j.steps.find(s => s.key === worst[0]);
@@ -1490,7 +1662,7 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     let body = "";
     if (s.status === "blocked") body = `<div class="issue"><b>${esc(s.issue.type)}</b> · ${esc(s.issue.note)}<div class="sm">Ustabaşı ve patron bilgilendirildi. Çözülünce bildirim gelecek.</div></div>`;
     else if (s.type === "approval") body = `${tools}<div class="${flowOf(j).prefs.sendBack ? "grid2" : ""}"><button class="btn ok xl${flowOf(j).prefs.sendBack ? "" : " block"}" data-approve="${k}">Onayla ✓</button>${flowOf(j).prefs.sendBack ? `<button class="btn bad xl" data-back="${k}">Geri gönder</button>` : ""}</div>`;
-    else if (s.type === "pack") {
+    else if (s.type === "pack" && D.mods.scan) {
       const items = s.items || [{ name: j.title, code: `UR-${j.id}`, n: parseInt(j.qty) || 1, scanned: false }]; s.items = items;
       const doneN = items.filter(i => i.scanned).length;
       body = `<div class="list" style="box-shadow:none;background:var(--surface-2);padding:0 12px">${items.map(i => `<div class="scan ${i.scanned ? "on" : ""}"><span class="bx">✓</span><div style="min-width:0"><b>${esc(i.name)}</b><div class="sm mono">${esc(i.code)} · ${i.n} adet</div></div>${i.scanned ? `<span class="pill ok">Okundu</span>` : `<button class="chip" data-scanone="${k}:${esc(i.code)}">Okut</button>`}</div>`).join("")}</div>
@@ -1649,7 +1821,9 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); back
     if (el.id === "newJob") { openNewJob(); return; }
     if (el.id === "bell") { const mine = D.feed.filter(f => f.to && f.to.includes(me)).reverse();
       sheet(`<div class="stack"><h2>Bildirimler</h2>${feedHtml(mine.length ? mine : [])}<button class="btn ghost block" id="closeS">Kapat</button></div>`, () => $("#closeS").onclick = closeSheet); return; }
-    if (d.mod) { D.mods[d.mod] = !D.mods[d.mod]; save(); render(); toast("⚙", `${MODULES.find(m => m[0] === d.mod)[1]} ${D.mods[d.mod] ? "açıldı" : "kapatıldı"}`, D.mods[d.mod] ? "İlgili ekranlar görünür oldu" : "İlgili ekranlar gizlendi"); return; }
+    if (d.mod) { openModule(d.mod); return; }
+    if (el.id === "toDepot") { $("#depot")?.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+    if (el.id === "rebuild") { wz = null; openWizard(1); return; }
     if (d.priv) { D.privacy[d.priv] = !D.privacy[d.priv]; save(); render(); return; }
     if (d.tpl) { openTemplate(d.tpl); return; }
     if (d.usetpl) { openFlowEditor({ tpl: d.usetpl }); return; }
