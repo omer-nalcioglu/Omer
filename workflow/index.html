@@ -323,11 +323,11 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
     ["🧽", "Temizlik", ["Talep", "Ekip atama", "Hizmet", "Kontrol"]], ["📦", "E-ticaret", ["Sipariş", "Paketleme", "Kargo", "Teslim"]],
   ];
   const MODULES = [
-    ["ai", "Workflow AI", "Konuşarak iş oluşturma, günlük özet"], ["fleet", "Workflow Fleet", "Şoför, araç ve teslimat"],
+    ["fleet", "Workflow Fleet", "Şoför, araç ve teslimat"],
     ["stock", "Workflow Stock", "Depo, barkod ve stok uyarıları"], ["finance", "Workflow Finance", "İş maliyeti ve kârlılık"],
     ["customers", "Workflow Customers", "Müşterinin sipariş takip ekranı"],
   ];
-  const ROADMAP = ["Workflow Chat · işe özel mesajlaşma", "Workflow Forms · özel formlar", "Workflow Offline · internetsiz kayıt", "Workflow Locations · çoklu şube", "Workflow Connect · ERP ve muhasebe"];
+  const ROADMAP = ["Workflow AI · konuşarak iş oluşturma", "Workflow Chat · işe özel mesajlaşma", "Workflow Forms · özel formlar", "Workflow Offline · internetsiz kayıt", "Workflow Locations · çoklu şube", "Workflow Connect · ERP ve muhasebe"];
 
   const person = id => PEOPLE.find(p => p.id === id) || { id, name: id, title: "", color: "#64748b" };
   const first = id => person(id).name.split(" ")[0];
@@ -513,7 +513,7 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
   }
   function setNav(items, showFab) {
     $("#nav").innerHTML = (items ? `<nav class="tabs" role="tablist">${items.map(([k, i, l]) => `<button class="tab" role="tab" data-tab="${k}" aria-selected="${tab === k}"><span class="i">${i}</span>${l}</button>`).join("")}</nav>` : "")
-      + (showFab && D.mods.ai ? `<button class="fab" id="aiFab"><span class="spark">✦</span>Workflow AI</button>` : "");
+      ;
   }
   const bellCount = id => D.feed.filter(f => f.to && f.to.includes(id) && f.at > Date.now() - 6 * HOUR).length;
 
@@ -521,7 +521,7 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
   function renderBoss() {
     const NAV = [["panel", "◉", "Panel"], ["isler", "☰", "İşler"], ["ekip", "👥", "Ekip"], ["rapor", "▤", "Raporlar"], ["ayar", "⚙", "Ayarlar"]];
     if (!NAV.some(n => n[0] === tab)) tab = "panel";
-    setNav(NAV, tab === "panel" || tab === "isler");
+    setNav(NAV, false);
     const app = $("#app");
     if (tab === "panel") app.innerHTML = bossPanel();
     else if (tab === "isler") app.innerHTML = bossJobs();
@@ -545,7 +545,7 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
         <button class="kpi ${late.length ? "bad" : "ok"}" data-goto="isler:geciken"><div class="v">${late.length}</div><div class="l">Geciken işler</div></button>
         <button class="kpi" data-goto="isler:aktif"><div class="v">${deliveriesToday}</div><div class="l">Bugünkü teslimatlar</div></button>
       </div>
-      ${D.mods.ai ? aiSummary() : ""}
+      ${attention()}
       <section><div class="sec-h"><h2>Devam eden işler</h2><button class="link" data-goto="isler:aktif">Tümü</button></div>
         <div class="list">${active.sort((a, b) => order(a) - order(b)).slice(0, 5).map(jobRow).join("")}</div>
         <button class="btn block" id="newJob">＋ Yeni iş oluştur</button></section>
@@ -556,7 +556,7 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
     if (!items.length) return `<div class="empty">Henüz hareket yok.</div>`;
     return `<div class="feed">${items.map(f => `<div class="fi"><span class="ic">${f.ic}</span><span>${esc(f.text)}</span><time>${ago(f.at)}</time></div>`).join("")}</div>`;
   }
-  function aiSummary() {
+  function attention() {
     const lines = [];
     D.jobs.filter(j => !j.done).forEach(j => {
       const blk = j.steps.find(s => s.status === "blocked");
@@ -570,7 +570,7 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
     if (low.length) lines.push(`Stok uyarısı: ${low.map(s => `${esc(s.name)} (${s.qty}/${s.min} ${s.unit})`).join(", ")}.`);
     const del = D.jobs.find(j => j.steps.some(s => s.type === "delivery" && (s.status === "ready" || s.status === "working")));
     if (del) lines.push(`Bugün <b>#${del.id}</b> ${esc(dat(del.customer))} teslim edilecek, şoför ${esc(first(del.steps.find(s => s.type === "delivery").owner))}.`);
-    return `<div class="ai"><div class="ai-h"><span class="spark">✦</span>Workflow AI · günlük özet</div><ul>${lines.slice(0, 5).map(l => `<li>${l}</li>`).join("") || "<li>Her şey yolunda, gecikme riski yok.</li>"}</ul></div>`;
+    return `<div class="ai"><div class="ai-h"><span class="spark">!</span>Bugün dikkat gerektirenler</div><ul>${lines.slice(0, 5).map(l => `<li>${l}</li>`).join("") || "<li>Her şey yolunda, gecikme riski yok.</li>"}</ul></div>`;
   }
   function bossJobs() {
     const F = [["aktif", "Aktif"], ["geciken", "Geciken"], ["sorun", "Sorunlu"], ["onay", "Onay bekleyen"], ["biten", "Biten"]];
@@ -686,94 +686,66 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
     });
   }
 
-  // ----- AI composer -----
-  const EXAMPLES = [
-    "Ahmet Bey'in 50 adet demir kapı siparişi var. Cumaya kadar üretimi bitirelim, Mehmet şoförümüz müşteriye teslim etsin.",
-    "Öztürk Makine için 120 adet flanş, acil, 5 gün içinde teslim. Kaynağı Okan yapsın.",
-    "Kaya İnşaat'ın 30 metre korkuluk işi, haftaya teslim, Ali götürsün.",
-  ];
-  function parseOrder(txt) {
-    const t = " " + txt.replace(/\s+/g, " ") + " ", l = lower(t);
-    let customer = null, m = t.match(/([A-ZÇĞİÖŞÜ][\wçğıöşüÇĞİÖŞÜ]*(?:\s(?:Bey|Hanım|İnşaat|Makine|Lojistik|Sitesi|Ltd\.?|A\.Ş\.))?)['’](?:in|ın|un|ün|nin|nın|nun|nün)\b/);
-    if (m) customer = m[1];
-    if (!customer) { m = t.match(/([A-ZÇĞİÖŞÜ][\wçğıöşü]*(?:\s[A-ZÇĞİÖŞÜ][\wçğıöşü]*)?)\s+için/); if (m) customer = m[1]; }
-    let qty = null, product = null;
-    m = t.match(/(\d+)\s*(adet|tane|metre|m|ton|takım)?\s+([a-zçğıöşü]+(?:\s[a-zçğıöşü]+)?)/i);
-    if (m) { qty = `${m[1]} ${m[2] || "adet"}`; product = m[3].replace(/\s(siparişi|siparişi var|işi|lazım|var|için|üretimi)$/i, "").replace(/(siparişi|işi)$/i, "").trim(); }
-    product = product ? product.replace(/\b(siparişi|işi)\b/g, "").trim() : "Yeni iş";
-    const title = product.charAt(0).toLocaleUpperCase("tr") + product.slice(1);
-    let due = null; const now = new Date();
-    const wd = { pazartesi: 1, salı: 2, çarşamba: 3, perşembe: 4, cuma: 5, cumartesi: 6, pazar: 0 };
-    m = l.match(/(pazartesi|salı|çarşamba|perşembe|cumartesi|cuma|pazar)(?:ya|ye|'?ya|'?ye)?\s*(?:kadar|günü)?/);
-    if (m) { const off = ((wd[m[1]] - now.getDay() + 7) % 7) || 7; due = sod() + off * DAY + 17 * HOUR; }
-    else if ((m = l.match(/(\d+)\s*gün\s*(?:içinde|sonra)/))) due = sod() + +m[1] * DAY + 17 * HOUR;
-    else if (/haftaya/.test(l)) due = sod() + 7 * DAY + 17 * HOUR;
-    else if (/yarın/.test(l)) due = sod() + DAY + 17 * HOUR;
-    const urgent = /acil|hemen|ivedi/.test(l);
-    if (!due) due = sod() + (urgent ? 4 : 10) * DAY + 17 * HOUR;
-    const named = {};
-    PEOPLE.forEach(p => { const fn = lower(p.name.split(" ")[0]); if (new RegExp(`(^|\\s)${fn}`).test(l)) (p.skills || []).forEach(sk => {
-      if (sk === "sofor" || p.skills.length === 1 || (sk === "kaynak" && new RegExp(`kayna\\S*\\s+${fn}|${fn}\\S*\\s+kayna`).test(l))) named[sk] = p.id; }); });
-    return { customer: customer || "Yeni müşteri", title, qty: qty || "1 adet", due, urgent, named };
+  // ----- new work order (manual) -----
+  function leastLoaded(skill) {
+    const c = PEOPLE.filter(p => (p.skills || []).includes(skill)).sort((a, b) => (loadOf(a.id) + queuedOf(a.id) * .3) - (loadOf(b.id) + queuedOf(b.id) * .3));
+    return c[0]?.id || "kadir";
   }
-  function planOwners(parsed) {
-    const owners = {};
-    METAL.forEach(st => {
-      if (parsed.named[st.skill]) { owners[st.key] = parsed.named[st.skill]; return; }
-      const cands = PEOPLE.filter(p => (p.skills || []).includes(st.skill)).sort((a, b) => (loadOf(a.id) + queuedOf(a.id) * .3) - (loadOf(b.id) + queuedOf(b.id) * .3));
-      owners[st.key] = cands[0]?.id || "kadir";
-    });
-    return owners;
-  }
-  function openAI(prefill) {
+  function openNewJob() {
+    const dueDef = new Date(sod() + 7 * DAY);
+    const dv = `${dueDef.getFullYear()}-${pad(dueDef.getMonth() + 1)}-${pad(dueDef.getDate())}`;
     sheet(`<div class="stack">
-      <div class="ai-h"><span class="spark">✦</span><div><h2>Workflow AI</h2><div class="sm">Akıllı operasyon asistanı. Siparişi normal konuşur gibi yaz.</div></div></div>
-      <textarea id="aiIn" rows="4" placeholder="Ör: Ahmet Bey'in 50 adet demir kapı siparişi var, cumaya kadar…">${esc(prefill || "")}</textarea>
-      <div class="chips">${EXAMPLES.map((e, i) => `<button class="chip" data-ex="${i}">${esc(e.length > 46 ? e.slice(0, 46) + "…" : e)}</button>`).join("")}</div>
-      <button class="btn block" id="aiGo">✦ İş planı hazırla</button>
-      <div id="aiOut"></div>
-      <div class="sm">Prototip: plan, örnek bir kural motoruyla üretiliyor. Gerçek sürümde dil modeli sesli ve serbest anlatımı anlayacak.</div>
+      <div><div class="eyebrow">Yeni iş emri #${D.nextId}</div><h2 style="font-size:1.4rem">Yeni iş oluştur</h2><div class="sm">İş, aşamalara bölünüp sorumlulara dağıtılır. İlk aşama bitince sıradakine otomatik bildirim gider.</div></div>
+      <div class="grid2" style="grid-template-columns:minmax(0,2fr) minmax(0,1fr)">
+        <div><label class="sm" for="nTitle"><b>Ürün / iş</b></label><input class="in" id="nTitle" placeholder="Ör: Demir kapı" autocomplete="off"></div>
+        <div><label class="sm" for="nQty"><b>Miktar</b></label><input class="in" id="nQty" placeholder="50 adet" autocomplete="off"></div>
+      </div>
+      <div><label class="sm" for="nCust"><b>Müşteri</b></label><input class="in" id="nCust" placeholder="Ör: Ahmet Bey" autocomplete="off" list="custList">
+        <datalist id="custList">${[...new Set(D.jobs.map(j => j.customer))].map(c => `<option value="${esc(c)}">`).join("")}</datalist></div>
+      <div class="grid2">
+        <div><label class="sm" for="nDue"><b>Termin</b></label><input class="in" id="nDue" type="date" value="${dv}"></div>
+        ${D.mods.finance ? `<div><label class="sm" for="nPrice"><b>Tutar (₺)</b></label><input class="in" id="nPrice" inputmode="numeric" placeholder="0"></div>` : "<div></div>"}
+      </div>
+      ${D.mods.fleet ? `<div><label class="sm" for="nAddr"><b>Teslimat adresi</b></label><input class="in" id="nAddr" placeholder="Mahalle, cadde, ilçe" autocomplete="off"></div>` : ""}
+      <label class="ck" style="display:flex;gap:10px;align-items:center;font-weight:600"><input type="checkbox" id="nUrgent" style="width:20px;height:20px;accent-color:var(--accent)"> Acil iş</label>
+      <div class="plan"><div class="plan-h"><b>Aşamalar ve sorumlular</b><div class="sm">En az yüklü kişi seçili geldi, istersen değiştir.</div></div>
+        <div>${METAL.map(s => `<div class="pl"><span class="n">${s.g + 1}</span><div style="min-width:0"><b style="font-size:.9rem">${esc(s.name)}</b>${METAL.filter(x => x.g === s.g).length > 1 ? ` <span class="ptag">∥ paralel</span>` : ""}${s.type === "approval" ? ` <span class="ptag" style="color:var(--warn)">onay</span>` : ""}</div>
+          <select data-owner="${s.key}" aria-label="${esc(s.name)} sorumlusu">${PEOPLE.filter(p => ((p.skills || []).includes(s.skill) || p.role === "ustabasi") && (s.skill !== "sofor" || D.mods.fleet)).map(p => `<option value="${p.id}"${p.id === leastLoaded(s.skill) ? " selected" : ""}>${esc(first(p.id))} · ${loadOf(p.id)} açık</option>`).join("")}</select></div>`).join("")}</div>
+        <div id="nWarn"></div>
+      </div>
+      <div class="sm" id="nMsg" style="color:var(--bad)"></div>
+      <button class="btn ok xl block" id="nGo">İş emrini oluştur ve dağıt</button>
+      <button class="btn ghost block" id="closeS">Vazgeç</button>
     </div>`, () => {
-      layer.querySelectorAll("[data-ex]").forEach(b => b.onclick = () => { $("#aiIn").value = EXAMPLES[+b.dataset.ex]; });
-      $("#aiGo").onclick = () => {
-        const v = $("#aiIn").value.trim(); if (!v) { $("#aiIn").focus(); return; }
-        $("#aiOut").innerHTML = `<div class="thinking"><i></i><i></i><i></i> İş planlanıyor, ekip yükü ve stok kontrol ediliyor…</div>`;
-        setTimeout(() => showPlan(parseOrder(v)), 900);
+      $("#closeS").onclick = closeSheet;
+      setTimeout(() => $("#nTitle").focus(), 60);
+      const warn = () => {
+        const out = [], dvv = $("#nDue").value;
+        if (dvv) { const [y, m, d] = dvv.split("-").map(Number), due = new Date(y, m - 1, d, 17).getTime(), left = (due - Date.now()) / DAY, need = 7 * .6;
+          if (left < need) out.push(`Termin sıkı: 7 aşama için genelde ${Math.ceil(need)} gün gerekiyor, ${Math.max(0, left).toFixed(1).replace(".", ",")} gün var.`); }
+        const n = parseInt($("#nQty").value) || 0, k = D.stock.find(s => s.name === "Kilit takımı");
+        if (D.mods.stock && /kapı/.test(lower($("#nTitle").value)) && k && n > k.qty) out.push(`Stok: ${n} kilit takımı gerekiyor, depoda ${k.qty} var.`);
+        $("#nWarn").innerHTML = out.length ? `<div class="note"><b>Dikkat</b>${out.map(x => `<span>${esc(x)}</span>`).join("")}</div>` : "";
+        return out;
       };
-      if (!prefill) setTimeout(() => $("#aiIn").focus(), 60);
+      ["nDue", "nQty", "nTitle"].forEach(id => $("#" + id).addEventListener("input", warn)); warn();
+      $("#nGo").onclick = () => {
+        const title = $("#nTitle").value.trim(), customer = $("#nCust").value.trim(), dvv = $("#nDue").value;
+        if (!title || !customer || !dvv) { $("#nMsg").textContent = "Ürün / iş, müşteri ve termin gerekli."; (!title ? $("#nTitle") : !customer ? $("#nCust") : $("#nDue")).focus(); return; }
+        const owners = {}; layer.querySelectorAll("[data-owner]").forEach(x => owners[x.dataset.owner] = x.value);
+        const [y, m, d] = dvv.split("-").map(Number);
+        const price = D.mods.finance ? +($("#nPrice").value || "0").replace(/\D/g, "") : 0;
+        const j = mkJob({ id: D.nextId++, title, customer, qty: $("#nQty").value.trim() || "1 adet", due: new Date(y, m - 1, d, 17).getTime(), at: 0, waiting: 0,
+          price, cost: Math.round(price * .65), createdAt: Date.now(), owners, urgent: $("#nUrgent").checked, address: D.mods.fleet ? $("#nAddr").value.trim() : "" });
+        if (!D.mods.fleet) { j.steps = j.steps.filter(s => s.type !== "delivery"); }
+        warn().filter(x => x.startsWith("Stok")).forEach(x => j.steps.find(s => s.key === "malzeme").notes.push({ kind: "text", text: x, by: "selim", at: Date.now() }));
+        D.jobs.push(j);
+        const g0 = j.steps.filter(s => s.g === 0);
+        notify(`Selim yeni iş açtı: #${j.id} ${title} (${customer}) · ${g0.map(s => first(s.owner)).join(" ve ")} bilgilendirildi`, "🆕", g0.map(s => s.owner));
+        save(); closeSheet(); tab = "panel"; render(); window.scrollTo(0, 0);
+        toast("🆕", `#${j.id} iş emri dağıtıldı`, `${j.steps.length} aşama · ilk aşama: ${g0.map(s => first(s.owner)).join(" ∥ ")}`);
+      };
     });
-  }
-  function showPlan(P) {
-    const owners = planOwners(P);
-    const groups = [...new Set(METAL.map(s => s.g))];
-    const daysLeft = (P.due - Date.now()) / DAY, need = groups.length * 0.6;
-    const notes = [];
-    if (daysLeft < need) notes.push(`Termin sıkı: ${groups.length} aşama için yaklaşık ${Math.ceil(need)} gün gerekiyor, ${Math.max(0, daysLeft).toFixed(1).replace(".", ",")} gün var. Kaynakta ikinci kişi önerilir.`);
-    const n = parseInt(P.qty) || 1;
-    if (D.mods.stock && /kapı/.test(lower(P.title))) { const k = D.stock.find(s => s.name === "Kilit takımı"); if (k && k.qty < n) notes.push(`Stok: ${n} kilit takımı gerekiyor, depoda ${k.qty} var. ${n - k.qty} adet eksik, malzeme kontrol görevine eklendi.`); }
-    const busiest = METAL.filter(s => s.skill !== "depo").map(s => ({ s, id: owners[s.key], l: loadOf(owners[s.key]) })).sort((a, b) => b.l - a.l)[0];
-    if (busiest && busiest.l >= 2) notes.push(`${first(busiest.id)} şu an ${busiest.l} açık görevle yoğun. ${busiest.s.name} aşamasında gecikme riski var.`);
-    $("#aiOut").innerHTML = `<div class="plan">
-      <div class="plan-h"><span class="pill ok" style="justify-self:start">İş planı hazırlandı</span>
-        <h2>${esc(P.qty)} ${esc(P.title.toLocaleLowerCase("tr"))} · iş emri</h2>
-        <div class="sm">Müşteri: <b>${esc(P.customer)}</b> · Termin: <b>${esc(when(P.due))}</b>${P.urgent ? ` · <span class="pill acc">Acil</span>` : ""}</div></div>
-      <div>${METAL.map((s, i) => `<div class="pl"><span class="n">${s.g + 1}</span><div style="min-width:0"><b style="font-size:.9rem">${esc(s.name)}</b>${METAL.filter(x => x.g === s.g).length > 1 ? ` <span class="ptag">∥ paralel</span>` : ""}</div>
-        <select data-owner="${s.key}" aria-label="${esc(s.name)} sorumlusu">${PEOPLE.filter(p => (p.skills || []).includes(s.skill) || p.role === "ustabasi").map(p => `<option value="${p.id}"${p.id === owners[s.key] ? " selected" : ""}>${esc(first(p.id))} · ${loadOf(p.id)} açık</option>`).join("")}</select></div>`).join("")}</div>
-      ${notes.length ? `<div class="note"><b>✦ Dikkat</b>${notes.map(x => `<span>${esc(x)}</span>`).join("")}</div>` : ""}
-      <div class="sm">Sorumlular en az yüklü kişiye göre seçildi, istersen değiştir. Plan onaylanınca çalışanlara dağıtılır.</div>
-      <button class="btn ok block" id="aiOk">Onayla ve dağıt</button>
-    </div>`;
-    $("#aiOk").onclick = () => {
-      layer.querySelectorAll("[data-owner]").forEach(s => owners[s.dataset.owner] = s.value);
-      const j = mkJob({ id: D.nextId++, title: P.title, customer: P.customer, qty: P.qty, due: P.due, at: 0, waiting: 0, price: 0, cost: 0, createdAt: Date.now(), owners, urgent: P.urgent });
-      j.steps.forEach(s => { s.readyAt = s.status === "ready" ? Date.now() : s.readyAt; });
-      const kapi = j.steps.find(s => s.key === "malzeme"); if (notes.some(x => x.startsWith("Stok"))) kapi.notes.push({ kind: "text", text: notes.find(x => x.startsWith("Stok")), by: "selim", at: Date.now() });
-      if (/kapı/.test(lower(P.title))) Object.assign(j.steps.find(s => s.key === "kaynak"), { detail: `${P.qty} ${P.title.toLocaleLowerCase("tr")} kasası ve kanadının kaynağı.`, place: "Atölye 2", file: "Kapı çizimi.pdf" });
-      D.jobs.push(j);
-      notify(`Selim yeni iş açtı: #${j.id} ${P.title} (${P.customer}) · ${j.steps.filter(s => s.g === 0).map(s => first(s.owner)).join(" ve ")} bilgilendirildi`, "✦", j.steps.filter(s => s.g === 0).map(s => s.owner));
-      save(); closeSheet(); tab = "panel"; render(); window.scrollTo(0, 0);
-      toast("✦", `#${j.id} iş emri dağıtıldı`, `${j.steps.length} görev · ilk aşama: ${j.steps.filter(s => s.g === 0).map(s => first(s.owner)).join(" ∥ ")}`);
-    };
   }
 
   // ----- foreman -----
@@ -983,7 +955,7 @@ textarea, .in { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px s
     if (d.goto) { const [t, f] = d.goto.split(":"); tab = t; if (f) jobFilter = f; render(); window.scrollTo(0, 0); return; }
     if (d.filter) { jobFilter = d.filter; render(); return; }
     if (d.job) { openJob(+d.job); return; }
-    if (el.id === "newJob" || el.id === "aiFab") { D.mods.ai ? openAI(el.id === "newJob" ? EXAMPLES[0] : "") : toast("✦", "Workflow AI kapalı", "Ayarlar › Modüller'den açabilirsin"); return; }
+    if (el.id === "newJob") { openNewJob(); return; }
     if (el.id === "bell") { const mine = D.feed.filter(f => f.to && f.to.includes(me)).reverse();
       sheet(`<div class="stack"><h2>Bildirimler</h2>${feedHtml(mine.length ? mine : [])}<button class="btn ghost block" id="closeS">Kapat</button></div>`, () => $("#closeS").onclick = closeSheet); return; }
     if (d.mod) { D.mods[d.mod] = !D.mods[d.mod]; save(); render(); toast("⚙", `${MODULES.find(m => m[0] === d.mod)[1]} ${D.mods[d.mod] ? "açıldı" : "kapatıldı"}`, D.mods[d.mod] ? "İlgili ekranlar görünür oldu" : "İlgili ekranlar gizlendi"); return; }
