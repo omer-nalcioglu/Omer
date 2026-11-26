@@ -1,46 +1,48 @@
 <title>Workflow</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
 <style>
 /* Layout: phone-width operations app; a slim prototype band on top picks whose eyes you see through; each role gets its own screen; sheets slide up for details */
+/* Premium, calm: light paper ground, one deep navy accent, hairline borders, generous whitespace */
 :root {
-  --bg: #eceff3;
+  --bg: #f5f6f8;
   --surface: #ffffff;
-  --surface-2: #f5f7f9;
-  --ink: #12161d;
-  --ink-2: #5a6473;
-  --line: #dce1e8;
-  --accent: #e8611a;
-  --accent-soft: #fde6d8;
-  --ok: #12845a;
-  --ok-soft: #dbf1e6;
-  --warn: #a86a0c;
-  --warn-soft: #fbefd6;
-  --bad: #cc3329;
-  --bad-soft: #fbe1de;
-  --info: #2a64c9;
-  --info-soft: #e0eafb;
-  --band: #12161d;
-  --band-ink: #e9edf2;
-  --shadow: 0 1px 2px #12161d12, 0 6px 18px #12161d0c;
-  --display: "Archivo", "Inter", system-ui, sans-serif;
+  --surface-2: #f3f5f8;
+  --ink: #111827;
+  --ink-2: #6b7280;
+  --line: #e6e8ec;
+  --accent: #1f3b73;
+  --on-accent: #ffffff;
+  --accent-soft: #e9eef8;
+  --ok: #157a5c;
+  --ok-soft: #e6f4ee;
+  --warn: #a35b06;
+  --warn-soft: #fdf3e4;
+  --bad: #c2372c;
+  --bad-soft: #fcebe9;
+  --info: #1f3b73;
+  --info-soft: #e9eef8;
+  --band: #ffffff;
+  --band-ink: #374151;
+  --shadow: 0 1px 2px rgba(17, 24, 39, .04), 0 2px 8px rgba(17, 24, 39, .04);
+  --display: "Instrument Sans", "Inter", system-ui, sans-serif;
   --text: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0b0e13; --surface: #141920; --surface-2: #1a2029; --ink: #e8ecf1; --ink-2: #97a1b0; --line: #27303c;
-    --accent: #ff7b30; --accent-soft: #3b2213; --ok: #3cc58c; --ok-soft: #10301f; --warn: #e9b14f; --warn-soft: #33270e;
-    --bad: #ff6e62; --bad-soft: #3b1815; --info: #6ea3ff; --info-soft: #14243f; --band: #000000; --band-ink: #e8ecf1;
-    --shadow: 0 1px 2px #0007, 0 6px 18px #0005; color-scheme: dark;
+    --bg: #0c0e12; --surface: #13161c; --surface-2: #1a1e26; --ink: #eef0f4; --ink-2: #9aa1ad; --line: #252a33;
+    --accent: #9db4ec; --on-accent: #0c0e12; --accent-soft: #1b2337; --ok: #4cc79a; --ok-soft: #12291f; --warn: #e6b35c; --warn-soft: #2e2412;
+    --bad: #f08176; --bad-soft: #321a18; --info: #9db4ec; --info-soft: #1b2337; --band: #13161c; --band-ink: #c9ced8;
+    --shadow: 0 1px 2px #0006; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0b0e13; --surface: #141920; --surface-2: #1a2029; --ink: #e8ecf1; --ink-2: #97a1b0; --line: #27303c;
-  --accent: #ff7b30; --accent-soft: #3b2213; --ok: #3cc58c; --ok-soft: #10301f; --warn: #e9b14f; --warn-soft: #33270e;
-  --bad: #ff6e62; --bad-soft: #3b1815; --info: #6ea3ff; --info-soft: #14243f; --band: #000000; --band-ink: #e8ecf1;
-  --shadow: 0 1px 2px #0007, 0 6px 18px #0005; color-scheme: dark;
+  --bg: #0c0e12; --surface: #13161c; --surface-2: #1a1e26; --ink: #eef0f4; --ink-2: #9aa1ad; --line: #252a33;
+  --accent: #9db4ec; --on-accent: #0c0e12; --accent-soft: #1b2337; --ok: #4cc79a; --ok-soft: #12291f; --warn: #e6b35c; --warn-soft: #2e2412;
+  --bad: #f08176; --bad-soft: #321a18; --info: #9db4ec; --info-soft: #1b2337; --band: #13161c; --band-ink: #c9ced8;
+  --shadow: 0 1px 2px #0006; color-scheme: dark;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -317,6 +319,83 @@ ul.cl { margin: 6px 0 0; padding-left: 18px; color: var(--ink-2); display: grid;
 .toast .sm { color: inherit; opacity: .75; }
 .empty { text-align: center; color: var(--ink-2); padding: 28px 12px; background: var(--surface); border-radius: 16px; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* ---------- premium skin ---------- */
+body { font-size: 15px; letter-spacing: -.005em; -webkit-font-smoothing: antialiased; }
+.band { border-bottom: 1px solid var(--line); }
+.band select { background: var(--surface-2); border: 1px solid var(--line); color: var(--ink); font-weight: 500; }
+.band button { color: var(--ink-2); opacity: 1; }
+.band-in span { opacity: 1; color: var(--ink-2); }
+.top { padding-block: 28px 4px; }
+.eyebrow { font-family: var(--text); font-size: .72rem; letter-spacing: .08em; color: var(--ink-2); font-weight: 600; }
+h1 { font-weight: 600; font-size: 2rem; letter-spacing: -.035em; margin-top: 4px; }
+h2 { font-weight: 600; font-size: 1.12rem; letter-spacing: -.02em; }
+main { gap: 28px; padding-block: 16px 32px; }
+section { gap: 12px; }
+.kpis { gap: 12px; }
+.kpi { border: 1px solid var(--line); box-shadow: none; border-radius: 16px; padding: 16px; }
+.kpi .v { font-weight: 600; font-size: 2.3rem; letter-spacing: -.04em; }
+.kpi .l { font-weight: 500; }
+.list, .feed, .radar, .bars, .tbl-wrap, .tcard, .track, .empty { border: 1px solid var(--line); box-shadow: none; border-radius: 16px; }
+.ai { border: 1px solid var(--line); box-shadow: none; border-radius: 16px; padding: 16px; background: var(--surface); }
+.ai-h { font-weight: 600; }
+.spark { width: 22px; height: 22px; border-radius: 7px; font-size: .78rem; background: var(--accent-soft); color: var(--accent); }
+.ai ul { gap: 8px; color: var(--ink); }
+.jr { padding: 15px 16px; }
+.jr .t { font-weight: 600; }
+.jr .pct { font-weight: 600; font-size: 1.05rem; color: var(--ink-2); }
+.prog { height: 4px; }
+.prog i { background: var(--accent); }
+.pill { font-weight: 600; padding: 2px 9px; letter-spacing: 0; }
+.btn { font-weight: 600; color: var(--on-accent); border-radius: 12px; }
+.btn.ok { color: #fff; }
+.btn.xl { border-radius: 14px; padding-block: 16px; font-size: 1.05rem; }
+.btn.line { border: 1px solid var(--line); }
+.chip { font-weight: 500; background: var(--surface); }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.bell { box-shadow: none; border: 1px solid var(--line); font-size: 1rem; }
+.bell b { color: var(--on-accent); }
+.task { border: 1px solid var(--line); box-shadow: none; border-radius: 18px; padding: 18px; }
+.task.working { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.task.blocked { border-color: var(--bad); box-shadow: 0 0 0 3px var(--bad-soft); }
+.task h3 { font-weight: 600; letter-spacing: -.02em; }
+.wo { font-weight: 500; letter-spacing: .04em; }
+.timer { font-weight: 500; color: var(--accent); }
+.tool { background: var(--surface); border: 1px solid var(--line); font-weight: 500; }
+.file { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+nav.tabs { background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: saturate(1.4) blur(14px); -webkit-backdrop-filter: saturate(1.4) blur(14px); }
+.tab { font-weight: 500; padding-block: 10px 12px; gap: 4px; }
+.tab svg { width: 22px; height: 22px; }
+.tab[aria-selected="true"] { color: var(--accent); }
+.sheet { border-radius: 24px 24px 0 0; }
+.pcard { border-radius: 12px; }
+.dotn { font-weight: 600; }
+.plan { border: 1px solid var(--line); background: var(--surface); }
+.pl .n { background: var(--surface-2); color: var(--ink-2); font-weight: 600; }
+.ptag { font-weight: 600; letter-spacing: .04em; }
+.set { padding: 14px 16px; }
+.fi { padding-block: 12px; }
+.fi .ic { opacity: .85; }
+.toast { border-radius: 14px; background: var(--ink); color: var(--surface); }
+.eta-box { border: 1px solid var(--line); }
+.eta-big { font-weight: 600; letter-spacing: -.02em; }
+.rr { padding-block: 14px; }
+.rbar { height: 6px; }
+.hc { border-radius: 8px; font-weight: 600; }
+.hc.l2 { background: var(--ok-soft); color: var(--ok); } .hc.l1 { background: var(--surface-2); color: var(--ok); }
+.hc.l3 { background: var(--warn-soft); color: var(--warn); } .hc.l4 { background: var(--bad); color: #fff; }
+.tcard { padding: 14px; }
+.tico { background: var(--surface-2); border: 1px solid var(--line); }
+.choice { background: var(--surface); border: 1px solid var(--line); }
+.ed-row { background: var(--surface-2); border: 1px solid var(--line); }
+.ed-n, .ed-b { font-weight: 600; }
+.lane .seg { height: 6px; }
+.lane .seg.t-pack, .lane .seg.t-delivery { background: var(--accent); }
+.av { font-weight: 600; }
+.sw[aria-checked="true"] { background: var(--accent); }
+.in, textarea { border: 1px solid var(--line); background: var(--surface); }
+.in:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.flowline span.s { background: var(--surface); border: 1px solid var(--line); font-weight: 500; }
 </style>
 
 <div class="band"><div class="band-in gut">
@@ -808,9 +887,16 @@ ul.cl { margin: 6px 0 0; padding-left: 18px; color: var(--ink-2); display: grid;
   }
   const bellCount = id => D.feed.filter(f => f.to && f.to.includes(id) && f.at > Date.now() - 6 * HOUR).length;
 
+  const ICONS = {
+    home: '<path d="M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/>',
+    list: '<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>',
+    team: '<circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="17" cy="9.5" r="2.4"/><path d="M15.5 14.3c2.4-.4 4.4 1.1 5 4.2"/>',
+    chart: '<path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/>',
+    gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M4.2 7.5l2.1 1.2M17.7 15.3l2.1 1.2M4.2 16.5l2.1-1.2M17.7 8.7l2.1-1.2"/><circle cx="12" cy="12" r="7"/>' };
+  const ico = n => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
   // ----- boss -----
   function renderBoss() {
-    const NAV = [["panel", "◉", "Panel"], ["isler", "☰", "İşler"], ["ekip", "👥", "Ekip"], ["rapor", "▤", "Raporlar"], ["ayar", "⚙", "Ayarlar"]];
+    const NAV = [["panel", ico("home"), "Panel"], ["isler", ico("list"), "İşler"], ["ekip", ico("team"), "Ekip"], ["rapor", ico("chart"), "Raporlar"], ["ayar", ico("gear"), "Ayarlar"]];
     if (!NAV.some(n => n[0] === tab)) tab = "panel";
     setNav(NAV, false);
     const app = $("#app");
@@ -829,7 +915,7 @@ ul.cl { margin: 6px 0 0; padding-left: 18px; color: var(--ink-2); display: grid;
     const deliveriesToday = D.jobs.filter(j => j.steps.some(s => s.type === "delivery" && ((s.status !== "locked" && s.status !== "done") || (s.status === "done" && sod(s.doneAt) === sod())))).length
       + active.filter(j => sod(j.due) === sod() && !j.steps.some(s => s.type === "delivery" && s.status !== "locked")).length;
     const order = j => (jobState(j).cls === "bad" || isLate(j) ? 0 : 1) * 1e13 + j.due;
-    return head("Workflow Business", "İşletme kontrol merkezi") + `<main class="gut">
+    return head("Demirtaş Metal · " + new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" }), "Kontrol merkezi") + `<main class="gut">
       <div class="kpis">
         <button class="kpi" data-goto="isler:aktif"><div class="v">${active.length}</div><div class="l">Aktif işler</div></button>
         <button class="kpi" data-goto="ekip"><div class="v">${staff}</div><div class="l">Çalışan personel</div></button>
@@ -918,7 +1004,7 @@ ul.cl { margin: 6px 0 0; padding-left: 18px; color: var(--ink-2); display: grid;
     const match = j => jobFilter === "aktif" ? !j.done : jobFilter === "geciken" ? isLate(j) : jobFilter === "sorun" ? !j.done && j.steps.some(s => s.status === "blocked")
       : jobFilter === "onay" ? !j.done && j.steps.some(s => s.type === "approval" && s.status === "ready") : j.done;
     const list = D.jobs.filter(match).sort((a, b) => a.due - b.due);
-    return head("Workflow Jobs", "İşler") + `<main class="gut">
+    return head("İş emirleri", "İşler") + `<main class="gut">
       <div class="chips">${F.map(([k, l]) => `<button class="chip" data-filter="${k}" aria-pressed="${jobFilter === k}">${l} · ${D.jobs.filter(j => { const o = jobFilter; jobFilter = k; const r = match(j); jobFilter = o; return r; }).length}</button>`).join("")}</div>
       ${list.length ? `<div class="list">${list.map(jobRow).join("")}</div>` : `<div class="empty">Bu filtrede iş yok.</div>`}
       <button class="btn block" id="newJob">＋ Yeni iş oluştur</button>
@@ -926,7 +1012,7 @@ ul.cl { margin: 6px 0 0; padding-left: 18px; color: var(--ink-2); display: grid;
   }
   function bossTeam() {
     const groups = [["patron", "Patron"], ["ustabasi", "Yönetim"], ["uretim", "Üretim"], ["depo", "Depo"], ["sofor", "Şoförler"]].filter(([r]) => r !== "sofor" || D.mods.fleet);
-    return head("Workflow Team", "Ekip") + `<main class="gut">
+    return head("Ekip ve departmanlar", "Ekip") + `<main class="gut">
       <button class="btn block" id="addPerson">＋ Çalışan ekle</button>
       ${groups.map(([r, l]) => { const ps = PEOPLE.filter(p => p.role === r); if (!ps.length) return "";
         return `<section><h2>${l}</h2><div class="list">${ps.map(p => {
@@ -975,7 +1061,7 @@ ul.cl { margin: 6px 0 0; padding-left: 18px; color: var(--ink-2); display: grid;
     const stageAvg = flowById("metal").stages.map(st => { const ds = done.map(j => j.steps.find(s => s.key === st.key)).filter(s => s && s.doneAt && s.readyAt);
       return { name: st.name, h: ds.length ? ds.reduce((a, s) => a + (s.doneAt - s.readyAt), 0) / ds.length / HOUR : 0 }; });
     const max = Math.max(...stageAvg.map(s => s.h), 1), top = stageAvg.reduce((a, b) => b.h > a.h ? b : a, stageAvg[0]);
-    return head("Workflow Reports", "Raporlar") + `<main class="gut">
+    return head("Performans", "Raporlar") + `<main class="gut">
       <p class="sm" style="margin:0">Son ${done.length} tamamlanan işe göre · örnek veriler</p>
       <div class="kpis">
         <div class="kpi ok"><div class="v">%${done.length ? Math.round(onTime / done.length * 100) : 0}</div><div class="l">Zamanında teslim</div></div>
@@ -997,7 +1083,7 @@ ul.cl { margin: 6px 0 0; padding-left: 18px; color: var(--ink-2); display: grid;
     </main>`;
   }
   function bossSettings() {
-    return head("Workflow Settings", "Ayarlar") + `<main class="gut">
+    return head("İşletme ayarları", "Ayarlar") + `<main class="gut">
       <section><div class="sec-h"><h2>İş akışların</h2></div>
         <p class="sm" style="margin:0">Uygulama sektöre göre değil, senin çalışma düzenine göre şekillenir. Aşamaları, sorumluları, onayları ve tercihleri sen belirlersin.</p>
         <button class="btn block xl" id="newFlow">＋ Kendi akışını kur</button>
