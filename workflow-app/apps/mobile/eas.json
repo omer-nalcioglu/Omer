@@ -1,0 +1,15 @@
+{
+  "cli": { "version": ">= 16.0.0", "appVersionSource": "remote" },
+  "build": {
+    "base": {
+      "node": "22.23.5",
+      "env": { "EXPO_PUBLIC_APP_ENV": "development" }
+    },
+    "development": { "extends": "base", "developmentClient": true, "distribution": "internal" },
+    "preview": { "extends": "base", "distribution": "internal", "env": { "EXPO_PUBLIC_APP_ENV": "preview" } },
+    "production": { "extends": "base", "autoIncrement": true, "env": { "EXPO_PUBLIC_APP_ENV": "production" } }
+  },
+  "submit": {
+    "production": { "ios": { "ascAppId": "BURAYA_APP_STORE_CONNECT_UYGULAMA_KIMLIGI" } }
+  }
+}

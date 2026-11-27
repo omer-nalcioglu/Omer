@@ -1,0 +1,13 @@
+{
+  "name": "workflow-app",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "npm run test -w @workflow/core",
+    "typecheck": "npm run typecheck -w @workflow/core && npm run typecheck -w mobile",
+    "sync-core": "node scripts/sync-core.mjs"
+  }
+}
