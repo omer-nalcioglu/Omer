@@ -1,0 +1,1605 @@
+<title>Workflow v5</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Workflow: iş kimde, hangi aşamada, ne zaman biter.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+<style>/* ==========================================================================
+   Workflow · tasarım dili v4 "Sakin"
+   Yerleşim: masaüstünde telefon kasası, telefonda tam ekran; tek sütun, alt menü, alttan pencere.
+   İlkeler: her ekranda tek ana eylem · durum hem renk hem ikon hem yazı · 48px dokunma alanı ·
+   gövde 17px (atölyede kol mesafesinden okunur) · hareket 0,2–0,45 sn ve kapatılabilir.
+   ========================================================================== */
+:root {
+  --bg: #f5f6fb;  --surface: #ffffff; --surface-2: #f8f9fd; --sunk: #eceef6;
+  --ink: #12141f; --ink-2: #464c5e;   --ink-3: #5d6375;     --line: #e3e5ef; --line-2: #cfd3e2;
+  --accent: #4f46e5; --accent-ink: #3730a3; --on-accent: #ffffff; --accent-soft: #eef0ff; --accent-line: #c7c9f9;
+  --ok: #126b34;  --ok-soft: #e6f7eb;  --warn: #92400e; --warn-soft: #fdf2d8; --bad: #b91c1c; --bad-soft: #fde8e8;
+  --scrim: rgba(18, 20, 31, .45); --shadow: 0 1px 2px rgba(18, 20, 31, .05); --lift: 0 12px 32px rgba(79, 70, 229, .13);
+  --focus: #4f46e5;
+  --r-sm: 10px; --r: 14px; --r-lg: 20px; --r-xl: 24px; --r-sheet: 28px;
+  --t-xs: .8125rem; --t-sm: .9375rem; --t-md: 1.0625rem; --t-lg: 1.25rem; --t-xl: 1.5rem; --t-2xl: 1.875rem; --t-3xl: 2.375rem;
+  --tap: 3rem; --tap-lg: 3.5rem;
+  --font: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --ease: cubic-bezier(.2, .8, .2, 1); --dur: .32s;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1016; --surface: #171a24; --surface-2: #1c2030; --sunk: #0a0c11; --ink: #eef0f7; --ink-2: #b9bfd0; --ink-3: #9aa1b5; --line: #282d3b; --line-2: #394054;
+    --accent: #a5b4fc; --accent-ink: #c7d2fe; --on-accent: #1e1b4b; --accent-soft: #22254a; --accent-line: #3f4380;
+    --ok: #4ade80; --ok-soft: #0f2a1b; --warn: #fbbf24; --warn-soft: #2b2110; --bad: #fca5a5; --bad-soft: #361717;
+    --scrim: rgba(0, 0, 0, .62); --shadow: 0 1px 2px rgba(0, 0, 0, .4); --lift: 0 12px 32px rgba(0, 0, 0, .45); --focus: #a5b4fc; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1016; --surface: #171a24; --surface-2: #1c2030; --sunk: #0a0c11; --ink: #eef0f7; --ink-2: #b9bfd0; --ink-3: #9aa1b5; --line: #282d3b; --line-2: #394054;
+  --accent: #a5b4fc; --accent-ink: #c7d2fe; --on-accent: #1e1b4b; --accent-soft: #22254a; --accent-line: #3f4380;
+  --ok: #4ade80; --ok-soft: #0f2a1b; --warn: #fbbf24; --warn-soft: #2b2110; --bad: #fca5a5; --bad-soft: #361717;
+  --scrim: rgba(0, 0, 0, .62); --shadow: 0 1px 2px rgba(0, 0, 0, .4); --lift: 0 12px 32px rgba(0, 0, 0, .45); --focus: #a5b4fc; color-scheme: dark;
+}
+/* erişilebilirlik ayarları (Menü › Görünüm ve erişilebilirlik) */
+:root[data-size="l"] { font-size: 112.5%; }
+:root[data-size="xl"] { font-size: 125%; }
+:root[data-contrast="high"] { --ink-2: var(--ink); --ink-3: var(--ink); --line: var(--line-2); --line-2: var(--ink-3); --accent-soft: transparent; }
+:root[data-contrast="high"] .card, :root[data-contrast="high"] .list, :root[data-contrast="high"] .btn, :root[data-contrast="high"] .chip, :root[data-contrast="high"] .in { border-width: 2px; }
+:root[data-bold="1"] body { font-weight: 600; }
+:root[data-motion="off"] *, :root[data-motion="off"] *::before, :root[data-motion="off"] *::after { animation: none !important; transition: none !important; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
+
+/* ---------- temel ---------- */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 var(--t-md)/1.5 var(--font); -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; border: 0; background: none; padding: 0; text-align: inherit; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 8px; }
+h1, h2, h3, p { margin: 0; }
+h1, h2, h3 { text-wrap: balance; }
+.sr { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: 12px; top: -60px; z-index: 100; background: var(--ink); color: var(--surface); padding: 10px 14px; border-radius: var(--r); font-weight: 700; }
+.skip:focus { top: 12px; }
+.num { font-variant-numeric: tabular-nums; }
+svg.i { width: 1.375rem; height: 1.375rem; flex: none; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+svg.i.s { width: 1.125rem; height: 1.125rem; }
+svg.i.l { width: 1.75rem; height: 1.75rem; }
+
+/* ---------- prototip çubuğu (uygulamanın parçası değil) ---------- */
+.proto { position: sticky; top: 0; z-index: 60; background: #12141f; color: #e3e6f0; padding-block: 8px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.proto-in { max-width: 560px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: var(--t-xs); }
+.proto label { opacity: .78; font-weight: 600; }
+.proto select { flex: 1 1 170px; min-width: 0; height: 40px; border-radius: 10px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); color: #fff; padding: 0 10px; font-weight: 700; }
+.proto select option { color: #12141f; background: #fff; }
+.proto button { height: 40px; padding: 0 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,.2); color: #fff; font-weight: 700; font-size: var(--t-xs); }
+.proto button[aria-pressed="true"] { background: #fff; color: #12141f; }
+
+/* ---------- cihaz kasası ---------- */
+.device { position: relative; background: var(--bg); }
+.sbar, .homebar { display: none; }
+.screen { min-height: 100dvh; }
+@media (min-width: 760px) and (min-height: 680px) {
+  html, body { overflow: hidden; }
+  body { display: grid; grid-template-rows: auto 1fr; background: radial-gradient(1100px 600px at 50% -10%, var(--accent-soft), transparent 70%), var(--sunk); }
+  .proto { position: static; background: transparent; color: var(--ink); }
+  .proto label { color: var(--ink-2); opacity: 1; }
+  .proto select { background: var(--surface); color: var(--ink); border-color: var(--line-2); }
+  .proto button { color: var(--ink); border-color: var(--line-2); background: var(--surface); }
+  .proto button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+  .stage { display: grid; place-items: center; padding: 8px 24px 24px; min-height: 0; }
+  .device { height: min(844px, calc(100dvh - 96px)); aspect-ratio: 390 / 844; border: 12px solid #0b0d14; border-radius: 58px; overflow: hidden; transform: translateZ(0);
+    box-shadow: 0 0 0 2px #2b2f3d, 0 40px 80px rgba(18, 20, 31, .28), 0 12px 24px rgba(18, 20, 31, .14); }
+  .sbar { display: flex; position: absolute; z-index: 40; inset: 0 0 auto; height: 50px; padding: 0 30px 0 34px; align-items: center; justify-content: space-between; font-weight: 700; font-size: 15px; background: var(--bg); pointer-events: none; }
+  .sbar .island { position: absolute; left: 50%; top: 11px; width: 116px; height: 32px; margin-left: -58px; border-radius: 20px; background: #000; }
+  .screen { position: absolute; inset: 50px 0 0; min-height: 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: none; }
+  .screen::-webkit-scrollbar { display: none; }
+  .homebar { display: block; position: absolute; z-index: 45; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: var(--ink); opacity: .8; pointer-events: none; }
+  .tabs { padding-bottom: 20px !important; }
+  .sheet { padding-bottom: 34px !important; }
+}
+
+/* ---------- sayfa iskeleti ---------- */
+.page > * { min-width: 0; }
+.page { padding: 20px max(16px, env(safe-area-inset-left, 0px)) 128px max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 20px; max-width: 560px; margin: 0 auto; }
+.top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding-top: 8px; }
+.top > div { min-width: 0; }
+.eyebrow { font-size: var(--t-xs); font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-2); }
+h1 { font-size: var(--t-2xl); line-height: 1.15; font-weight: 800; letter-spacing: -.02em; margin-top: 4px; }
+h1:focus { outline: none; }
+h2 { font-size: var(--t-lg); font-weight: 750; letter-spacing: -.01em; }
+.sec { display: grid; gap: 10px; }
+.sec-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 32px; }
+.muted { color: var(--ink-2); }
+.small { font-size: var(--t-sm); }
+.xs { font-size: var(--t-xs); }
+.back { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; margin-left: -8px; padding: 0 8px; color: var(--accent-ink); font-weight: 700; border-radius: var(--r); }
+
+/* ---------- yüzeyler ---------- */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 16px; }
+.list { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+.row { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; min-height: 64px; padding: 12px 16px; border-top: 1px solid var(--line); text-align: left; }
+.row:first-child { border-top: 0; }
+button.row:active, a.row:active { background: var(--surface-2); }
+.row .t, .row .s { display: block; }
+.row .t { font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+.row .s { font-size: var(--t-sm); color: var(--ink-2); line-height: 1.4; margin-top: 2px; }
+.row .chev { color: var(--ink-3); }
+.ic { width: 2.5rem; height: 2.5rem; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-ink); flex: none; }
+.ic.ok { background: var(--ok-soft); color: var(--ok); } .ic.warn { background: var(--warn-soft); color: var(--warn); } .ic.bad { background: var(--bad-soft); color: var(--bad); }
+.av { width: 2.5rem; height: 2.5rem; border-radius: 50%; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: var(--t-xs); flex: none; letter-spacing: .02em; }
+.av.s { width: 1.75rem; height: 1.75rem; font-size: .6875rem; }
+.avs { display: inline-flex; } .avs .av { border: 2px solid var(--surface); margin-left: -8px; } .avs .av:first-child { margin-left: 0; }
+.empty { border: 1px dashed var(--line-2); border-radius: var(--r-lg); padding: 24px 16px; text-align: center; color: var(--ink-2); font-size: var(--t-sm); background: var(--surface); display: grid; gap: 10px; justify-items: center; }
+
+/* özet kartı: tek cümle, en kötü duruma göre renk + ikon */
+.sum { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px; align-items: center; padding: 16px; border-radius: var(--r-lg); border: 1px solid var(--line); background: var(--surface); }
+.sum b { display: block; font-size: var(--t-lg); line-height: 1.3; font-weight: 800; letter-spacing: -.01em; }
+.sum.bad { background: linear-gradient(135deg, var(--bad-soft), var(--surface) 72%); border-color: color-mix(in srgb, var(--bad) 30%, var(--line)); }
+.sum.warn { background: linear-gradient(135deg, var(--warn-soft), var(--surface) 72%); border-color: color-mix(in srgb, var(--warn) 30%, var(--line)); }
+.sum.ok { background: linear-gradient(135deg, var(--ok-soft), var(--surface) 72%); }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.kpi { display: grid; gap: 2px; padding: 12px 10px; min-height: 76px; border-radius: var(--r); background: var(--surface); border: 1px solid var(--line); text-align: left; align-content: space-between; }
+.kpi .v { font-size: var(--t-xl); font-weight: 800; letter-spacing: -.02em; line-height: 1; }
+.kpi .l { font-size: var(--t-xs); color: var(--ink-2); font-weight: 600; line-height: 1.25; }
+.kpi.bad .v { color: var(--bad); }
+
+/* ---------- durum etiketleri: ikon + yazı, yalnız renk değil ---------- */
+.pill { display: inline-flex; align-items: center; gap: 6px; min-height: 26px; padding: 2px 10px 2px 8px; border-radius: 999px; font-size: var(--t-xs); font-weight: 700; white-space: nowrap; background: var(--sunk); color: var(--ink-2); line-height: 1.2; }
+.pill svg.i { width: .95rem; height: .95rem; stroke-width: 2.2; }
+.pill.ok { background: var(--ok-soft); color: var(--ok); } .pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); } .pill.acc { background: var(--accent-soft); color: var(--accent-ink); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
+.live { animation: live 1.8s ease-out infinite; }
+@keyframes live { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, currentColor 50%, transparent); } 70% { box-shadow: 0 0 0 7px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+.prog { height: 6px; border-radius: 999px; background: var(--sunk); overflow: hidden; }
+.prog i { display: block; height: 100%; border-radius: 999px; background: var(--accent); transition: width .6s var(--ease); }
+.prog.bad i { background: var(--bad); } .prog.ok i { background: var(--ok); }
+
+/* ---------- düğmeler ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--tap); padding: 10px 18px; border-radius: var(--r); font-weight: 750; background: var(--accent); color: var(--on-accent); border: 1px solid transparent; transition: transform .12s, background .2s, box-shadow .2s; line-height: 1.2; text-align: center; }
+.btn:active:not(:disabled) { transform: scale(.97); }
+.btn.big { min-height: var(--tap-lg); font-size: var(--t-md); border-radius: 18px; box-shadow: 0 8px 22px color-mix(in srgb, var(--accent) 28%, transparent); }
+.btn.ok { background: var(--ok); color: #fff; } .btn.ok.big { box-shadow: 0 8px 22px color-mix(in srgb, var(--ok) 26%, transparent); }
+:root[data-theme="dark"] .btn.ok, .dark-ok { color: #06240f; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn.ok { color: #06240f; } }
+.btn.line { background: var(--surface); color: var(--ink); border-color: var(--line-2); box-shadow: none; }
+.btn.ghost { background: transparent; color: var(--accent-ink); box-shadow: none; }
+.btn.danger { background: var(--bad-soft); color: var(--bad); box-shadow: none; }
+.btn.block { width: 100%; }
+.btn.btn[aria-disabled="true"] { background: var(--sunk); color: var(--ink-2); box-shadow: none; }
+.btn:disabled { background: var(--sunk); color: var(--ink-2); box-shadow: none; cursor: not-allowed; }
+.hint { font-size: var(--t-sm); color: var(--ink-2); display: flex; gap: 6px; align-items: flex-start; }
+.hint.bad { color: var(--bad); }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.tool { display: grid; justify-items: center; gap: 4px; min-height: 68px; padding: 10px 6px; border-radius: var(--r); border: 1px solid var(--line-2); background: var(--surface); font-size: var(--t-sm); font-weight: 700; }
+.tool.bad { color: var(--bad); }
+.tool:active { transform: scale(.97); }
+
+/* ---------- seçiciler ---------- */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--surface); font-weight: 650; font-size: var(--t-sm); transition: background .2s, color .2s, border-color .2s; }
+.chip[aria-pressed="true"], .chip[aria-checked="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.chip .n { font-variant-numeric: tabular-nums; opacity: .75; }
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 3px; padding: 3px; border-radius: 16px; background: var(--sunk); border: 1px solid var(--line); }
+.seg button { min-height: 42px; border-radius: 12px; font-weight: 700; font-size: var(--t-sm); color: var(--ink-2); text-align: center; }
+.seg button[aria-pressed="true"], .seg button[aria-checked="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.field { display: grid; gap: 6px; }
+.field > label, .lbl { font-weight: 700; font-size: var(--t-sm); }
+.in { width: 100%; min-height: var(--tap); border-radius: var(--r); border: 1px solid var(--line-2); background: var(--surface); padding: 10px 14px; font-size: var(--t-md); }
+textarea.in { min-height: 88px; resize: vertical; }
+.in:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.in[aria-invalid="true"] { border-color: var(--bad); }
+.search { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; padding: 0 14px; border-radius: var(--r); border: 1px solid var(--line-2); background: var(--surface); min-height: var(--tap); color: var(--ink-2); }
+.search input { border: 0; background: transparent; min-height: 46px; outline: none; color: var(--ink); font-size: var(--t-md); }
+.search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.sw { position: relative; width: 52px; height: 32px; border-radius: 16px; background: var(--line-2); flex: none; transition: background .2s; }
+.sw::after { content: ""; position: absolute; top: 4px; left: 4px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s var(--ease); }
+.sw[aria-checked="true"] { background: var(--accent); }
+.sw[aria-checked="true"]::after { transform: translateX(20px); }
+.set { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 14px; align-items: center; min-height: 64px; padding: 12px 16px; border-top: 1px solid var(--line); }
+.set:first-child { border-top: 0; }
+.check { display: grid; grid-template-columns: 1.75rem minmax(0, 1fr); gap: 12px; align-items: center; width: 100%; min-height: var(--tap); padding: 8px 12px; border-radius: var(--r); border: 1px solid var(--line); background: var(--surface); text-align: left; }
+.check .bx { width: 1.6rem; height: 1.6rem; border-radius: 50%; border: 2px solid var(--line-2); display: grid; place-items: center; color: transparent; }
+.check[aria-checked="true"] { background: var(--accent-soft); border-color: var(--accent-line); }
+.check[aria-checked="true"] .bx { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.check[aria-checked="true"] .bx svg path { stroke-dasharray: 30; animation: draw .35s ease-out both; }
+.check[aria-checked="true"] span:last-child { text-decoration: line-through; color: var(--ink-2); }
+@keyframes draw { from { stroke-dashoffset: 30; } to { stroke-dashoffset: 0; } }
+
+/* ---------- görev kartı: çalışana düşen tek iş, tek ana düğme ---------- */
+.task { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xl); padding: 18px; display: grid; gap: 14px; box-shadow: var(--lift); }
+.task.working { border-color: var(--accent-line); }
+.task.blocked { border-color: color-mix(in srgb, var(--bad) 40%, var(--line)); }
+.task-h { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.task h3 { font-size: var(--t-xl); line-height: 1.2; font-weight: 800; letter-spacing: -.015em; }
+.facts { display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--ink-2); font-size: var(--t-sm); font-weight: 600; }
+.facts span { display: inline-flex; align-items: center; gap: 6px; }
+.timer { font-size: var(--t-3xl); font-weight: 800; letter-spacing: -.02em; text-align: center; color: var(--accent); font-variant-numeric: tabular-nums; line-height: 1; padding: 4px 0; }
+.issue { background: var(--bad-soft); border-radius: var(--r); padding: 12px 14px; display: grid; gap: 2px; font-size: var(--t-sm); }
+.issue b { color: var(--bad); }
+.note { background: var(--accent-soft); border-radius: var(--r); padding: 12px 14px; font-size: var(--t-sm); display: grid; gap: 2px; }
+.note.warn { background: var(--warn-soft); }
+
+/* öneri kartı: sistem bir şey önerir, tek dokunuşla uygulanır, geri alınabilir */
+.tip { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; padding: 14px 16px; border-radius: var(--r-lg); border: 1px solid var(--accent-line); background: linear-gradient(135deg, var(--accent-soft), var(--surface) 75%); }
+.tip .acts { grid-column: 2; display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.tip .acts .btn { min-height: 40px; padding: 6px 14px; font-size: var(--t-sm); box-shadow: none; }
+
+/* iş satırı */
+.job { display: grid; gap: 8px; width: 100%; padding: 14px 16px; border-top: 1px solid var(--line); text-align: left; }
+.job:first-child { border-top: 0; }
+.job:active { background: var(--surface-2); }
+.job-h { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.job-h .t { font-weight: 750; line-height: 1.3; overflow-wrap: anywhere; }
+.job-h .no { font-size: var(--t-xs); color: var(--ink-3); font-weight: 700; font-variant-numeric: tabular-nums; flex: none; }
+.job .s { font-size: var(--t-sm); color: var(--ink-2); }
+.job .st { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.job .pct { margin-left: auto; font-size: var(--t-sm); font-weight: 700; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+/* aşama zaman çizelgesi */
+.steps { display: grid; }
+.step { display: grid; grid-template-columns: 2rem minmax(0, 1fr); gap: 12px; position: relative; padding-bottom: 14px; }
+.step:last-child { padding-bottom: 0; }
+.step::before { content: ""; position: absolute; left: calc(1rem - 1px); top: 2rem; bottom: 0; width: 2px; background: var(--line); }
+.step:last-child::before { display: none; }
+.step.done::before { background: var(--ok); }
+.step .n { width: 2rem; height: 2rem; border-radius: 50%; border: 2px solid var(--line-2); display: grid; place-items: center; font-size: var(--t-xs); font-weight: 800; background: var(--surface); color: var(--ink-2); z-index: 1; }
+.step.done .n { background: var(--ok); border-color: var(--ok); color: #fff; }
+.step.now .n { border-color: var(--accent); color: var(--accent-ink); box-shadow: 0 0 0 4px var(--accent-soft); }
+.step.blk .n { border-color: var(--bad); color: var(--bad); box-shadow: 0 0 0 4px var(--bad-soft); }
+.step.skip { opacity: .5; }
+.step .b { font-weight: 700; }
+.step .branch { margin-left: 2.75rem; margin-top: -4px; padding-bottom: 12px; font-size: var(--t-sm); color: var(--ink-2); }
+
+/* ---------- alt menü ---------- */
+.tabs { position: fixed; z-index: 30; left: 0; right: 0; bottom: 0; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; background: color-mix(in srgb, var(--surface) 94%, transparent); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid var(--line);
+  padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px)); }
+.tab { display: grid; justify-items: center; align-content: center; gap: 3px; min-height: 56px; font-size: var(--t-xs); font-weight: 650; color: var(--ink-2); }
+.tab .pip { position: relative; width: 3.5rem; height: 1.875rem; border-radius: 999px; display: grid; place-items: center; transition: background .2s; }
+.tab[aria-current="page"] { color: var(--accent-ink); font-weight: 800; }
+.tab[aria-current="page"] .pip { background: var(--accent-soft); color: var(--accent); }
+.tab .badge { position: absolute; top: -4px; right: 6px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--bad); color: #fff; font-size: .6875rem; font-weight: 800; display: grid; place-items: center; border: 2px solid var(--surface); }
+.tab.plus .pip { width: 3.375rem; height: 3.375rem; margin-top: -1.5rem; border-radius: 18px; background: var(--accent); color: var(--on-accent); box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 38%, transparent); }
+.tab.plus .pip svg.i { width: 1.6rem; height: 1.6rem; stroke-width: 2.4; }
+
+/* ---------- alttan pencere ve iletişim kutusu ---------- */
+.scrim { position: fixed; inset: 0; z-index: 50; background: var(--scrim); display: flex; align-items: flex-end; justify-content: center; animation: fade .2s ease-out; }
+.sheet { width: 100%; max-width: 560px; max-height: 92%; overflow-y: auto; overscroll-behavior: contain; background: var(--surface); border-radius: var(--r-sheet) var(--r-sheet) 0 0; padding: 8px 16px calc(24px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 16px; animation: up .36s var(--ease); box-shadow: 0 -12px 36px rgba(0,0,0,.16); }
+.sheet .grab { width: 40px; height: 5px; border-radius: 3px; background: var(--line-2); margin: 0 auto; }
+.sheet-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.sheet-h h2 { font-size: var(--t-xl); font-weight: 800; letter-spacing: -.015em; }
+.x { width: var(--tap); height: var(--tap); border-radius: 50%; display: grid; place-items: center; background: var(--sunk); flex: none; }
+.dialog .sheet { border-radius: var(--r-sheet); margin: 16px; width: calc(100% - 32px); }
+@keyframes up { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* bildirim: geri al ile */
+.toasts { position: fixed; z-index: 70; left: 0; right: 0; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); display: grid; justify-items: center; padding: 0 16px; pointer-events: none; }
+.toast { pointer-events: auto; width: 100%; max-width: 528px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 12px 12px 16px; border-radius: var(--r-lg); background: var(--ink); color: var(--surface); box-shadow: 0 14px 34px rgba(0,0,0,.25); animation: rise .32s var(--ease); }
+.toast b { display: block; font-weight: 750; }
+.toast span { font-size: var(--t-sm); opacity: .85; }
+.toast .undo { min-height: 40px; padding: 0 14px; border-radius: 12px; color: var(--surface); font-weight: 800; border: 1px solid color-mix(in srgb, var(--surface) 40%, transparent); }
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+.offline { display: flex; gap: 10px; align-items: center; padding: 10px 14px; border-radius: var(--r); background: var(--warn-soft); color: var(--ink); font-size: var(--t-sm); font-weight: 600; }
+
+/* ekrana giriş: yalnız ekran değişince */
+.enter > * { animation: rise .42s var(--ease) both; }
+.enter > *:nth-child(2) { animation-delay: .04s; } .enter > *:nth-child(3) { animation-delay: .08s; } .enter > *:nth-child(4) { animation-delay: .12s; } .enter > *:nth-child(n+5) { animation-delay: .16s; }
+
+/* sohbet */
+.thread { display: grid; gap: 10px; padding-bottom: 8px; }
+.msg { display: grid; gap: 3px; max-width: 84%; justify-items: start; }
+.msg.me { justify-self: end; justify-items: end; }
+.bub { padding: 10px 14px; border-radius: 20px 20px 20px 6px; background: var(--surface); border: 1px solid var(--line); line-height: 1.45; overflow-wrap: anywhere; }
+.msg.me .bub { background: var(--accent); color: var(--on-accent); border-color: var(--accent); border-radius: 20px 20px 6px 20px; }
+.msg .who { font-size: var(--t-xs); font-weight: 700; color: var(--ink-2); padding: 0 4px; }
+.msg .at { font-size: var(--t-xs); color: var(--ink-3); padding: 0 4px; }
+.sys { justify-self: center; font-size: var(--t-xs); font-weight: 650; color: var(--ink-2); background: var(--sunk); padding: 5px 12px; border-radius: 999px; text-align: center; max-width: 92%; }
+.composer { position: sticky; bottom: calc(76px + env(safe-area-inset-bottom, 0px)); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 10px; border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); box-shadow: var(--lift); }
+.composer .in { border-radius: 999px; min-height: 46px; background: var(--surface-2); }
+.quick { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.quick .chip { white-space: nowrap; min-height: 36px; }
+
+/* akıllı ekleme */
+.smart { display: grid; gap: 10px; padding: 14px; border-radius: var(--r-lg); background: var(--surface-2); border: 1px solid var(--line); }
+.parsed { display: flex; flex-wrap: wrap; gap: 6px; }
+.parsed .chip { min-height: 34px; font-size: var(--t-xs); background: var(--accent-soft); border-color: var(--accent-line); color: var(--accent-ink); }
+.parsed .chip.miss { background: var(--surface); border-style: dashed; color: var(--ink-2); }
+
+/* akış tasarlayıcısı */
+.fstep { display: grid; grid-template-columns: 2rem minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 12px; border-radius: var(--r); border: 1px solid var(--line); background: var(--surface); }
+.fstep .k { width: 2rem; height: 2rem; border-radius: 10px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-ink); font-weight: 800; font-size: var(--t-xs); }
+.fstep.dec .k { background: var(--warn-soft); color: var(--warn); }
+.fbranch { margin-left: 1.5rem; padding-left: 14px; border-left: 2px dashed var(--line-2); display: grid; gap: 8px; }
+.ibtn { width: 2.75rem; height: 2.75rem; border-radius: 12px; display: grid; place-items: center; color: var(--ink-2); }
+.ibtn:disabled { opacity: .35; }
+
+/* müşteri takip sayfası önizlemesi */
+.public { border-radius: var(--r-lg); border: 1px solid var(--line); overflow: hidden; }
+.public .ph { padding: 16px; background: var(--accent); color: var(--on-accent); display: grid; gap: 4px; }
+.public .pb { padding: 16px; display: grid; gap: 12px; background: var(--surface); }
+.sig { width: 100%; height: 160px; border-radius: var(--r); border: 1px dashed var(--line-2); background: var(--surface-2); touch-action: none; display: block; }
+</style>
+<a class="skip" href="#main">İçeriğe geç</a>
+<div class="proto" id="proto" hidden><div class="proto-in" role="region" aria-label="Prototip denetimleri">
+  <label for="who">Kimin gözüyle</label><select id="who"></select>
+  <button id="net" aria-pressed="false" title="İnternet kesintisini dene">Çevrimiçi</button>
+  <button id="reset">Baştan kur</button>
+</div></div>
+<div class="stage"><div class="device">
+  <div class="sbar" aria-hidden="true"><span id="sbTime">9:41</span><i class="island"></i><span style="display:inline-flex;gap:6px;align-items:center"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg><svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x=".5" y=".5" width="22" height="11" rx="3.5" stroke="currentColor" opacity=".45"/><rect x="2.5" y="2.5" width="15" height="7" rx="2" fill="currentColor"/></svg></span></div>
+  <div class="screen" id="screen"><main id="main" tabindex="-1"></main></div>
+  <nav class="tabs" id="tabs" aria-label="Ana menü" hidden></nav>
+  <div id="sheets"></div>
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <i class="homebar" aria-hidden="true"></i>
+</div></div>
+<script>"use strict";var WF=(()=>{var I=Object.defineProperty;var O=Object.getOwnPropertyDescriptor;var $=Object.getOwnPropertyNames;var B=Object.prototype.hasOwnProperty;var L=(e,t)=>{for(var s in t)I(e,s,{get:t[s],enumerable:!0})},N=(e,t,s,r)=>{if(t&&typeof t=="object"||typeof t=="function")for(let n of $(t))!B.call(e,n)&&n!==s&&I(e,n,{get:()=>t[n],enumerable:!(r=O(t,n))||r.enumerable});return e};var z=e=>N(I({},"__esModule",{value:!0}),e);var he={};L(he,{BUILTIN_FLOWS:()=>me,DEFAULT_GROUPS:()=>pe,FlowError:()=>g,KLIMA_FLOW:()=>M,METAL_FLOW:()=>E,QUICK_TASK_FLOW:()=>T,actionEvents:()=>x,activeStages:()=>C,addPhoto:()=>te,blockers:()=>q,cancelJob:()=>de,completeStage:()=>ne,createJob:()=>X,defaultResolver:()=>P,documentTotals:()=>V,emptyRegistry:()=>ye,fireTimer:()=>ae,formatTL:()=>G,holdJob:()=>ie,idempotencyKeyOf:()=>W,isLate:()=>le,lineTotals:()=>S,matches:()=>j,mockInvoice:()=>fe,mockMessage:()=>be,mockPayment:()=>ke,progress:()=>ge,reportIssue:()=>se,resolveIssue:()=>re,resumeJob:()=>ue,rulesFor:()=>f,sendBack:()=>oe,startKeys:()=>h,startStage:()=>Z,tasksFor:()=>ce,tl:()=>U,toggleCheck:()=>ee,validateFields:()=>k,validateFlow:()=>Q,vatOf:()=>J});var U=e=>Math.round(e*100);function G(e){let t=e<0,s=Math.abs(e),r=Math.floor(s/100),n=s%100,o=r.toString().replace(/\B(?=(\d{3})+(?!\d))/g,".");return`${t?"-":""}${o}${n?","+String(n).padStart(2,"0"):""} \u20BA`}var J=(e,t)=>Math.round(e*t/100);function S(e){let t=Math.round(e.qty*e.unitPrice),s=Math.round(t*(e.discountPercent??0)/100),r=t-s,n=J(r,e.vatRate);return{gross:t,discount:s,net:r,vat:n,total:r+n}}function V(e){var s,r;let t={net:0,vat:0,total:0,byRate:{}};for(let n of e){let o=S(n);t.net+=o.net,t.vat+=o.vat,t.total+=o.total;let a=(s=t.byRate)[r=String(n.vatRate)]??(s[r]={net:0,vat:0});a.net+=o.net,a.vat+=o.vat}return t}function k(e,t,s){let r=[];for(let n of e){let o=t[n.key],a=o==null||o==="";if(n.requiredAt===s&&a){r.push({key:n.key,message:`${n.label} gerekli`});continue}a||(n.type==="number"&&(typeof o!="number"||Number.isNaN(o))&&r.push({key:n.key,message:`${n.label} say\u0131 olmal\u0131`}),n.type==="select"&&n.options&&!n.options.includes(String(o))&&r.push({key:n.key,message:`${n.label} listede yok`}),n.type==="bool"&&typeof o!="boolean"&&r.push({key:n.key,message:`${n.label} evet/hay\u0131r olmal\u0131`}),n.type==="date"&&(typeof o!="string"||Number.isNaN(Date.parse(o)))&&r.push({key:n.key,message:`${n.label} tarih olmal\u0131`}))}return r}var W=e=>[e.type,e.jobId,"stageKey"in e?e.stageKey:"",e.at].join(":");function Y(e,t){if(t==="amount")return e.amount;if(t==="qty")return e.qty;if(t==="urgent")return e.urgent;if(t.startsWith("data."))return e.data[t.slice(5)]}function j(e,t){let s=Y(e,t.field);switch(t.op){case"isTrue":return s===!0;case"isFalse":return s===!1||s===void 0||s===null;case"eq":return s===t.value;case"neq":return s!==t.value;case"contains":return typeof s=="string"&&typeof t.value=="string"&&s.toLocaleLowerCase("tr").includes(t.value.toLocaleLowerCase("tr"));default:return typeof s!="number"||typeof t.value!="number"?!1:t.op==="gt"?s>t.value:t.op==="gte"?s>=t.value:t.op==="lt"?s<t.value:s<=t.value}}function f(e,t,s,r){return e.filter(n=>n.enabled&&n.on===t&&(!n.stageKey||n.stageKey===r)&&n.when.every(o=>j(s,o))).flatMap(n=>n.then)}function x(e,t,s){let r=[];for(let n of t)n.type==="notify"&&r.push({type:"notify",jobId:e.id,to:n.to,text:n.text,at:s}),n.type==="send_message"&&r.push({type:"message.requested",jobId:e.id,to:n.to,template:n.template,at:s}),n.type==="create_task"&&r.push({type:"task.requested",jobId:e.id,title:n.title,assignee:n.assignee,at:s});return r}var g=class extends Error{constructor(s,r){super(r);this.code=s}},P=(e,t)=>e.assign.mode==="person"&&e.assign.person?{owner:e.assign.person,crew:[e.assign.person]}:e.assign.mode==="creator"?{owner:t.createdBy,crew:[t.createdBy]}:{owner:null,crew:[]},c=e=>JSON.parse(JSON.stringify(e)),y=(e,t)=>{let s=e.stages.find(r=>r.key===t);if(!s)throw new g("stage_unknown",`A\u015Fama yok: ${t}`);return s},D=e=>e.kind==="decision"?(e.branches??[]).map(t=>t.to):e.next,R=(e,t)=>e.stages.filter(s=>D(s).includes(t)),h=e=>e.start?.length?e.start:e.stages.filter(t=>R(e,t.key).length===0).map(t=>t.key);function m(e,t){let s=new Set,r=[t];for(;r.length;){let n=r.pop();if(!s.has(n)){s.add(n);for(let o of D(y(e,n)))r.push(o)}}return s}function Q(e){let t=[],s=new Set(e.stages.map(n=>n.key));e.stages.length||t.push("Ak\u0131\u015Fta a\u015Fama yok");for(let n of e.stages){for(let o of D(n))s.has(o)||t.push(`${n.name}: ba\u011Fl\u0131 oldu\u011Fu a\u015Fama yok (${o})`);n.kind==="decision"&&(n.branches?.length??0)<2&&t.push(`${n.name}: karar en az iki dal ister`),n.assign.mode==="person"&&!n.assign.person&&t.push(`${n.name}: ki\u015Fi se\xE7ilmedi`),n.assign.mode==="dept"&&!n.assign.dept&&t.push(`${n.name}: departman se\xE7ilmedi`)}if(t.length)return t;let r=new Set;for(let n of h(e))m(e,n).forEach(o=>r.add(o));for(let n of e.stages)r.has(n.key)||t.push(`${n.name}: ba\u015Flang\u0131\xE7tan bu a\u015Famaya ula\u015F\u0131lam\u0131yor`);return h(e).length||t.push("Ak\u0131\u015F\u0131n ba\u015Flang\u0131\xE7 a\u015Famas\u0131 yok (her a\u015Fama ba\u015Fka bir a\u015Famadan geliyor)"),t}function K(e){return{key:e,status:"locked",owner:null,crew:[],checks:[],visits:0,photos:0}}function v(e,t,s,r,n){let o=y(t,s),a=e.stages[s],i=(r.resolve??P)(o,e);if(o.assign.mode==="previous"){let u=R(t,s).map(l=>e.stages[l.key]).find(l=>l?.status==="done"&&l.owner);u&&(i.owner=u.owner,i.crew=[u.owner])}switch(Object.assign(a,{status:"ready",owner:i.owner,crew:i.crew,readyAt:r.now,checks:(o.checklist??[]).map(()=>!1),visits:a.visits+1}),delete a.startedAt,delete a.doneAt,delete a.choice,delete a.issue,o.slaMinutes&&(a.dueAt=r.now+o.slaMinutes*6e4),n.push({type:"stage.ready",jobId:e.id,stageKey:s,owner:a.owner,at:r.now}),o.kind){case"timer":{a.status="working",a.startedAt=r.now;let u=r.now+(o.timerMinutes??60)*6e4;a.dueAt=u,n.push({type:"timer.scheduled",jobId:e.id,stageKey:s,fireAt:u,at:r.now});break}case"invoice":n.push({type:"invoice.requested",jobId:e.id,stageKey:s,at:r.now});break;case"payment":n.push({type:"payment.requested",jobId:e.id,stageKey:s,at:r.now});break;case"subjob":n.push({type:"subjob.requested",jobId:e.id,stageKey:s,flowId:o.subflowId??"",at:r.now});break;case"notify":n.push({type:"message.requested",jobId:e.id,stageKey:s,to:"customer",template:o.messageTemplate??"stage_update",at:r.now}),F(e,t,s,{...r,by:"system"},n);break}}function H(e,t,s,r,n){let o=s.next;if(s.kind==="decision"){let a=e.stages[s.key].choice,i=(s.branches??[]).find(l=>l.id===a);if(!i)throw new g("choice_required",`${s.name}: bir se\xE7enek se\xE7ilmeli`);o=[i.to];let u=m(t,i.to);for(let l of s.branches??[])if(l.id!==i.id)for(let w of m(t,l.to)){if(u.has(w))continue;let p=e.stages[w];p.status==="locked"&&(p.status="skipped")}}for(let a of o){let i=e.stages[a];if(i.status==="done"||i.status==="skipped"){for(let p of m(t,a))e.stages[p]={...K(p),visits:e.stages[p].visits};v(e,t,a,r,n);continue}if(i.status!=="locked")continue;let u=y(t,a),l=R(t,a);((u.join??"all")==="any"||l.every(p=>["done","skipped"].includes(e.stages[p.key].status)))&&v(e,t,a,r,n)}}function _(e,t,s){let r=Object.values(e.stages);if(!r.some(n=>["ready","working","blocked"].includes(n.status))){for(let n of r)n.status==="locked"&&(n.status="skipped");e.status==="open"&&(e.status="done",s.push({type:"job.completed",jobId:e.id,at:t.now}))}}function A(e,t,s,r,n){for(let o of s)if(o.type==="set_field"&&(e.data[o.key]=o.value),o.type==="shift_due"&&(e.due+=o.hours*36e5),o.type==="mark_urgent"&&(e.urgent=!0),o.type==="skip_stage"){let a=e.stages[o.stageKey];a&&a.status==="locked"&&(a.status="skipped")}n.push(...x(e,s,r.now))}function F(e,t,s,r,n){let o=y(t,s),a=e.stages[s];a.status="done",a.doneAt=r.now,a.startedAt??(a.startedAt=a.readyAt??r.now),e.log.push({at:r.now,by:r.by,text:`${o.name} bitti${a.choice?` \xB7 ${o.branches?.find(i=>i.id===a.choice)?.label??""}`:""}`,stageKey:s}),n.push({type:"stage.completed",jobId:e.id,stageKey:s,by:r.by,...a.choice?{choice:a.choice}:{},at:r.now}),A(e,t,f(t.rules,"stage.completed",e,s),r,n),H(e,t,o,r,n),_(e,r,n)}function X(e,t,s){let r=k(e.fields,t.data??{},"create");if(r.length)throw new g("fields",r.map(a=>a.message).join(", "));let n={id:t.id,businessId:t.businessId,flowId:e.id,flowVersion:e.version,number:t.number,title:t.title,customerId:t.customerId??null,customerName:t.customerName??"",qty:t.qty??1,unit:t.unit??"adet",due:t.due,createdAt:s.now,createdBy:s.by,urgent:!!t.urgent,status:"open",data:{...t.data??{}},stages:Object.fromEntries(e.stages.map(a=>[a.key,K(a.key)])),parentJobId:t.parentJobId??null,amount:t.amount??0,log:[{at:s.now,by:s.by,text:"\u0130\u015F a\xE7\u0131ld\u0131"}]},o=[{type:"job.created",jobId:n.id,at:s.now}];A(n,e,f(e.rules,"job.created",n),s,o);for(let a of h(e))n.stages[a].status==="locked"&&v(n,e,a,s,o);return _(n,s,o),{job:n,events:o}}var b=e=>{if(e.status!=="open")throw new g("job_closed","\u0130\u015F a\xE7\u0131k de\u011Fil")};function Z(e,t,s,r){let n=c(e);b(n);let o=n.stages[s];if(!o||o.status!=="ready")throw new g("not_ready","Bu a\u015Fama ba\u015Flamaya haz\u0131r de\u011Fil");return o.status="working",o.startedAt=r.now,o.owner||(o.owner=r.by,o.crew=[r.by]),{job:n,events:[{type:"stage.started",jobId:n.id,stageKey:s,by:r.by,at:r.now}]}}function ee(e,t,s){let r=c(e),n=r.stages[t];return n&&s>=0&&s<n.checks.length&&(n.checks[s]=!n.checks[s]),r}function te(e,t){let s=c(e),r=s.stages[t];return r&&(r.photos+=1),s}function q(e,t,s,r){let n=y(t,s),o=e.stages[s],a=[],i=o.checks.filter(u=>!u).length;i&&a.push(`${i} kontrol ad\u0131m\u0131 i\u015Faretlenmedi`),n.photoRequired&&o.photos===0&&a.push("Foto\u011Fraf eklenmeli");for(let u of k(t.fields,e.data,s))a.push(u.message);return n.kind==="decision"&&!(n.branches??[]).some(u=>u.id===(r??o.choice))&&a.push("Bir se\xE7enek se\xE7ilmeli"),a}function ne(e,t,s,r,n={}){let o=c(e);b(o);let a=o.stages[s];if(!a||!["ready","working"].includes(a.status))throw new g("not_active","Bu a\u015Fama \u015Fu an bitirilemez");n.data&&Object.assign(o.data,n.data);let i=q(o,t,s,n.choice);if(i.length)throw new g("blocked",i.join(", "));n.choice&&(a.choice=n.choice);let u=[];return F(o,t,s,r,u),{job:o,events:u}}function se(e,t,s,r,n,o){let a=c(e);b(a);let i=a.stages[s];if(!i||!["ready","working"].includes(i.status))throw new g("not_active","Bu a\u015Famada sorun bildirilemez");i.status="blocked",i.issue={type:r,note:n,at:o.now,by:o.by};let u=[{type:"stage.blocked",jobId:a.id,stageKey:s,by:o.by,issue:`${r}: ${n}`,at:o.now}];return A(a,t,f(t.rules,"stage.blocked",a,s),o,u),{job:a,events:u}}function re(e,t,s){let r=c(e),n=r.stages[t];if(!n||n.status!=="blocked")throw new g("not_blocked","Bu a\u015Famada a\xE7\u0131k sorun yok");return n.status=n.startedAt?"working":"ready",delete n.issue,r.log.push({at:s.now,by:s.by,text:"Sorun \xE7\xF6z\xFCld\xFC",stageKey:t}),{job:r,events:[]}}function oe(e,t,s,r,n,o){let a=c(e);if(b(a),!t.prefs.allowSendBack)throw new g("not_allowed","Bu ak\u0131\u015Fta geri g\xF6nderme kapal\u0131");if(!m(t,r).has(s))throw new g("bad_target","Yaln\u0131zca \xF6nceki bir a\u015Famaya geri g\xF6nderilebilir");for(let u of m(t,r))a.stages[u]={...K(u),visits:a.stages[u].visits};let i=[{type:"stage.sent_back",jobId:a.id,from:s,to:r,by:o.by,note:n,at:o.now}];return a.log.push({at:o.now,by:o.by,text:`Geri g\xF6nderildi: ${n}`,stageKey:r}),v(a,t,r,o,i),{job:a,events:i}}function ae(e,t,s,r){let n=c(e),o=n.stages[s];if(!o||o.status!=="working"||y(t,s).kind!=="timer")return{job:n,events:[]};let a=[];return F(n,t,s,{...r,by:"system"},a),{job:n,events:a}}function ie(e,t,s){let r=c(e);return b(r),r.status="on_hold",r.log.push({at:s.now,by:s.by,text:`Bekletildi: ${t}`}),{job:r,events:[{type:"job.held",jobId:r.id,reason:t,at:s.now}]}}function ue(e,t){let s=c(e);if(s.status!=="on_hold")throw new g("not_held","\u0130\u015F bekletilmiyor");return s.status="open",s.log.push({at:t.now,by:t.by,text:"Devam ettirildi"}),{job:s,events:[{type:"job.resumed",jobId:s.id,at:t.now}]}}function de(e,t,s){let r=c(e);if(r.status==="done"||r.status==="cancelled")throw new g("job_closed","\u0130\u015F zaten kapal\u0131");return r.status="cancelled",r.log.push({at:s.now,by:s.by,text:`\u0130ptal: ${t}`}),{job:r,events:[{type:"job.cancelled",jobId:r.id,reason:t,at:s.now}]}}var C=(e,t)=>t.stages.filter(s=>["ready","working","blocked"].includes(e.stages[s.key].status));function ge(e){let t=Object.values(e.stages).filter(s=>s.status!=="skipped");return e.status==="done"?100:t.length?Math.round(t.filter(s=>s.status==="done").length/t.length*100):0}var le=(e,t)=>e.status==="open"&&e.due<t;function ce(e,t,s){return e.flatMap(r=>{let n=t[r.flowId];return!n||r.status!=="open"?[]:C(r,n).filter(o=>r.stages[o.key].crew.includes(s)||r.stages[o.key].owner===s).map(o=>({job:r,stage:o,run:r.stages[o.key]}))})}var d=(e,t,s,r,n={})=>({key:e,name:t,kind:s,next:r,assign:{mode:"dept",dept:n.assign?.dept??"uretim",...n.assign??{}},...n}),pe=[{key:"patron",name:"Patron",home:"boss",perms:["seeAll","create","assign","approve","money","flows","team","reports"],locked:!0},{key:"yonetici",name:"Y\xF6netici",home:"boss",perms:["seeAll","create","assign","approve","money","reports"]},{key:"ustabasi",name:"Ustaba\u015F\u0131",home:"foreman",perms:["seeAll","create","assign","approve"]},{key:"calisan",name:"\xC7al\u0131\u015Fan",home:"worker",perms:[]},{key:"sofor",name:"\u015Eof\xF6r",home:"driver",perms:[]}],E={id:"metal",version:1,name:"Metal imalat",icon:"factory",start:["olcum"],prefs:{notifyCustomer:!0,customerCanSee:!0,allowSendBack:!0},fields:[{key:"renk",label:"Boya rengi",type:"select",options:["Antrasit","Siyah","Beyaz","Galvaniz"],requiredAt:"boya"},{key:"olcu_notu",label:"\xD6l\xE7\xFC notu",type:"text"}],rules:[{id:"r1",on:"job.created",when:[{field:"amount",op:"gt",value:1e7}],then:[{type:"notify",to:"role:patron",text:"100.000 \u20BA \xFCst\xFC i\u015F a\xE7\u0131ld\u0131"}],enabled:!0}],stages:[d("olcum","Ke\u015Fif ve \xF6l\xE7\xFC","appointment",["kontrol"],{assign:{mode:"dept",dept:"olcum"},slaMinutes:240,checklist:["\xD6l\xE7\xFCler al\u0131nd\u0131","Foto\u011Fraf \xE7ekildi"]}),d("kontrol","\xD6l\xE7\xFC uygun mu?","decision",[],{assign:{mode:"dept",dept:"olcum"},branches:[{id:"evet",label:"Uygun",to:"kesim"},{id:"hayir",label:"M\xFC\u015Fteriye d\xF6n",to:"revize"}]}),d("revize","M\xFC\u015Fteriyle revize","task",["olcum"],{assign:{mode:"creator"}}),d("kesim","Kesim","task",["kaynak","aksesuar"],{slaMinutes:360}),d("kaynak","Kaynak","task",["boya"],{assign:{mode:"dept",dept:"kaynak"},slaMinutes:420,photoRequired:!0}),d("aksesuar","Aksesuar haz\u0131rl\u0131\u011F\u0131","task",["boya"],{assign:{mode:"dept",dept:"depo"}}),d("boya","Boya","task",["kuruma"],{assign:{mode:"dept",dept:"boya"}}),d("kuruma","Boya kurumas\u0131","timer",["kalite"],{assign:{mode:"dept",dept:"boya"},timerMinutes:720}),d("kalite","Kalite kontrol","approval",["teslim"],{assign:{mode:"dept",dept:"kalite"},checklist:["\xD6l\xE7\xFC toleransta","Boya homojen"]}),d("teslim","Teslimat","delivery",["fatura"],{assign:{mode:"dept",dept:"sofor"},signatureRequired:!0}),d("fatura","Fatura","invoice",["tahsilat"],{assign:{mode:"dept",dept:"muhasebe"}}),d("tahsilat","Tahsilat","payment",[],{assign:{mode:"dept",dept:"muhasebe"}})]},M={id:"klima",version:1,name:"Klima montaj\u0131",icon:"snow",prefs:{notifyCustomer:!0,customerCanSee:!0,allowSendBack:!0},fields:[{key:"btu",label:"BTU",type:"select",options:["9000","12000","18000","24000"],requiredAt:"create"},{key:"marka",label:"Marka",type:"text"},{key:"kat",label:"Kat",type:"number"}],rules:[],stages:[d("randevu","Ke\u015Fif randevusu","appointment",["montaj"],{assign:{mode:"dept",dept:"montaj"}}),d("montaj","Montaj","task",["onay"],{assign:{mode:"previous"},photoRequired:!0,checklist:["Vakum yap\u0131ld\u0131","Gaz bas\u0131nc\u0131 kontrol edildi","Alan temizlendi"]}),d("onay","M\xFC\u015Fteri onay\u0131","approval",["bilgi"],{assign:{mode:"previous"},signatureRequired:!0}),d("bilgi","M\xFC\u015Fteriye bilgi","notify",["fatura"],{messageTemplate:"is_tamamlandi"}),d("fatura","Fatura","invoice",[],{assign:{mode:"creator"}})]},T={id:"_task",version:1,name:"G\xF6rev",icon:"bolt",hidden:!0,prefs:{notifyCustomer:!1,customerCanSee:!1,allowSendBack:!1},fields:[],rules:[],stages:[d("gorev","G\xF6rev","task",[],{assign:{mode:"creator"}})]},me=[E,M,T];var ye=()=>({invoice:{},message:{},payment:{}});var fe={info:{id:"mock",kind:"invoice",name:"Deneme faturas\u0131",settings:[]},async isEInvoiceUser(e){return{ok:!0,value:e.length===10}},async issue(e){return{ok:!0,value:{providerId:"mock",providerRef:`mock-${e.idempotencyKey}`,number:`TST${new Date().getFullYear()}${String(Date.now()).slice(-9)}`,status:"accepted"}}},async status(e){return{ok:!0,value:{providerId:"mock",providerRef:e,status:"accepted"}}},async cancel(e){return{ok:!0,value:{providerId:"mock",providerRef:e,status:"cancelled"}}}},be={info:{id:"mock",kind:"message",name:"Deneme mesaj\u0131",settings:[]},channel:"whatsapp",async send(e){return{ok:!0,value:{providerId:"mock",providerRef:`mock-${e.idempotencyKey}`,status:"sent"}}}},ke={info:{id:"mock",kind:"payment",name:"Deneme \xF6demesi",settings:[]},async createLink(e){return{ok:!0,value:{providerId:"mock",providerRef:`mock-${e.idempotencyKey}`,url:`https://example.invalid/pay/${e.idempotencyKey}`}}}};return z(he);})();
+</script>
+<script>
+(() => {
+"use strict";
+/* ---------- yardımcılar ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const trn = v => String(v ?? "").toLocaleLowerCase("tr-TR").normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/ı/g, "i");
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const HOUR = 3600000, DAY = 24 * HOUR;
+const sod = (t = Date.now()) => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
+const atHour = (dayOffset, h = 17, m = 0) => { const d = new Date(sod() + dayOffset * DAY); d.setHours(h, m, 0, 0); return d.getTime(); };
+const hm = t => new Date(t).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+function dayLabel(t) {
+  const d = Math.round((sod(t) - sod()) / DAY);
+  if (d === 0) return "Bugün"; if (d === 1) return "Yarın"; if (d === -1) return "Dün";
+  if (d > 1 && d < 7) return new Date(t).toLocaleDateString("tr-TR", { weekday: "long" });
+  return new Date(t).toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
+}
+const when = t => `${dayLabel(t)} ${hm(t)}`;
+function ago(t) {
+  const m = Math.round((Date.now() - t) / 60000);
+  if (m < 1) return "şimdi"; if (m < 60) return `${m} dk önce`; const h = Math.round(m / 60); if (h < 24) return `${h} sa önce`; return dayLabel(t);
+}
+const plural = (n, w) => `${n} ${w}`;
+const clock = from => { const s = Math.max(0, Math.floor((Date.now() - from) / 1000)); return [Math.floor(s / 3600), Math.floor(s / 60) % 60, s % 60].map(x => String(x).padStart(2, "0")).join(":"); };
+
+/* çizgi ikonları: tek set, 24px ızgara; yazının yanında anlam taşır, tek başına değil */
+const P = {
+  home: '<path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/>',
+  list: '<path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  chat: '<path d="M4 5h16v11H9l-5 4z"/>',
+  menu: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+  bell: '<path d="M6 8a6 6 0 1112 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 20a2 2 0 004 0"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7"/>',
+  x: '<path d="M6 6l12 12M18 6L6 18"/>',
+  chev: '<path d="M9 6l6 6-6 6"/>', back: '<path d="M15 5l-7 7 7 7"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/>',
+  users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0"/><path d="M16 4.5a3.5 3.5 0 010 7M18 14a6 6 0 013.5 6"/>',
+  box: '<path d="M3 7.5L12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5l9 4.5 9-4.5M12 12v9"/>',
+  camera: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+  mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v3"/>',
+  alert: '<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/>',
+  bolt: '<path d="M13 3L5 13.5h6L10 21l9-11h-6z"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>',
+  play: '<path d="M7 5l12 7-12 7z"/>',
+  pause: '<path d="M8 5v14M16 5v14"/>',
+  send: '<path d="M4 12l16-8-6 16-3-7z"/>',
+  flow: '<rect x="3" y="4" width="6" height="5" rx="1.5"/><rect x="15" y="4" width="6" height="5" rx="1.5"/><rect x="9" y="15" width="6" height="5" rx="1.5"/><path d="M9 6.5h6M6 9v3a3 3 0 003 3M18 9v3a3 3 0 01-3 3"/>',
+  chart: '<path d="M5 20V10M12 20V4M19 20v-7"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
+  eye: '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  link: '<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>',
+  truck: '<path d="M3 6h11v10H3zM14 9h4l3 3v4h-7"/><circle cx="7" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/>',
+  undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-3"/>',
+  spark: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M6 18l2.5-2.5M15.5 8.5L18 6"/>',
+  type: '<path d="M4 7V5h16v2M9 19h6M12 5v14"/>',
+  wifi: '<path d="M2 8.5a15 15 0 0120 0M5 12a10 10 0 0114 0M8.5 15.5a5 5 0 017 0"/><path d="M12 19h.01"/>',
+  cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  flag: '<path d="M5 21V4M5 4h12l-2 4 2 4H5"/>',
+  pen: '<path d="M4 20h4L19 9l-4-4L4 16z"/>',
+  money: '<rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>',
+  doc: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/>',
+  phone: '<path d="M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/>',
+  moon: '<path d="M20 14.5A8 8 0 019.5 4a8 8 0 1010.5 10.5z"/>',
+  hand: '<path d="M8 13V6a1.5 1.5 0 013 0v5M11 11V4.5a1.5 1.5 0 013 0V11M14 11V6a1.5 1.5 0 013 0v7c0 4-2.5 7-6.5 7-3 0-4.5-1.5-6-4L3 13.5a1.5 1.5 0 012.5-1.5L8 15"/>',
+  arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  up: '<path d="M6 15l6-6 6 6"/>', down: '<path d="M6 9l6 6 6-6"/>',
+  trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
+};
+const ic = (n, cls = "") => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n] || ""}</svg>`;
+
+const AVC = ["#4f46e5", "#c2410c", "#0f766e", "#7c3aed", "#be185d", "#b45309", "#1d4ed8", "#15803d", "#0e7490"];
+const initials = n => n.split(" ").map(w => w[0]).slice(0, 2).join("").toLocaleUpperCase("tr-TR");
+const avatar = (p, cls = "") => p ? `<span class="av ${cls}" style="background:${AVC[[...p.id].reduce((a, c) => a + c.charCodeAt(0), 0) % AVC.length]}" aria-hidden="true">${esc(initials(p.name))}</span>` : "";
+
+/* ---------- durum ---------- */
+const KEY = "wf-v5";
+let S = null;
+const R = { tab: "today", stack: [], lastKey: "", focusNext: true, sheet: null, filter: "aktif", jobView: "liste", q: "", flowView: null, chatOpenMsg: null };
+
+function fresh() {
+  return { v: 1, phase: "welcome", me: "", biz: { name: "", sector: "" }, people: [], groups: WF.DEFAULT_GROUPS, flows: {}, jobs: [], customers: [], threads: [], notices: [],
+    prefs: { theme: "system", size: "m", contrast: "normal", motion: "on", bold: false, quiet: true, digest: true, notify: { mine: true, issues: true, done: true, chat: true } },
+    offline: false, queue: [], nextNo: 1001, dismissed: [], setup: {} };
+}
+function load() { try { const r = localStorage.getItem(KEY); S = r ? { ...fresh(), ...JSON.parse(r) } : fresh(); } catch { S = fresh(); } }
+let saveT;
+function save() { clearTimeout(saveT); saveT = setTimeout(() => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { /* depolama kapalıysa yine çalışır */ } }, 150); }
+
+/* ---------- kişiler ve yetki ---------- */
+const person = id => S.people.find(p => p.id === id);
+const first = id => person(id)?.name.split(" ")[0] ?? (id === "system" ? "Sistem" : "—");
+const groupOf = id => S.groups.find(g => g.key === person(id)?.group) || S.groups[3];
+const can = (perm, id = S.me) => groupOf(id).perms.includes(perm);
+const home = (id = S.me) => groupOf(id).home;
+const isMgr = (id = S.me) => ["boss", "foreman"].includes(home(id));
+const DEPTS = { yonetim: "Yönetim", olcum: "Keşif ve ölçü", uretim: "Üretim", kaynak: "Kaynak", boya: "Boya", kalite: "Kalite", depo: "Depo", sofor: "Teslimat", montaj: "Montaj", muhasebe: "Muhasebe", servis: "Servis" };
+const loadOf = id => S.jobs.reduce((n, j) => n + (j.status === "open" ? Object.values(j.stages).filter(r => ["ready", "working", "blocked"].includes(r.status) && (r.owner === id)).length : 0), 0);
+
+/* ---------- akış modeli: sıralı liste → motorun grafiği ----------
+   Kullanıcı aşamaları sıralı dizer. "Öncekiyle aynı anda" işaretli aşamalar paralel grup olur.
+   Karar aşamasının "evet" dalı sıradakine, "hayır" dalı seçilen önceki aşamaya döner (döngü). */
+const KINDS = {
+  task: { n: "İş", d: "Birinin yapacağı iş", ic: "box" },
+  approval: { n: "Onay", d: "Kontrol edip onaylar", ic: "check" },
+  decision: { n: "Karar", d: "Evet/hayır; hayırda geri döner", ic: "flow" },
+  appointment: { n: "Randevu", d: "Keşif, ölçü, saha ziyareti", ic: "cal" },
+  wait: { n: "Dışarıyı bekle", d: "Tedarikçi, müşteri", ic: "clock" },
+  timer: { n: "Süre bekle", d: "Kuruma, dinlenme; kendiliğinden geçer", ic: "clock" },
+  delivery: { n: "Teslimat", d: "İmza ve fotoğrafla teslim", ic: "truck" },
+  invoice: { n: "Fatura", d: "Fatura kesilir (e-Fatura hazır)", ic: "doc" },
+  payment: { n: "Tahsilat", d: "Ödeme alınır, link gönderilir", ic: "money" },
+  notify: { n: "Müşteriye bilgi", d: "Otomatik mesaj gider, beklemez", ic: "send" },
+};
+function toFlow(m) {
+  const groups = [];
+  m.steps.forEach((s, i) => { if (s.par && i && groups.length && m.steps[i - 1].kind !== "decision" && s.kind !== "decision") groups.at(-1).push(s); else groups.push([s]); });
+  const stages = [];
+  groups.forEach((g, gi) => {
+    const nxt = groups[gi + 1] || [];
+    for (const s of g) {
+      const st = { key: s.key, name: s.name, kind: s.kind, assign: s.assign, next: s.kind === "decision" ? [] : nxt.map(x => x.key), checklist: s.checklist || [], photoRequired: !!s.photo,
+        signatureRequired: s.kind === "delivery", slaMinutes: s.sla ? s.sla * 60 : undefined, timerMinutes: s.kind === "timer" ? (s.timer || 12) * 60 : undefined, publicName: s.pub || s.name, messageTemplate: s.kind === "notify" ? "asama_bilgi" : undefined };
+      if (s.kind === "decision") st.branches = [{ id: "evet", label: s.yes || "Uygun", to: nxt[0]?.key || s.key }, { id: "hayir", label: s.no || "Uygun değil", to: s.back || m.steps[0].key }];
+      stages.push(st);
+    }
+  });
+  return { id: m.id, version: m.version || 1, name: m.name, icon: m.icon || "flow", stages, start: groups[0] ? groups[0].map(s => s.key) : [], fields: m.fields || [], rules: m.rules || [], prefs: { notifyCustomer: true, customerCanSee: true, allowSendBack: true }, hidden: !!m.hidden, model: m };
+}
+function modelErrors(m) {
+  const e = [];
+  if (!m.name.trim()) e.push("Akışa bir ad ver.");
+  if (!m.steps.length) e.push("En az bir aşama ekle.");
+  m.steps.forEach((s, i) => {
+    if (!s.name.trim()) e.push(`${i + 1}. aşamanın adı boş.`);
+    if (s.kind === "decision" && i === m.steps.length - 1) e.push(`"${s.name || "Karar"}" son aşama olamaz; evet dalı bir sonrakine gider.`);
+    if (s.kind === "decision" && m.steps[i + 1]?.par) e.push(`"${s.name}" kararından sonra aynı anda yürüyen aşama olamaz.`);
+    if (s.kind === "decision" && s.back && m.steps.findIndex(x => x.key === s.back) >= i) e.push(`"${s.name}": hayır dalı yalnızca önceki bir aşamaya dönebilir.`);
+    if (!s.assign || (s.assign.mode === "dept" && !s.assign.dept)) e.push(`"${s.name}" için kimin yapacağını seç.`);
+  });
+  if (!e.length) e.push(...WF.validateFlow(toFlow(m)));
+  return e;
+}
+
+/* ---------- motor bağlantısı ---------- */
+function resolver(st, job) {
+  const a = st.assign || {};
+  if (a.mode === "person" && a.person) return { owner: a.person, crew: [a.person] };
+  if (a.mode === "creator") return { owner: job.createdBy, crew: [job.createdBy] };
+  const pool = S.people.filter(p => (p.depts || []).includes(a.dept) && p.joined !== false);
+  const pick = pool.sort((x, y) => loadOf(x.id) - loadOf(y.id))[0] || S.people.find(p => home(p.id) === "foreman") || S.people.find(p => home(p.id) === "boss");
+  return pick ? { owner: pick.id, crew: [pick.id] } : { owner: null, crew: [] };
+}
+const ctx = (by = S.me) => ({ now: Date.now(), by, resolve: resolver });
+const flowOf = j => S.flows[j.flowId];
+const jobById = id => S.jobs.find(j => j.id === id);
+const stageDef = (j, k) => flowOf(j).stages.find(s => s.key === k);
+
+function threadFor(job) {
+  let t = S.threads.find(x => x.kind === "job" && x.jobId === job.id);
+  if (!t) { t = { id: "t" + job.id, kind: "job", jobId: job.id, msgs: [], read: {} }; S.threads.push(t); }
+  return t;
+}
+const sysMsg = (job, text, at = Date.now()) => threadFor(job).msgs.push({ id: uid(), by: "system", at, kind: "sys", text });
+function notify(to, text, jobId, kind = "mine") { S.notices.unshift({ id: uid(), to, text, jobId, at: Date.now(), read: false, kind }); S.notices.length = Math.min(S.notices.length, 150); }
+
+function onEvents(events, job) {
+  const f = flowOf(job);
+  for (const e of events) {
+    const st = e.stageKey ? f.stages.find(s => s.key === e.stageKey) : null;
+    if (e.type === "stage.ready" && e.owner) { notify(e.owner, `${job.title}: ${st.name} sana düştü`, job.id); if (job.flowId !== "_task") sysMsg(job, `${st.name} başladı · ${first(e.owner)} bilgilendirildi`); }
+    if (e.type === "stage.completed" && e.by !== "system" && job.flowId !== "_task") sysMsg(job, `${first(e.by)} ${st.name} aşamasını bitirdi${e.choice ? ` · ${st.branches.find(b => b.id === e.choice).label}` : ""}`);
+    if (e.type === "stage.blocked") { for (const p of S.people.filter(x => isMgr(x.id))) notify(p.id, `${job.title}: sorun · ${e.issue}`, job.id, "issues"); sysMsg(job, `Sorun bildirildi: ${e.issue}`); }
+    if (e.type === "job.completed") { notify(job.createdBy, `${job.title} tamamlandı`, job.id, "done"); if (job.flowId !== "_task") sysMsg(job, "İş tamamlandı"); }
+    if (e.type === "message.requested") sysMsg(job, `Müşteriye WhatsApp mesajı gitti: "${job.title} · ${st ? st.publicName || st.name : "durum"}" (deneme)`);
+    if (e.type === "invoice.requested") sysMsg(job, "Fatura taslağı hazırlandı; e-Fatura bağlanınca otomatik kesilir");
+    if (e.type === "payment.requested") sysMsg(job, "Tahsilat bekleniyor; ödeme linki müşteriye gönderilebilir");
+    if (e.type === "notify") notify(e.to.startsWith("role:") ? S.people.find(p => home(p.id) === "boss")?.id : e.to, e.text, job.id);
+  }
+  if (S.offline) S.queue.push(...events.map(e => ({ type: e.type, jobId: job.id, at: e.at })));
+}
+
+/* her değişiklik: anlık görüntü → uygula → geri alınabilir bildirim */
+let undoSnap = null;
+function snapshot() { return JSON.stringify({ jobs: S.jobs, notices: S.notices, threads: S.threads, queue: S.queue, nextNo: S.nextNo, people: S.people }); }
+function act(fn, msg, opts = {}) {
+  const snap = snapshot();
+  try {
+    const out = fn();
+    save();
+    undoSnap = opts.noUndo ? null : snap;
+    render();
+    if (msg) toast(typeof msg === "function" ? msg(out) : msg, opts.sub ? (typeof opts.sub === "function" ? opts.sub(out) : opts.sub) : "", !opts.noUndo);
+    return out;
+  } catch (e) {
+    toast("Olmadı", e && e.message ? e.message : String(e), false, true);
+    return null;
+  }
+}
+function undo() { if (!undoSnap) return; Object.assign(S, JSON.parse(undoSnap)); undoSnap = null; save(); render(); toast("Geri alındı", "", false); }
+
+function commit(r) {
+  const i = S.jobs.findIndex(j => j.id === r.job.id);
+  if (i >= 0) S.jobs[i] = r.job; else S.jobs.unshift(r.job);
+  onEvents(r.events, r.job);
+  return r.job;
+}
+const cmd = {
+  create(flowId, input) {
+    const f = S.flows[flowId];
+    const j = commit(WF.createJob(f, { id: uid(), businessId: "local", number: S.nextNo++, ...input }, ctx()));
+    if (j.flowId !== "_task") sysMsg(j, `${first(S.me)} işi açtı`);
+    return j;
+  },
+  task({ title, who, due, note, steps, urgent }) {
+    return who.map(w => {
+      const data = {}; if (note) data.not = note; if (steps?.length) data.adimlar = steps.join("\n");
+      const r = WF.createJob(S.flows._task, { id: uid(), businessId: "local", number: S.nextNo++, title, due, data, urgent: !!urgent }, { ...ctx(), resolve: () => ({ owner: w, crew: [w] }) });
+      r.job.stages.gorev.checks = (steps || []).map(() => false);
+      return commit(r);
+    });
+  },
+  start: (id, k) => commit(WF.startStage(jobById(id), flowOf(jobById(id)), k, ctx())),
+  done: (id, k, o = {}) => commit(WF.completeStage(jobById(id), flowOf(jobById(id)), k, ctx(), o)),
+  check(id, k, i) { const j = WF.toggleCheck(jobById(id), k, i); S.jobs[S.jobs.findIndex(x => x.id === id)] = j; return j; },
+  photo(id, k) { const j = WF.addPhoto(jobById(id), k); S.jobs[S.jobs.findIndex(x => x.id === id)] = j; return j; },
+  issue: (id, k, type, note) => commit(WF.reportIssue(jobById(id), flowOf(jobById(id)), k, type, note, ctx())),
+  resolve: (id, k) => { const j = commit(WF.resolveIssue(jobById(id), k, ctx())); sysMsg(j, `${first(S.me)} sorunu çözdü`); return j; },
+  back: (id, from, to, note) => commit(WF.sendBack(jobById(id), flowOf(jobById(id)), from, to, note, ctx())),
+  hold: (id, why) => commit(WF.holdJob(jobById(id), why, ctx())),
+  resume: id => commit(WF.resumeJob(jobById(id), ctx())),
+  cancel: (id, why) => commit(WF.cancelJob(jobById(id), why, ctx())),
+  reassign(id, k, to) {
+    const j = jobById(id), r = j.stages[k], from = r.owner;
+    r.owner = to; r.crew = [to]; j.log.push({ at: Date.now(), by: S.me, text: `${stageDef(j, k).name}: ${first(from)} → ${first(to)}` , stageKey: k });
+    notify(to, `${j.title}: ${stageDef(j, k).name} sana verildi`, id); if (j.flowId !== "_task") sysMsg(j, `${first(S.me)} ${stageDef(j, k).name} aşamasını ${first(to)}'a verdi`);
+    return j;
+  },
+  tick() {
+    let changed = false;
+    for (const j of S.jobs) if (j.status === "open") for (const s of WF.activeStages(j, flowOf(j))) {
+      const r = j.stages[s.key];
+      if (s.kind === "timer" && r.status === "working" && (r.dueAt || Infinity) <= Date.now()) { commit(WF.fireTimer(j, flowOf(j), s.key, ctx("system"))); changed = true; }
+    }
+    if (changed) { save(); render(); }
+  },
+};
+
+/* ---------- okuma yardımcıları ---------- */
+const openJobs = () => S.jobs.filter(j => j.status === "open" || j.status === "on_hold");
+const isTask = j => j.flowId === "_task";
+const active = j => j.status === "open" ? WF.activeStages(j, flowOf(j)) : [];
+const late = j => WF.isLate(j, Date.now());
+const blockedSt = j => active(j).filter(s => j.stages[s.key].status === "blocked");
+const waitingApproval = j => active(j).filter(s => ["approval", "decision"].includes(s.kind) && j.stages[s.key].status === "ready");
+function myWork(id = S.me) {
+  const out = [];
+  for (const j of S.jobs) if (j.status === "open") for (const s of WF.activeStages(j, flowOf(j))) {
+    const r = j.stages[s.key];
+    if (r.owner === id || r.crew.includes(id)) out.push({ j, s, r });
+  }
+  const rank = x => (x.r.status === "working" ? 0 : x.r.status === "blocked" ? 1 : 2) * 1e14 + (x.j.urgent ? 0 : 5e13) + x.j.due;
+  return out.sort((a, b) => rank(a) - rank(b));
+}
+function jobState(j) {
+  if (j.status === "done") return { l: "Bitti", c: "ok", i: "check" };
+  if (j.status === "cancelled") return { l: "İptal edildi", c: "", i: "x" };
+  if (j.status === "on_hold") return { l: "Bekletiliyor", c: "warn", i: "pause" };
+  const a = active(j);
+  if (blockedSt(j).length) return { l: "Sorun var", c: "bad", i: "alert" };
+  const w = a.find(s => j.stages[s.key].status === "working");
+  if (w) return { l: `${w.name} · çalışılıyor`, c: "acc", i: null, live: true };
+  const first0 = a[0];
+  if (!first0) return { l: "Açık", c: "", i: "clock" };
+  if (["approval", "decision"].includes(first0.kind)) return { l: `${first0.name} · onay bekliyor`, c: "warn", i: "clock" };
+  if (first0.kind === "timer") return { l: `${first0.name} · süre bekleniyor`, c: "", i: "clock" };
+  return { l: `${first0.name} · sırada`, c: "", i: "clock" };
+}
+const pill = st => `<span class="pill ${st.c}">${st.live ? '<span class="dot live" aria-hidden="true"></span>' : st.i ? ic(st.i) : ""}${esc(st.l)}</span>`;
+const unread = () => S.notices.filter(n => !n.read && n.to === S.me).length;
+const threadUnread = t => t.msgs.filter(m => m.by !== S.me && m.kind !== "sys" && m.at > (t.read?.[S.me] || 0)).length;
+const visibleThreads = () => S.threads.filter(t => t.kind !== "job" || (() => { const j = jobById(t.jobId); return j && (isMgr() || Object.values(j.stages).some(r => r.owner === S.me || r.crew.includes(S.me)) || j.createdBy === S.me); })())
+  .filter(t => t.kind !== "dm" || t.members.includes(S.me));
+
+/* ---------- akış şablonları (kullanıcı modeli) ---------- */
+const D = dept => ({ mode: "dept", dept });
+const MODELS = {
+  metal: { id: "metal", name: "Metal imalat", icon: "flow", fields: [
+      { key: "renk", label: "Boya rengi", type: "select", options: ["Antrasit", "Siyah", "Beyaz", "Galvaniz"], requiredAt: "boya" },
+      { key: "olcu", label: "Ölçü notu", type: "text" }],
+    steps: [
+      { key: "olcum", name: "Keşif ve ölçü", kind: "appointment", assign: D("olcum"), checklist: ["Ölçüler alındı", "Yerinde fotoğraf çekildi"], sla: 4 },
+      { key: "kontrol", name: "Ölçü uygun mu?", kind: "decision", assign: D("olcum"), yes: "Uygun", no: "Müşteriye dön, yeniden ölç", back: "olcum" },
+      { key: "kesim", name: "Kesim", kind: "task", assign: D("uretim"), sla: 6 },
+      { key: "kaynak", name: "Kaynak", kind: "task", assign: D("kaynak"), photo: true, sla: 7 },
+      { key: "aksesuar", name: "Aksesuar hazırlığı", kind: "task", assign: D("depo"), par: true },
+      { key: "boya", name: "Boya", kind: "task", assign: D("boya"), sla: 6 },
+      { key: "kuruma", name: "Boya kuruması", kind: "timer", assign: D("boya"), timer: 12 },
+      { key: "kalite", name: "Kalite kontrol", kind: "approval", assign: D("kalite"), checklist: ["Ölçü toleransta", "Kaynak dikişleri temiz", "Boya homojen"] },
+      { key: "bilgi", name: "Müşteriye hazır bilgisi", kind: "notify", assign: D("yonetim"), pub: "Siparişiniz hazır" },
+      { key: "teslim", name: "Teslimat", kind: "delivery", assign: D("sofor") },
+      { key: "fatura", name: "Fatura", kind: "invoice", assign: D("muhasebe") },
+      { key: "tahsilat", name: "Tahsilat", kind: "payment", assign: D("muhasebe") },
+    ] },
+  servis: { id: "servis", name: "Montaj ve servis", icon: "truck", fields: [
+      { key: "cihaz", label: "Cihaz / model", type: "text", requiredAt: "create" },
+      { key: "adres", label: "Adres", type: "text" }],
+    steps: [
+      { key: "randevu", name: "Randevu ve keşif", kind: "appointment", assign: D("montaj") },
+      { key: "montaj", name: "Montaj", kind: "task", assign: { mode: "previous" }, photo: true, checklist: ["Cihaz sabitlendi", "Test çalıştırması yapıldı", "Alan temizlendi"] },
+      { key: "onay", name: "Müşteri onayı", kind: "delivery", assign: { mode: "previous" } },
+      { key: "fatura", name: "Fatura", kind: "invoice", assign: D("muhasebe") },
+    ] },
+  genel: { id: "genel", name: "Genel iş", icon: "list", fields: [],
+    steps: [
+      { key: "hazirlik", name: "Hazırlık", kind: "task", assign: D("uretim") },
+      { key: "is", name: "İşin yapılması", kind: "task", assign: { mode: "previous" } },
+      { key: "kontrol", name: "Kontrol", kind: "approval", assign: D("yonetim") },
+    ] },
+};
+const TASK_FLOW = () => ({ ...WF.QUICK_TASK_FLOW, stages: [{ ...WF.QUICK_TASK_FLOW.stages[0], assign: { mode: "creator" } }] });
+
+function seedDemo() {
+  S = fresh();
+  S.phase = "app"; S.biz = { name: "Demirtaş Metal", sector: "uretim" }; S.me = "selim";
+  S.people = [
+    { id: "selim", name: "Selim Demirtaş", title: "Patron", group: "patron", depts: ["yonetim"], phone: "0532 410 20 30" },
+    { id: "kadir", name: "Kadir Öztürk", title: "Ustabaşı", group: "ustabasi", depts: ["kalite"], phone: "0533 220 14 55" },
+    { id: "murat", name: "Murat Kaya", title: "Keşif ve ölçü", group: "calisan", depts: ["olcum"] },
+    { id: "emre", name: "Emre Yıldız", title: "Kesim ve montaj", group: "calisan", depts: ["uretim", "montaj"] },
+    { id: "huseyin", name: "Hüseyin Arslan", title: "Kaynak ustası", group: "calisan", depts: ["kaynak"] },
+    { id: "okan", name: "Okan Yalçın", title: "Kaynak", group: "calisan", depts: ["kaynak", "uretim"] },
+    { id: "cem", name: "Cem Yavuz", title: "Boyacı", group: "calisan", depts: ["boya"] },
+    { id: "yusuf", name: "Yusuf Ekinci", title: "Depo", group: "calisan", depts: ["depo"] },
+    { id: "mehmet", name: "Mehmet Doğan", title: "Şoför", group: "sofor", depts: ["sofor"] },
+    { id: "ayse", name: "Ayşe Tunç", title: "Muhasebe", group: "yonetici", depts: ["muhasebe"] },
+  ];
+  S.flows = { metal: toFlow(MODELS.metal), servis: toFlow(MODELS.servis), _task: TASK_FLOW() };
+  S.customers = [
+    { id: "c1", name: "Kaya İnşaat", contact: "Levent Kaya", phone: "0216 555 10 20" },
+    { id: "c2", name: "Yıldız Sitesi Yönetimi", contact: "Aysel Hanım", phone: "0532 600 11 22" },
+    { id: "c3", name: "Öztürk Makine", contact: "Barış Öztürk", phone: "0262 333 44 55" },
+    { id: "c4", name: "Defne Aksoy", contact: "", phone: "0541 222 33 44" },
+    { id: "c5", name: "Can Erdem", contact: "", phone: "0505 111 22 33" },
+  ];
+  const now = Date.now();
+  const at = (by, agoMs) => ({ now: now - agoMs, by, resolve: resolver });
+  const add = (flowId, title, customerName, dueIn, extra = {}, agoMs = 5 * DAY) => {
+    const r = WF.createJob(S.flows[flowId], { id: "d" + S.nextNo, businessId: "local", number: S.nextNo++, title, customerName, due: atHour(dueIn), ...extra }, at("selim", agoMs));
+    S.jobs.unshift(r.job); onEvents(r.events, r.job); sysMsg(r.job, "Selim işi açtı", now - agoMs); return r.job.id;
+  };
+  const step = (id, k, by, agoMs, o = {}) => {
+    let j = jobById(id); j.stages[k].checks = j.stages[k].checks.map(() => true);
+    if (stageDef(j, k).photoRequired && !j.stages[k].photos) j.stages[k].photos = 1;
+    const r = WF.completeStage(j, flowOf(j), k, at(by, agoMs), o); S.jobs[S.jobs.findIndex(x => x.id === id)] = r.job; onEvents(r.events, r.job);
+  };
+  const begin = (id, k, by, agoMs) => { const j = jobById(id); const r = WF.startStage(j, flowOf(j), k, at(by, agoMs)); S.jobs[S.jobs.findIndex(x => x.id === id)] = r.job; };
+
+  const a = add("metal", "Metal konstrüksiyon · 24 profil", "Kaya İnşaat", 3, { amount: WF.tl(186000), qty: 24, unit: "profil", customerId: "c1" });
+  step(a, "olcum", "murat", 4 * DAY); step(a, "kontrol", "murat", 4 * DAY - HOUR, { choice: "evet" }); step(a, "kesim", "emre", 2 * DAY); begin(a, "kaynak", "huseyin", 3 * HOUR);
+
+  const b = add("metal", "Çelik kapı · 12 adet", "Yıldız Sitesi Yönetimi", 1, { amount: WF.tl(228000), qty: 12, customerId: "c2" }, 7 * DAY);
+  step(b, "olcum", "murat", 6 * DAY); step(b, "kontrol", "murat", 6 * DAY, { choice: "evet" }); step(b, "kesim", "emre", 5 * DAY); step(b, "kaynak", "okan", 3 * DAY);
+  step(b, "aksesuar", "yusuf", 3 * DAY); step(b, "boya", "cem", 2 * DAY, { data: { renk: "Antrasit" } }); step(b, "kuruma", "cem", DAY);
+
+  const c = add("metal", "Makine parçası · flanş", "Öztürk Makine", 5, { urgent: true, amount: WF.tl(64000), qty: 40, customerId: "c3" }, 3 * DAY);
+  step(c, "olcum", "murat", 2 * DAY); step(c, "kontrol", "murat", 2 * DAY, { choice: "evet" });
+
+  const d = add("metal", "Merdiven korkuluğu · 14 m", "Defne Aksoy", -1, { amount: WF.tl(52000), qty: 14, unit: "m", customerId: "c4" }, 6 * DAY);
+  step(d, "olcum", "murat", 3 * HOUR);
+
+  const e = add("metal", "Bahçe kapısı", "Can Erdem", 6, { amount: WF.tl(38000), customerId: "c5" }, 2 * DAY);
+  step(e, "olcum", "murat", DAY); step(e, "kontrol", "murat", DAY, { choice: "evet" });
+  { const j = jobById(e); const r = WF.reportIssue(j, flowOf(j), "kesim", "Malzeme eksik", "40x40 profil stokta yok, tedarikçi cumartesi diyor", at("emre", 5 * HOUR)); S.jobs[S.jobs.findIndex(x => x.id === e)] = r.job; onEvents(r.events, r.job); }
+
+  add("servis", "Yazlık klima montajı", "Can Erdem", 2, { data: { cihaz: "Daikin 12000 BTU", adres: "Beykoz" }, amount: WF.tl(42000), customerId: "c5" }, DAY);
+
+  const t = WF.createJob(S.flows._task, { id: "dtask", businessId: "local", number: S.nextNo++, title: "Kaya İnşaat'a numune götür", due: atHour(0, 16), data: { not: "Profil numunesi depoda, mavi kasada." } }, { ...at("selim", 2 * HOUR), resolve: () => ({ owner: "mehmet", crew: ["mehmet"] }) });
+  S.jobs.unshift(t.job); onEvents(t.events, t.job);
+
+  S.threads.push(
+    { id: "team", kind: "team", title: "Ekip", members: [], read: {}, msgs: [
+      { id: uid(), by: "kadir", at: now - 26 * HOUR, kind: "text", text: "Yarın 08:30'da kısa iş güvenliği toplantısı, atölye 1." },
+      { id: uid(), by: "cem", at: now - 20 * HOUR, kind: "text", text: "Antrasit boya bitmek üzere, 2 kova kaldı." },
+      { id: uid(), by: "yusuf", at: now - 3 * HOUR, kind: "text", text: "Antrasit siparişi verildi, perşembe gelir." }] },
+    { id: "dm-kadir", kind: "dm", members: ["selim", "kadir"], read: {}, msgs: [
+      { id: uid(), by: "kadir", at: now - 50 * 60000, kind: "text", text: "Bahçe kapısında profil yok, Emre'yi flanşa kaydırayım mı?" }] });
+  const tj = threadFor(jobById(a));
+  tj.msgs.push({ id: uid(), by: "kadir", at: now - 2 * HOUR, kind: "text", text: "@Hüseyin profiller 2 numaralı tezgâhta. 3 numaralı birleşime dikkat, 45 derece." },
+    { id: uid(), by: "huseyin", at: now - 100 * 60000, kind: "text", text: "Tamam usta, öğleden önce başlıyorum." });
+  S.notices.forEach(n => { n.read = n.at < now - 6 * HOUR; });
+}
+
+function seedNew({ me, biz, sector, method }) {
+  S = fresh();
+  S.phase = "app"; S.me = "u1"; S.biz = { name: biz, sector };
+  S.people = [{ id: "u1", name: me, title: "İşletme sahibi", group: "patron", depts: ["yonetim", "uretim", "montaj", "olcum", "kaynak", "boya", "kalite", "depo", "sofor", "muhasebe"], login: method }];
+  const m = sector === "servis" ? MODELS.servis : sector === "uretim" ? MODELS.metal : MODELS.genel;
+  S.flows = { [m.id]: toFlow(JSON.parse(JSON.stringify(m))), _task: TASK_FLOW() };
+  S.threads.push({ id: "team", kind: "team", title: "Ekip", members: [], read: {}, msgs: [] });
+  S.setup = { team: false, job: false, flow: false };
+}
+
+/* ---------- akıllı ekleme: tek cümleden görev ya da iş ----------
+   "Murat yarın 10'da Kaya İnşaat'a numune götürsün, acil"
+   → kime: Murat · ne zaman: yarın 10:00 · müşteri: Kaya İnşaat · acil · başlık: Kaya İnşaat'a numune götürsün */
+const WEEK = ["pazar", "pazartesi", "sali", "carsamba", "persembe", "cuma", "cumartesi"];
+function parseSmart(text) {
+  const raw = text.trim(), n = " " + trn(raw) + " ", cut = [];
+  const out = { who: [], dueDay: null, hour: null, minute: 0, urgent: false, customer: null, flowId: null, title: "" };
+  for (const p of S.people) {
+    const f = trn(p.name.split(" ")[0]);
+    const re = new RegExp(`(^|[\\s,])(${f})(['’]?[a-zçğıöşü]{0,4})?(?=[\\s,.!]|$)`, "i");
+    const m = n.match(re); if (m && p.id !== S.me) { out.who.push(p.id); cut.push(m[2] + (m[3] || "")); }
+  }
+  if (/\bacil\b/.test(n)) { out.urgent = true; cut.push("acil"); }
+  const rel = [[/\bbugun\b/, 0, "bugun"], [/\byarin\b/, 1, "yarin"], [/\b(obur|ertesi) gun\b/, 2, null], [/\bhaftaya\b/, 7, "haftaya"]];
+  for (const [re, d] of rel) { const m = n.match(re); if (m) { out.dueDay = d; cut.push(m[0]); break; } }
+  if (out.dueDay == null) { const m = n.match(/\b(\d{1,2}) gun (sonra|icinde)\b/); if (m) { out.dueDay = +m[1]; cut.push(m[0]); } }
+  if (out.dueDay == null) WEEK.forEach((w, i) => { if (out.dueDay == null) { const m = n.match(new RegExp(`\\b${w}(ye|ya|a|e|gunu)?\\b`)); if (m) { out.dueDay = ((i - new Date().getDay() + 7) % 7) || 7; cut.push(m[0]); } } });
+  if (/\bbu hafta\b/.test(n) && out.dueDay == null) { out.dueDay = Math.max(1, 5 - new Date().getDay()); cut.push("bu hafta"); }
+  let m = n.match(/\b(\d{1,2})[:.](\d{2})(['’]?(da|de|ta|te))?\b/);
+  if (m && +m[1] < 24) { out.hour = +m[1]; out.minute = +m[2]; cut.push(m[0]); }
+  else { m = n.match(/\b(saat )?(\d{1,2})['’]?(da|de|ta|te)\b/); if (m && +m[2] < 24) { out.hour = +m[2]; cut.push(m[0]); } }
+  for (const c of S.customers) { const k = trn(c.name.split(" ")[0]); if (k.length >= 3 && n.includes(" " + k)) { out.customer = c; break; } }
+  const flowHints = [["servis", /\b(klima|montaj|servis|kombi|tamir|bakim)\b/], ["metal", /\b(kapi|korkuluk|konstruksiyon|imalat|uretim|profil|flans|sac)\b/]];
+  for (const [id, re] of flowHints) if (S.flows[id] && re.test(n)) { out.flowId = id; break; }
+  // başlık: çıkarılan parçalar silinir, ilk harf büyür
+  let t = " " + raw + " ";
+  for (const c of cut) { const re = new RegExp(`(^|[\\s,])${c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/i/g, "[iıİI]").replace(/u/g, "[uü]").replace(/o/g, "[oö]").replace(/c/g, "[cç]").replace(/s/g, "[sş]").replace(/g/g, "[gğ]")}(?=[\\s,.!]|$)`, "i"); t = t.replace(re, "$1"); }
+  t = t.replace(/\s+/g, " ").replace(/^[\s,.-]+|[\s,.-]+$/g, "").replace(/\s+,/g, ",");
+  out.title = t ? t.charAt(0).toLocaleUpperCase("tr-TR") + t.slice(1) : "";
+  out.due = out.dueDay == null && out.hour == null ? null : atHour(out.dueDay ?? 0, out.hour ?? 17, out.minute);
+  out.kind = out.flowId && out.customer ? "job" : "task";
+  return out;
+}
+
+/* ---------- öneriler: sistem sorunu görür, çözümü önerir, tek dokunuşla uygular ---------- */
+function suggestions() {
+  const out = [], seen = new Set(S.dismissed || []);
+  // 1) yük dengesi: aynı departmanda biri dolu, biri boş
+  const workers = S.people.filter(p => !isMgr(p.id) && p.joined !== false);
+  for (const busy of workers) {
+    const mine = myWork(busy.id).filter(x => x.r.status === "ready" && !isTask(x.j));
+    if (loadOf(busy.id) < 2 || !mine.length) continue;
+    for (const x of mine) {
+      const dept = x.s.assign?.dept;
+      const idle = workers.find(p => p.id !== busy.id && (p.depts || []).includes(dept) && loadOf(p.id) === 0);
+      if (!idle) continue;
+      const id = `load:${x.j.id}:${x.s.key}:${idle.id}`;
+      if (!seen.has(id)) out.push({ id, tone: "acc", ic: "users", title: `${first(busy.id)}'in önünde ${loadOf(busy.id)} iş var, ${first(idle.id)} boşta`, body: `${x.s.name} · ${x.j.title} işini ${first(idle.id)}'a verirsen ${dayLabel(x.j.due)} termini rahatlar.`, apply: { label: `${first(idle.id)}'a ver`, do: () => cmd.reassign(x.j.id, x.s.key, idle.id), msg: `${x.s.name} ${first(idle.id)}'a verildi` } });
+      break;
+    }
+  }
+  // 2) termin riski: termin 24 saat içinde ya da geçmiş, ilerleme düşük
+  for (const j of openJobs()) {
+    if (isTask(j) || j.status !== "open") continue;
+    const pct = WF.progress(j), left = j.due - Date.now();
+    if ((left < DAY && pct < 70) || left < 0) {
+      const id = `risk:${j.id}`;
+      if (seen.has(id) || j.urgent) continue;
+      out.push({ id, tone: "bad", ic: "alert", title: left < 0 ? `${j.title} termini geçti` : `${j.title} termine yetişmeyebilir`, body: `İş %${pct} bitti, termin ${when(j.due)}. Acil işaretlersen ekibin listesinde en üste çıkar.`,
+        apply: { label: "Acil işaretle", do: () => { j.urgent = true; j.log.push({ at: Date.now(), by: S.me, text: "Acil işaretlendi" }); active(j).forEach(s => j.stages[s.key].owner && notify(j.stages[s.key].owner, `${j.title} acil işaretlendi`, j.id)); }, msg: "Acil işaretlendi" },
+        alt: { label: "Müşteriye haber ver", do: () => sysMsg(j, `Müşteriye mesaj gitti: "${j.title} için yeni tahmini teslim ${dayLabel(j.due + 2 * DAY)}" (deneme)`), msg: "Müşteriye haber verildi" } });
+    }
+  }
+  // 3) bekleyen onay: 2 saatten uzun
+  for (const j of openJobs()) for (const s of waitingApproval(j)) {
+    const r = j.stages[s.key], id = `wait:${j.id}:${s.key}:${r.visits}`;
+    if (seen.has(id) || Date.now() - (r.readyAt || 0) < 2 * HOUR || r.owner === S.me) continue;
+    out.push({ id, tone: "warn", ic: "clock", title: `${s.name} ${Math.round((Date.now() - r.readyAt) / HOUR)} saattir bekliyor`, body: `${j.title} · onay ${first(r.owner)}'da.`, apply: { label: `${first(r.owner)}'a hatırlat`, do: () => notify(r.owner, `Hatırlatma: ${j.title} · ${s.name} onayını bekliyor`, j.id), msg: `${first(r.owner)}'a hatırlatıldı` } });
+  }
+  return out.slice(0, 3);
+}
+
+/* ---------- ortak parçalar ---------- */
+const greet = () => { const h = new Date().getHours(); return h < 6 ? "İyi geceler" : h < 12 ? "Günaydın" : h < 18 ? "İyi günler" : "İyi akşamlar"; };
+const today = () => new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" });
+function head(eyebrow, title, right = "") {
+  return `<header class="top"><div><p class="eyebrow">${eyebrow}</p><h1 tabindex="-1">${title}</h1></div>${right}</header>`;
+}
+const bellBtn = () => { const n = unread(); return `<button class="x" style="background:var(--surface);border:1px solid var(--line);border-radius:var(--r);position:relative" data-a="notices" aria-label="Bildirimler${n ? `, ${n} okunmamış` : ""}">${ic("bell")}${n ? `<span class="badge" style="position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;border-radius:10px;background:var(--bad);color:#fff;font-size:.6875rem;font-weight:800;display:grid;place-items:center;border:2px solid var(--bg)">${n}</span>` : ""}</button>`; };
+const offlineBar = () => S.offline ? `<div class="offline" role="status">${ic("wifi")}<span>İnternet yok. Çalışmaya devam edebilirsin; ${S.queue.length ? `${S.queue.length} değişiklik` : "değişiklikler"} bağlantı gelince gönderilecek.</span></div>` : "";
+
+function jobRow(j) {
+  const st = jobState(j), p = WF.progress(j), lt = late(j);
+  return `<button class="job" data-a="job" data-id="${j.id}" aria-label="${esc(j.title)}, ${esc(st.l)}${lt ? ", gecikti" : ""}">
+    <span class="job-h"><span class="t">${esc(j.title)}</span><span class="no">#${j.number}</span></span>
+    <span class="s">${isTask(j) ? `Görev · ${esc(first(active(j)[0] ? j.stages[active(j)[0].key].owner : j.createdBy))}` : esc(j.customerName)} · Termin ${esc(dayLabel(j.due))}</span>
+    ${isTask(j) ? "" : `<span class="prog ${lt || st.c === "bad" ? "bad" : j.status === "done" ? "ok" : ""}" role="progressbar" aria-label="İlerleme" aria-valuenow="${p}" aria-valuemin="0" aria-valuemax="100"><i style="width:${p}%"></i></span>`}
+    <span class="st">${pill(st)}${lt ? `<span class="pill bad">${ic("clock")}Gecikti</span>` : ""}${j.urgent ? `<span class="pill acc">${ic("flag")}Acil</span>` : ""}${isTask(j) ? "" : `<span class="pct">%${p}</span>`}</span>
+  </button>`;
+}
+
+/* ---------- görev kartı: tek iş, tek ana düğme, neden kapalı olduğu yazılı ---------- */
+const ISSUES = ["Malzeme eksik", "Makine arızası", "Ölçü / çizim hatalı", "Müşteri yerinde yok", "İş güvenliği", "Diğer"];
+function taskCard(j, s, compact) {
+  const r = j.stages[s.key], k = `${j.id}|${s.key}`, mine = r.owner === S.me || r.crew.includes(S.me);
+  const steps = isTask(j) ? String(j.data.adimlar || "").split("\n").filter(Boolean) : s.checklist || [];
+  const sel = R.choice?.[k];
+  const sig = s.kind === "delivery" ? (j.data["_imza_" + s.key] || "") : "";
+  const blockers = WF.blockers(j, flowOf(j), s.key, sel).concat(s.kind === "delivery" && !sig ? ["Teslim alanın imzası ya da adı gerekli"] : []);
+  const by = isTask(j) && j.createdBy !== S.me ? ` · ${first(j.createdBy)} verdi` : "";
+  const label = isTask(j) ? `Görev${by}` : `İş emri #${j.number}`;
+  const status = r.status === "working" ? `<span class="pill acc"><span class="dot live" aria-hidden="true"></span>Çalışıyorsun</span>` : r.status === "blocked" ? `<span class="pill bad">${ic("alert")}Sorun bildirildi</span>` : ["approval", "decision"].includes(s.kind) ? `<span class="pill warn">${ic("clock")}Onayını bekliyor</span>` : `<span class="pill">${ic("clock")}Sırada</span>`;
+  const primaryLabel = s.kind === "decision" ? "Kararı kaydet" : s.kind === "approval" ? "Onayla" : s.kind === "delivery" ? "Teslim edildi" : s.kind === "wait" ? "Geldi, devam" : s.kind === "invoice" ? "Fatura kesildi" : s.kind === "payment" ? "Ödeme alındı" : "İşi bitirdim";
+  const needsStart = r.status === "ready" && ["task", "appointment"].includes(s.kind);
+  let body = "";
+  if (r.status === "blocked") body = `<div class="issue" role="note"><b>${esc(r.issue.type)}</b><span>${esc(r.issue.note || "Not eklenmedi")}</span><span class="xs muted">${esc(first(r.issue.by))} · ${esc(ago(r.issue.at))} · yöneticiler bilgilendirildi</span></div>${isMgr() ? `<button class="btn line block" data-a="resolve" data-k="${k}">${ic("check")}Sorun çözüldü, devam etsin</button>` : ""}`;
+  else if (s.kind === "timer") body = `<div class="note"><b>Süre bekleniyor</b><span>${esc(when(r.dueAt))} bitince kendiliğinden ${esc(nextName(j, s))} aşamasına geçer.</span></div>`;
+  else {
+    const checks = steps.length && !compact ? `<div role="group" aria-label="Kontrol adımları" style="display:grid;gap:8px">${steps.map((t, i) => `<button class="check" role="checkbox" aria-checked="${!!r.checks[i]}" data-a="check" data-k="${k}" data-i="${i}"><span class="bx">${ic("check", "s")}</span><span>${esc(t)}</span></button>`).join("")}</div>` : "";
+    const decision = s.kind === "decision" ? `<div role="radiogroup" aria-label="${esc(s.name)}" class="grid2">${s.branches.map(b => `<button class="chip" role="radio" aria-checked="${sel === b.id}" data-a="choose" data-k="${k}" data-v="${b.id}" style="justify-content:center;min-height:52px;border-radius:var(--r)">${esc(b.label)}</button>`).join("")}</div>${sel === "hayir" ? `<p class="hint">${ic("undo", "s")}İş "${esc(s.branches[1].to && stageDef(j, s.branches[1].to).name)}" aşamasına geri döner, ilgili kişiye haber gider.</p>` : ""}` : "";
+    const delivery = s.kind === "delivery" && !compact ? (sig ? `<div class="note" style="background:var(--ok-soft)"><b>${ic("check", "s")} Teslim alan: ${esc(sig)}</b></div>` : `<button class="btn line block" data-a="sign" data-k="${k}">${ic("pen")}Teslim alanın imzasını al</button>`) : "";
+    const tools = !compact && !["decision", "invoice", "payment"].includes(s.kind) ? `<div class="grid3">
+        <button class="tool" data-a="photo" data-k="${k}">${ic("camera")}${r.photos ? `Fotoğraf · ${r.photos}` : "Fotoğraf"}</button>
+        <button class="tool" data-a="voice" data-k="${k}">${ic("mic")}Sesli not</button>
+        <button class="tool bad" data-a="issue" data-k="${k}">${ic("alert")}Sorun var</button></div>` : "";
+    const timer = r.status === "working" ? `<p class="timer num" data-timer="${r.startedAt}" aria-label="Geçen süre">${clock(r.startedAt)}</p>` : "";
+    const primary = needsStart
+      ? `<button class="btn big block" data-a="start" data-k="${k}">${ic("play")}İşe başla</button>`
+      : `<button class="btn ok big block" data-a="finish" data-k="${k}" ${blockers.length ? `aria-disabled="true" aria-describedby="why-${j.id}-${s.key}"` : ""}>${ic("check")}${primaryLabel}</button>${blockers.length ? `<p class="hint" id="why-${j.id}-${s.key}">${ic("alert", "s")}<span>Bitirmeden önce: ${esc(blockers.join(", ").toLocaleLowerCase("tr-TR"))}.</span></p>` : ""}`;
+    body = `${timer}${checks}${decision}${delivery}${tools}${mine || can("approve") ? primary : `<p class="hint">${ic("user", "s")}Bu aşama ${esc(first(r.owner))}'da.</p>`}`;
+  }
+  return `<article class="task ${r.status}" aria-labelledby="tt-${j.id}-${s.key}">
+    <div class="task-h"><span class="eyebrow">${esc(label)}</span>${status}</div>
+    <div style="display:grid;gap:6px"><h3 id="tt-${j.id}-${s.key}">${esc(isTask(j) ? j.title : `${s.name} · ${j.title}`)}</h3>
+      ${j.data.not ? `<p class="muted">${esc(j.data.not)}</p>` : ""}
+      <p class="facts"><span>${ic("clock", "s")}Termin ${esc(when(j.due))}</span>${j.customerName ? `<span>${ic("user", "s")}${esc(j.customerName)}</span>` : ""}${!isTask(j) ? `<span>${ic("box", "s")}${esc(j.qty)} ${esc(j.unit)}</span>` : ""}${j.urgent ? `<span style="color:var(--accent-ink)">${ic("flag", "s")}Acil</span>` : ""}</p></div>
+    ${body}
+    ${compact ? `<button class="btn ghost" data-a="job" data-id="${j.id}">Ayrıntılar${ic("chev", "s")}</button>` : ""}
+  </article>`;
+}
+function nextName(j, s) { const n = s.next?.[0]; return n ? stageDef(j, n).name : "sonraki"; }
+
+/* ---------- BUGÜN ---------- */
+function viewToday() {
+  const me = person(S.me), h = home();
+  if (h === "worker" || h === "driver") return viewTodayWorker(me, h);
+  const open = openJobs().filter(j => !isTask(j)), lt = open.filter(late), blk = open.filter(j => blockedSt(j).length), appr = open.filter(j => waitingApproval(j).length);
+  const parts = [lt.length && `${lt.length} iş gecikmede`, blk.length && `${blk.length} işte sorun var`, appr.length && `${appr.length} iş onay bekliyor`].filter(Boolean);
+  const tone = lt.length || blk.length ? "bad" : parts.length ? "warn" : "ok";
+  const mine = myWork().slice(0, 3);
+  const tips = suggestions();
+  const attention = [...new Set([...blk, ...lt, ...appr])].slice(0, 5);
+  const todayDel = open.filter(j => sod(j.due) === sod()).length;
+  const setup = S.setup && Object.keys(S.setup).length && !S.setup.closed ? setupCard() : "";
+  const team = S.people.filter(p => p.id !== S.me);
+  return `<div class="page enter">
+    ${head(`${esc(S.biz.name)} · ${today()}`, `${greet()}, ${esc(first(S.me))}`, bellBtn())}
+    ${offlineBar()}
+    ${setup}
+    ${S.jobs.length ? `<section class="sum ${tone}" aria-label="Günün özeti"><span class="ic ${tone}">${ic(tone === "ok" ? "check" : "alert")}</span><div><b>${parts.length ? parts.join(", ") : "Her şey yolunda"}</b><span class="small muted">${open.length} açık iş · ${plural(team.length + 1, "kişilik ekip")}${todayDel ? ` · bugün ${todayDel} teslim` : ""}</span></div></section>
+    <div class="kpis" role="list">${[[open.length, "Açık iş", "aktif", ""], [lt.length, "Geciken", "geciken", lt.length ? "bad" : ""], [appr.length, "Onay bekleyen", "onay", ""], [blk.length, "Sorunlu", "sorun", blk.length ? "bad" : ""]].map(([n, l, f, c]) => `<button class="kpi ${c}" role="listitem" data-a="filter" data-f="${f}" aria-label="${n} ${l}, listeyi aç"><span class="v num">${n}</span><span class="l">${l}</span></button>`).join("")}</div>` : ""}
+    ${mine.length ? `<section class="sec" aria-labelledby="h-mine"><div class="sec-h"><h2 id="h-mine">Seni bekleyenler</h2><span class="pill acc">${myWork().length}</span></div>${mine.map(x => taskCard(x.j, x.s, true)).join("")}</section>` : ""}
+    ${tips.length ? `<section class="sec" aria-labelledby="h-tips"><div class="sec-h"><h2 id="h-tips">Öneriler</h2></div>${tips.map(t => `<div class="tip"><span class="ic ${t.tone === "bad" ? "bad" : t.tone === "warn" ? "warn" : ""}">${ic(t.ic)}</span><div><b>${esc(t.title)}</b><p class="small muted">${esc(t.body)}</p></div><div class="acts"><button class="btn" data-a="tip" data-id="${t.id}" data-w="apply">${esc(t.apply.label)}</button>${t.alt ? `<button class="btn line" data-a="tip" data-id="${t.id}" data-w="alt">${esc(t.alt.label)}</button>` : ""}<button class="btn ghost" data-a="tipx" data-id="${t.id}">Gizle</button></div></div>`).join("")}</section>` : ""}
+    ${S.jobs.length ? `<section class="sec" aria-labelledby="h-att"><div class="sec-h"><h2 id="h-att">Dikkat gerektirenler</h2>${attention.length ? `<button class="btn ghost" data-a="filter" data-f="aktif">Tüm işler</button>` : ""}</div>${attention.length ? `<div class="list">${attention.map(jobRow).join("")}</div>` : `<div class="empty">${ic("check", "l")}Geciken, takılan ya da onay bekleyen iş yok.</div>`}</section>` : `<div class="empty">${ic("list", "l")}<b>Henüz iş yok</b><span>İlk işini aç; aşamalar sırayla ekibine düşer, sen burada sadece dikkat gerektirenleri görürsün.</span><button class="btn" data-a="plus">${ic("plus")}İlk işi aç</button></div>`}
+    ${team.length ? `<section class="sec" aria-labelledby="h-team"><div class="sec-h"><h2 id="h-team">Ekip şu an</h2><button class="btn ghost" data-a="go" data-v="team">Ekip</button></div><div class="list">${team.slice(0, 6).map(p => { const w = myWork(p.id); const cur = w.find(x => x.r.status === "working"); const blkd = w.find(x => x.r.status === "blocked"); return `<button class="row" data-a="person" data-id="${p.id}">${avatar(p)}<span><span class="t">${esc(p.name)}</span><span class="s">${blkd ? `${ic("alert", "s")} Sorun: ${esc(blkd.s.name)}` : cur ? `${esc(cur.s.name)} · ${esc(cur.j.title)}` : w.length ? `${w.length} iş sırada` : "Boşta"}</span></span><span class="pill ${blkd ? "bad" : cur ? "acc" : w.length ? "" : "ok"}">${blkd ? "Sorun" : cur ? '<span class="dot live" aria-hidden="true"></span>Çalışıyor' : w.length ? `${w.length} iş` : "Boşta"}</span></button>`; }).join("")}</div></section>` : ""}
+  </div>`;
+}
+function setupCard() {
+  const s = S.setup, items = [["team", "Ekibini ekle", "Davet linki telefonlarına gider", "users", "add-person"], ["job", "İlk işini aç", "Aşamalar sırayla ekibine düşer", "list", "plus"], ["flow", "İş akışına göz at", "Aşamaları işletmene göre düzenle", "flow", "flows"]];
+  const done = items.filter(i => s[i[0]]).length;
+  return `<section class="card" aria-labelledby="h-setup" style="display:grid;gap:12px"><div class="sec-h"><h2 id="h-setup">Başlarken · ${done}/3</h2><button class="btn ghost" data-a="setup-close">Gizle</button></div>
+    <div class="prog"><i style="width:${done / 3 * 100}%"></i></div>
+    <div class="list">${items.map(([k, t, d, i, a]) => `<button class="row" data-a="${a}" ${s[k] ? 'aria-disabled="true"' : ""}><span class="ic ${s[k] ? "ok" : ""}">${ic(s[k] ? "check" : i)}</span><span><span class="t" ${s[k] ? 'style="text-decoration:line-through;color:var(--ink-2)"' : ""}>${t}</span><span class="s">${d}</span></span>${s[k] ? "" : `<span class="chev">${ic("chev")}</span>`}</button>`).join("")}</div></section>`;
+}
+function viewTodayWorker(me, h) {
+  const w = myWork(), cur = w[0], rest = w.slice(1);
+  const doneToday = S.jobs.flatMap(j => Object.values(j.stages).filter(r => r.status === "done" && r.owner === S.me && sod(r.doneAt) === sod())).length;
+  return `<div class="page enter">
+    ${head(`${esc(S.biz.name)} · ${esc(me.title)}`, `${greet()}, ${esc(first(S.me))}`, bellBtn())}
+    ${offlineBar()}
+    <p style="font-weight:700;font-size:var(--t-lg)">${w.length ? (w.length === 1 ? "Bugün 1 işin var." : `Bugün ${w.length} işin var. En acil olan en üstte.`) : "Şu an sana düşen iş yok."}${doneToday ? ` <span class="muted small" style="font-weight:600">Bugün ${doneToday} iş bitirdin.</span>` : ""}</p>
+    ${cur ? taskCard(cur.j, cur.s) : `<div class="empty">${ic("check", "l")}<b>Hepsi tamam</b><span>Yeni bir iş düştüğünde telefonuna bildirim gelir ve burada en üstte görünür.</span><button class="btn line" data-a="dm-foreman">${ic("chat")}Ustabaşına yaz</button></div>`}
+    ${rest.length ? `<section class="sec" aria-labelledby="h-next"><h2 id="h-next">Sırada</h2><div class="list">${rest.map(x => `<button class="row" data-a="job" data-id="${x.j.id}"><span class="ic">${ic(KINDS[x.s.kind]?.ic || "box")}</span><span><span class="t">${esc(isTask(x.j) ? x.j.title : `${x.s.name} · ${x.j.title}`)}</span><span class="s">Termin ${esc(when(x.j.due))}${x.j.urgent ? " · acil" : ""}</span></span><span class="chev">${ic("chev")}</span></button>`).join("")}</div></section>` : ""}
+  </div>`;
+}
+
+/* ---------- İŞLER ---------- */
+const FILTERS = [["aktif", "Açık"], ["geciken", "Geciken"], ["sorun", "Sorunlu"], ["onay", "Onay bekleyen"], ["gorev", "Görevler"], ["biten", "Biten"]];
+function match(f, j) {
+  if (f === "gorev") return isTask(j) && j.status !== "cancelled";
+  if (isTask(j)) return false;
+  if (f === "aktif") return j.status === "open" || j.status === "on_hold";
+  if (f === "geciken") return late(j); if (f === "sorun") return blockedSt(j).length > 0; if (f === "onay") return waitingApproval(j).length > 0;
+  return j.status === "done" || j.status === "cancelled";
+}
+function viewJobs() {
+  const q = trn(R.q).trim();
+  const hay = j => trn(`${j.number} ${j.title} ${j.customerName}`);
+  const list = S.jobs.filter(j => match(R.filter, j) && (!q || q.split(/\s+/).every(t => hay(j).includes(t)))).sort((a, b) => (b.urgent - a.urgent) || a.due - b.due);
+  const flows = Object.values(S.flows).filter(f => !f.hidden);
+  if (!R.flowView || !S.flows[R.flowView]) R.flowView = flows[0]?.id;
+  let body;
+  if (R.jobView === "pano") {
+    const f = S.flows[R.flowView], jobs = S.jobs.filter(j => j.flowId === f.id && j.status === "open");
+    const col = j => (active(j)[0] || {}).key;
+    body = `${flows.length > 1 ? `<div class="chips" role="group" aria-label="Akış">${flows.map(x => `<button class="chip" aria-pressed="${x.id === f.id}" data-a="flowview" data-id="${x.id}">${esc(x.name)}</button>`).join("")}</div>` : ""}
+      <div style="display:flex;gap:10px;overflow-x:auto;padding:0 0 8px;scroll-snap-type:x mandatory;max-width:100%" tabindex="0" aria-label="${esc(f.name)} panosu, yana kaydırılabilir">${f.stages.map(s => { const cj = jobs.filter(j => col(j) === s.key); return `<section style="flex:0 0 78%;max-width:280px;scroll-snap-align:start;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-lg);padding:10px;display:grid;gap:8px;align-content:start" aria-label="${esc(s.name)}, ${cj.length} iş"><div class="sec-h" style="min-height:28px"><b class="small">${esc(s.name)}</b><span class="pill">${cj.length}</span></div>${cj.length ? `<div class="list">${cj.map(jobRow).join("")}</div>` : `<p class="xs muted" style="padding:8px">Boş</p>`}</section>`; }).join("")}</div>`;
+  } else body = list.length ? `<div class="list">${list.map(jobRow).join("")}</div>` : `<div class="empty">${ic("search", "l")}${q ? `"${esc(R.q)}" ile eşleşen iş yok. Yazımı kontrol et ya da filtreyi değiştir.` : "Bu filtrede iş yok."}</div>`;
+  return `<div class="page enter">
+    ${head("İş emirleri ve görevler", "İşler")}
+    ${offlineBar()}
+    <div class="seg" role="group" aria-label="Görünüm"><button aria-pressed="${R.jobView === "liste"}" data-a="jobview" data-v="liste">Liste</button><button aria-pressed="${R.jobView === "pano"}" data-a="jobview" data-v="pano">Pano</button></div>
+    ${R.jobView === "liste" ? `<label class="search"><span class="sr">İşlerde ara</span>${ic("search")}<input id="q" type="search" value="${esc(R.q)}" placeholder="İş no, müşteri ya da iş adı" autocomplete="off" enterkeyhint="search"></label>
+    <div class="chips" role="group" aria-label="Filtre">${FILTERS.map(([k, l]) => `<button class="chip" aria-pressed="${R.filter === k}" data-a="filter" data-f="${k}" data-stay="1">${l} <span class="n">${S.jobs.filter(j => match(k, j)).length}</span></button>`).join("")}</div>` : ""}
+    <div id="jl" aria-live="polite">${body}</div>
+  </div>`;
+}
+
+/* ---------- İŞ DETAYI ---------- */
+function viewJob(id) {
+  const j = jobById(id);
+  if (!j) return `<div class="page">${backBtn()}<div class="empty">Bu iş silinmiş ya da bulunamadı.</div></div>`;
+  const f = flowOf(j), st = jobState(j), act = active(j), p = WF.progress(j);
+  const actionable = act.filter(s => { const r = j.stages[s.key]; return r.owner === S.me || r.crew.includes(S.me) || (can("approve") && ["approval", "decision"].includes(s.kind)) || r.status === "blocked"; });
+  const others = act.filter(s => !actionable.includes(s));
+  const t = S.threads.find(x => x.kind === "job" && x.jobId === j.id);
+  return `<div class="page enter">
+    ${backBtn()}
+    ${head(isTask(j) ? `Görev · ${esc(first(j.createdBy))} verdi` : `İş emri #${j.number} · ${esc(f.name)}`, esc(j.title))}
+    <div style="display:grid;gap:10px">
+      <p class="small muted">${[j.customerName && esc(j.customerName), !isTask(j) && `${esc(j.qty)} ${esc(j.unit)}`, `Termin ${esc(when(j.due))}`, j.amount && can("money") ? esc(WF.formatTL(j.amount)) : ""].filter(Boolean).join(" · ")}</p>
+      <div class="chips">${pill(st)}${late(j) ? `<span class="pill bad">${ic("clock")}Gecikti</span>` : ""}${j.urgent ? `<span class="pill acc">${ic("flag")}Acil</span>` : ""}</div>
+      ${isTask(j) ? "" : `<div class="prog ${st.c === "bad" || late(j) ? "bad" : j.status === "done" ? "ok" : ""}" role="progressbar" aria-label="İlerleme yüzde ${p}" aria-valuenow="${p}" aria-valuemin="0" aria-valuemax="100"><i style="width:${p}%"></i></div>`}
+    </div>
+    ${j.status === "on_hold" ? `<div class="note warn"><b>İş bekletiliyor</b><span>${esc((j.log.filter(l => l.text.startsWith("Bekletildi")).at(-1) || {}).text || "")}</span>${can("assign") ? `<button class="btn line" data-a="resume" data-id="${j.id}">Devam ettir</button>` : ""}</div>` : ""}
+    ${actionable.map(s => taskCard(j, s)).join("")}
+    ${others.length ? `<div class="list">${others.map(s => { const r = j.stages[s.key]; return `<div class="row"><span class="ic">${ic(KINDS[s.kind]?.ic || "box")}</span><span><span class="t">${esc(s.name)}</span><span class="s">${r.status === "working" ? `${esc(first(r.owner))} çalışıyor · ${esc(ago(r.startedAt))} başladı` : r.status === "blocked" ? "Sorun bildirildi" : s.kind === "timer" ? `Bitiş ${esc(when(r.dueAt))}` : `${esc(first(r.owner))} sırada`}</span></span>${isMgr() && r.owner ? `<button class="btn line" style="min-height:40px;padding:6px 12px" data-a="assign" data-k="${j.id}|${s.key}" aria-label="${esc(s.name)} aşamasını başka birine ver">Değiştir</button>` : ""}</div>`; }).join("")}</div>` : ""}
+    ${j.status === "open" || j.status === "on_hold" ? `<div class="grid2">${t || !isTask(j) ? `<button class="btn line" data-a="thread" data-id="${threadFor(j).id}">${ic("chat")}Mesajlar${t && threadUnread(t) ? ` · ${threadUnread(t)}` : ""}</button>` : ""}${!isTask(j) && j.customerName ? `<button class="btn line" data-a="public" data-id="${j.id}">${ic("link")}Müşteri linki</button>` : ""}${isMgr() ? `<button class="btn line" data-a="jobmenu" data-id="${j.id}">${ic("menu")}Diğer işlemler</button>` : ""}</div>` : ""}
+    ${!isTask(j) && f.fields.some(x => j.data[x.key] != null && j.data[x.key] !== "") ? `<section class="sec" aria-labelledby="h-info"><h2 id="h-info">Bilgiler</h2><div class="list">${f.fields.filter(x => j.data[x.key] != null && j.data[x.key] !== "").map(x => `<div class="set"><span class="muted">${esc(x.label)}</span><b>${esc(j.data[x.key])}</b></div>`).join("")}</div></section>` : ""}
+    ${isTask(j) ? "" : `<section class="sec" aria-labelledby="h-steps"><h2 id="h-steps">Aşamalar</h2><div class="card"><ol class="steps" style="list-style:none;margin:0;padding:0">${f.stages.map((s, i) => { const r = j.stages[s.key], cls = r.status === "done" ? "done" : r.status === "skipped" ? "skip" : r.status === "blocked" ? "blk" : ["ready", "working"].includes(r.status) ? "now" : ""; const sr = { done: "bitti", skipped: "atlandı", blocked: "sorun var", ready: "sırada", working: "çalışılıyor", locked: "bekliyor" }[r.status];
+      return `<li class="step ${cls}"><span class="n" aria-hidden="true">${r.status === "done" ? ic("check", "s") : r.status === "blocked" ? "!" : i + 1}</span><div><span class="b">${esc(s.name)}</span> <span class="sr">${sr}</span><p class="small muted">${r.status === "done" ? `${esc(first(r.owner))} · ${esc(when(r.doneAt))}${r.choice ? ` · ${esc(s.branches.find(b => b.id === r.choice).label)}` : ""}${r.visits > 1 ? ` · ${r.visits}. kez` : ""}` : r.status === "skipped" ? "Atlandı" : r.owner ? `${esc(first(r.owner))}${r.status === "working" ? " · çalışıyor" : r.status === "ready" ? " · sırada" : ""}` : KINDS[s.kind].n}</p></div></li>`; }).join("")}</ol></div></section>`}
+    <section class="sec" aria-labelledby="h-log"><h2 id="h-log">Hareketler</h2><div class="card" style="display:grid;gap:10px">${[...j.log].reverse().slice(0, 10).map(l => `<p class="small" style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px"><span><b>${esc(first(l.by))}</b> ${esc(l.text)}</span><span class="muted xs num">${esc(when(l.at))}</span></p>`).join("")}</div></section>
+  </div>`;
+}
+const backBtn = () => `<button class="back" data-a="back">${ic("back")}Geri</button>`;
+
+/* ---------- SOHBET ---------- */
+function threadTitle(t) {
+  if (t.kind === "job") { const j = jobById(t.jobId); return j ? `#${j.number} ${j.title}` : "İş"; }
+  if (t.kind === "dm") return person(t.members.find(m => m !== S.me))?.name || "Kişi";
+  return t.title || "Ekip";
+}
+function viewChat() {
+  const ts = visibleThreads().map(t => ({ t, last: t.msgs.at(-1) })).filter(x => x.last || x.t.kind !== "job").sort((a, b) => (b.last?.at || 0) - (a.last?.at || 0));
+  return `<div class="page enter">${head("Ekip ve işler", "Sohbet")}${offlineBar()}
+    ${ts.length ? `<div class="list">${ts.map(({ t, last }) => { const n = threadUnread(t); const lead = t.kind === "job" ? `<span class="ic">#</span>` : t.kind === "dm" ? avatar(person(t.members.find(m => m !== S.me))) : `<span class="ic">${ic("users")}</span>`;
+      return `<button class="row" data-a="thread" data-id="${t.id}">${lead}<span><span class="t">${esc(threadTitle(t))}</span><span class="s" style="${n ? "color:var(--ink);font-weight:650" : ""}">${last ? `${last.kind === "sys" ? "" : esc(first(last.by)) + ": "}${esc(last.text)}` : "Henüz mesaj yok"}</span></span><span style="display:grid;justify-items:end;gap:4px"><span class="xs muted">${last ? esc(ago(last.at)) : ""}</span>${n ? `<span class="pill acc" aria-label="${n} okunmamış">${n}</span>` : ""}</span></button>`; }).join("")}</div>` : `<div class="empty">Henüz sohbet yok.</div>`}
+    <p class="small muted">Her işin kendi sohbeti var; aşama değişiklikleri oraya kendiliğinden düşer. Müşteri mesajları WhatsApp bağlandığında burada görünecek.</p>
+  </div>`;
+}
+function viewThread(id) {
+  const t = S.threads.find(x => x.id === id);
+  if (!t) return `<div class="page">${backBtn()}<div class="empty">Sohbet bulunamadı.</div></div>`;
+  t.read = t.read || {}; t.read[S.me] = Date.now(); save();
+  let lastDay = "";
+  const msgs = t.msgs.map(m => {
+    const d = dayLabel(m.at), sep = d !== lastDay ? `<p class="sys" role="separator">${esc(d)}</p>` : ""; lastDay = d;
+    if (m.kind === "sys") return sep + `<p class="sys">${esc(m.text)} · ${esc(hm(m.at))}</p>`;
+    const me = m.by === S.me, open = R.chatOpenMsg === m.id;
+    return sep + `<div class="msg ${me ? "me" : ""}">${me ? "" : `<span class="who">${esc(person(m.by)?.name || "")}</span>`}<button class="bub" data-a="msg" data-id="${m.id}" aria-expanded="${open}" aria-label="${esc(me ? "Sen" : first(m.by))}: ${esc(m.text)}">${esc(m.text)}</button><span class="at">${esc(hm(m.at))}</span>
+      ${open ? `<div class="chips">${can("create") ? `<button class="chip" data-a="totask" data-t="${t.id}" data-id="${m.id}">${ic("bolt", "s")}Göreve çevir</button>` : ""}<button class="chip" data-a="reply" data-v="${esc(first(m.by))}">Yanıtla</button></div>` : ""}</div>`;
+  }).join("");
+  const j = t.kind === "job" ? jobById(t.jobId) : null;
+  return `<div class="page enter" style="padding-bottom:180px">
+    ${backBtn()}
+    ${head(t.kind === "job" ? "İş sohbeti" : t.kind === "dm" ? "Birebir" : "Ekip kanalı", esc(threadTitle(t)), j ? `<button class="btn line" data-a="job" data-id="${j.id}" style="min-height:40px">İşi aç</button>` : "")}
+    <div class="thread" role="log" aria-label="Mesajlar">${msgs || `<p class="sys">İlk mesajı sen yaz.</p>`}</div>
+    <form class="composer" data-form="send" data-id="${t.id}" aria-label="Mesaj yaz">
+      <div style="display:grid;gap:8px;grid-column:1/-1"><div class="quick" role="group" aria-label="Hazır yanıtlar">${["Tamam", "Geliyorum", "Fotoğraf atar mısın?", "Bitince haber ver"].map(q => `<button type="button" class="chip" data-a="quickreply" data-v="${q}">${q}</button>`).join("")}</div></div>
+      <label class="sr" for="msg-in">Mesaj</label><input id="msg-in" class="in" placeholder="Mesaj yaz" autocomplete="off" enterkeyhint="send">
+      <button class="btn" type="submit" aria-label="Gönder" style="width:48px;padding:0;border-radius:50%">${ic("send")}</button>
+    </form>
+  </div>`;
+}
+
+/* ---------- MENÜ ---------- */
+function viewMenu() {
+  const me = person(S.me), boss = home() === "boss";
+  const item = (a, i, t, s, extra = "") => `<button class="row" data-a="go" data-v="${a}" ${extra}><span class="ic">${ic(i)}</span><span><span class="t">${t}</span><span class="s">${s}</span></span><span class="chev">${ic("chev")}</span></button>`;
+  return `<div class="page enter">${head(esc(S.biz.name), "Menü")}
+    <div class="card" style="display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center">${avatar(me)}<div><b>${esc(me.name)}</b><p class="small muted">${esc(groupOf(S.me).name)} · ${esc(me.title)}</p></div></div>
+    ${isMgr() ? `<section class="sec" aria-labelledby="h-mg"><h2 id="h-mg">Yönetim</h2><div class="list">
+      ${item("team", "users", "Ekip", `${S.people.length} kişi · kimde ne var`)}
+      ${item("customers", "user", "Müşteriler", `${S.customers.length} müşteri`)}
+      ${can("flows") ? item("flows", "flow", "İş akışları", `${Object.values(S.flows).filter(f => !f.hidden).length} akış · aşamaları düzenle`) : ""}
+      ${can("reports") ? item("reports", "chart", "Raporlar", "Zamanında teslim, aşama süreleri") : ""}
+    </div></section>` : ""}
+    <section class="sec" aria-labelledby="h-me"><h2 id="h-me">Senin için</h2><div class="list">
+      ${item("a11y", "eye", "Görünüm ve erişilebilirlik", "Yazı boyutu, kontrast, koyu tema, hareket")}
+      ${item("notif", "bell", "Bildirimler", S.prefs.quiet ? "Mesai dışında sessiz" : "Her zaman açık")}
+      ${boss ? item("integrations", "link", "Bağlantılar", "e-Fatura, WhatsApp, SMS, ödeme") : ""}
+    </div></section>
+    <section class="sec" aria-labelledby="h-help"><h2 id="h-help">Prototip</h2><div class="list">${item("why", "spark", "Neden böyle tasarlandı?", "Tasarım kararları ve gerekçeleri")}</div></section>
+    <button class="btn line block" data-a="signout">${S.biz.name === "Demirtaş Metal" ? "Örnek işletmeden çık" : "Çıkış yap"}</button>
+  </div>`;
+}
+function sub(title, eyebrow, body) { return `<div class="page enter">${backBtn()}${head(eyebrow, title)}${body}</div>`; }
+
+function viewTeam() {
+  return sub("Ekip", `${S.people.length} kişi`, `<div class="list">${S.people.map(p => { const w = myWork(p.id), cur = w.find(x => x.r.status === "working");
+    return `<button class="row" data-a="person" data-id="${p.id}">${avatar(p)}<span><span class="t">${esc(p.name)}${p.joined === false ? ' <span class="pill warn">Davet bekliyor</span>' : ""}</span><span class="s">${esc(groupOf(p.id).name)} · ${esc((p.depts || []).map(d => DEPTS[d]).filter(Boolean).slice(0, 3).join(", "))}</span></span><span class="pill ${cur ? "acc" : w.length ? "" : "ok"}">${cur ? "Çalışıyor" : w.length ? `${w.length} iş` : "Boşta"}</span></button>`; }).join("")}</div>
+    ${can("team") ? `<button class="btn block" data-a="add-person">${ic("plus")}Çalışan ekle</button>` : ""}`);
+}
+function viewCustomers() {
+  return sub("Müşteriler", `${S.customers.length} müşteri`, S.customers.length ? `<div class="list">${S.customers.map(c => { const js = S.jobs.filter(j => j.customerName === c.name), op = js.filter(j => j.status === "open").length;
+    return `<div class="row"><span class="ic">${ic("user")}</span><span><span class="t">${esc(c.name)}</span><span class="s">${esc([c.contact, c.phone].filter(Boolean).join(" · ") || "İletişim bilgisi yok")} · ${op} açık iş</span></span>${can("create") ? `<button class="btn line" style="min-height:40px;padding:6px 12px" data-a="newjob-for" data-id="${c.id}" aria-label="${esc(c.name)} için yeni iş">Yeni iş</button>` : ""}</div>`; }).join("")}</div>` : `<div class="empty">Müşteri yok. İş açarken yazdığın müşteri buraya kendiliğinden eklenir.</div>`);
+}
+function viewFlows() {
+  const fs = Object.values(S.flows).filter(f => !f.hidden);
+  return sub("İş akışları", "Aşamalar sırayla ekibe düşer", `<div class="list">${fs.map(f => `<button class="row" data-a="editflow" data-id="${f.id}"><span class="ic">${ic(f.icon || "flow")}</span><span><span class="t">${esc(f.name)}</span><span class="s">${f.stages.length} aşama · sürüm ${f.version} · ${S.jobs.filter(j => j.flowId === f.id && j.status === "open").length} açık iş</span></span><span class="chev">${ic("chev")}</span></button>`).join("")}</div>
+    <button class="btn line block" data-a="newflow">${ic("plus")}Yeni akış</button>
+    <p class="small muted">Akışı değiştirmek süren işleri bozmaz: süren işler açıldıkları sürümle biter, yeni işler yeni sürümle açılır.</p>`);
+}
+let FE = null; // akış düzenleme taslağı
+function viewFlowEdit() {
+  const m = FE, errs = FE._checked ? modelErrors(m) : [];
+  const deptOpts = s => Object.entries(DEPTS).map(([k, v]) => `<option value="d:${k}" ${s.assign?.mode === "dept" && s.assign.dept === k ? "selected" : ""}>${v} (${S.people.filter(p => (p.depts || []).includes(k)).length} kişi)</option>`).join("") + `<option value="prev" ${s.assign?.mode === "previous" ? "selected" : ""}>Önceki aşamayı yapan kişi</option><option value="creator" ${s.assign?.mode === "creator" ? "selected" : ""}>İşi açan kişi</option>`;
+  const rows = m.steps.map((s, i) => `<li style="display:grid;gap:6px">
+    ${s.par && i ? `<p class="xs muted" style="margin-left:2.5rem">${ic("arrow", "s")} öncekiyle aynı anda</p>` : ""}
+    <div class="fstep ${s.kind === "decision" ? "dec" : ""}"><span class="k" aria-hidden="true">${i + 1}</span>
+      <button style="text-align:left;min-height:44px" data-a="fe-edit" data-i="${i}" aria-label="${i + 1}. aşama ${esc(s.name || "adsız")}, düzenle"><b>${esc(s.name || "Adsız aşama")}</b><span class="xs muted" style="display:block">${KINDS[s.kind].n} · ${s.assign?.mode === "dept" ? DEPTS[s.assign.dept] : s.assign?.mode === "previous" ? "önceki kişi" : "işi açan"}${s.photo ? " · fotoğraf şart" : ""}${s.checklist?.length ? ` · ${s.checklist.length} kontrol` : ""}</span></button>
+      <span style="display:flex"><button class="ibtn" data-a="fe-move" data-i="${i}" data-d="-1" ${i ? "" : "disabled"} aria-label="Yukarı taşı">${ic("up")}</button><button class="ibtn" data-a="fe-move" data-i="${i}" data-d="1" ${i < m.steps.length - 1 ? "" : "disabled"} aria-label="Aşağı taşı">${ic("down")}</button></span></div>
+    ${s.kind === "decision" ? `<div class="fbranch"><p class="small"><b>${esc(s.yes || "Uygun")}</b> → ${esc(m.steps[i + 1]?.name || "sonraki aşama")}</p><p class="small"><b>${esc(s.no || "Uygun değil")}</b> → ${esc(m.steps.find(x => x.key === s.back)?.name || m.steps[0]?.name || "başa")} aşamasına döner</p></div>` : ""}
+  </li>`).join("");
+  return `<div class="page enter">${backBtn()}${head(m._new ? "Yeni akış" : `Sürüm ${m.version || 1} · düzenleniyor`, esc(m.name || "Adsız akış"))}
+    <div class="field"><label for="fe-name">Akışın adı</label><input id="fe-name" class="in" value="${esc(m.name)}" placeholder="Ör: Kapı imalatı" data-fe="name"></div>
+    <section class="sec" aria-labelledby="h-fe"><div class="sec-h"><h2 id="h-fe">Aşamalar</h2><span class="small muted">${m.steps.length} aşama</span></div>
+      <ol style="list-style:none;margin:0;padding:0;display:grid;gap:8px">${rows}</ol>
+      <button class="btn line block" data-a="fe-add">${ic("plus")}Aşama ekle</button></section>
+    <div role="status" aria-live="polite">${FE._checked ? (errs.length ? `<div class="issue"><b>${errs.length} şey düzeltilmeli</b>${errs.map(e => `<span>• ${esc(e)}</span>`).join("")}</div>` : `<div class="note" style="background:var(--ok-soft)"><b>${ic("check", "s")} Akış hazır</b><span>Her aşamaya ulaşılabiliyor ve sahibi belli.</span></div>`) : ""}</div>
+    ${FE._sim ? `<section class="card" aria-labelledby="h-sim" style="display:grid;gap:8px"><h2 id="h-sim">Deneme işi</h2><p class="small muted">Kimseye bildirim gitmeden ${FE._sim.choice === "hayir" ? '"hayır" dalı' : "her kararda ilk seçenek"} seçilerek yürütüldü.</p><ol class="small" style="margin:0;padding-left:20px;display:grid;gap:4px">${FE._sim.path.map(x => `<li>${esc(x)}</li>`).join("")}</ol></section>` : ""}
+    <div class="grid2"><button class="btn line" data-a="fe-check">Kontrol et</button><button class="btn line" data-a="fe-sim">Deneme işi</button></div>
+    <button class="btn ok big block" data-a="fe-save">${m._new ? "Akışı oluştur" : "Yeni sürüm olarak kaydet"}</button>
+    <p class="small muted">Kaydedince yeni işler bu sürümle açılır; ${S.jobs.filter(j => j.flowId === m.id && j.status === "open").length} süren iş eski sürümle biter.</p>
+  </div>`;
+}
+function viewReports() {
+  const done = S.jobs.filter(j => j.status === "done" && !isTask(j)), onTime = done.filter(j => Math.max(...Object.values(j.stages).map(r => r.doneAt || 0)) <= j.due).length;
+  const stats = {};
+  for (const j of S.jobs) if (!isTask(j)) for (const s of flowOf(j).stages) { const r = j.stages[s.key]; if (r.status === "done" && r.startedAt && r.doneAt && s.kind !== "timer" && s.kind !== "notify") { const x = (stats[s.name] ??= { n: 0, h: 0, sla: s.slaMinutes ? s.slaMinutes / 60 : null }); x.n++; x.h += (r.doneAt - r.startedAt) / HOUR; } }
+  const rows = Object.entries(stats).map(([n, x]) => ({ n, avg: x.h / x.n, sla: x.sla })).sort((a, b) => b.avg - a.avg).slice(0, 6), max = Math.max(1, ...rows.map(r => Math.max(r.avg, r.sla || 0)));
+  const per = S.people.map(p => ({ p, n: S.jobs.reduce((a, j) => a + Object.values(j.stages).filter(r => r.status === "done" && r.owner === p.id).length, 0) })).filter(x => x.n).sort((a, b) => b.n - a.n).slice(0, 5);
+  return sub("Raporlar", "Bu ay", `
+    <div class="kpis" style="grid-template-columns:repeat(2,minmax(0,1fr))"><div class="kpi"><span class="v num">${done.length ? Math.round(onTime / done.length * 100) : "—"}${done.length ? "%" : ""}</span><span class="l">Zamanında teslim (${onTime}/${done.length})</span></div><div class="kpi"><span class="v num">${openJobs().filter(j => !isTask(j)).length}</span><span class="l">Açık iş</span></div></div>
+    <section class="sec" aria-labelledby="h-r1"><h2 id="h-r1">Aşama başına ortalama süre</h2><div class="card" style="display:grid;gap:12px">${rows.length ? rows.map(r => `<div style="display:grid;gap:4px"><p class="small" style="display:flex;justify-content:space-between;gap:8px"><b>${esc(r.n)}</b><span class="num ${r.sla && r.avg > r.sla ? "" : "muted"}" style="${r.sla && r.avg > r.sla ? "color:var(--warn);font-weight:700" : ""}">${r.avg.toFixed(1).replace(".", ",")} sa${r.sla ? ` · hedef ${r.sla}` : ""}</span></p><div class="prog" style="position:relative"><i style="width:${r.avg / max * 100}%;${r.sla && r.avg > r.sla ? "background:var(--warn)" : ""}"></i></div></div>`).join("") : `<p class="small muted">Henüz biten aşama yok.</p>`}</div></section>
+    <section class="sec" aria-labelledby="h-r2"><h2 id="h-r2">En çok iş bitirenler</h2><div class="list">${per.map(x => `<div class="row">${avatar(x.p)}<span><span class="t">${esc(x.p.name)}</span><span class="s">${esc(x.p.title)}</span></span><b class="num">${x.n}</b></div>`).join("") || `<div class="row"><span></span><span class="s">Henüz veri yok.</span></div>`}</div></section>`);
+}
+function viewA11y() {
+  const p = S.prefs, seg = (k, opts) => `<div class="seg" role="radiogroup" aria-label="${k}">${opts.map(([v, l]) => `<button role="radio" aria-checked="${p[k] === v}" data-a="pref" data-k="${k}" data-v="${v}">${l}</button>`).join("")}</div>`;
+  const sw = (k, t, d, on) => `<div class="set"><div><b id="l-${k}">${t}</b><p class="small muted">${d}</p></div><button class="sw" role="switch" aria-checked="${on}" aria-labelledby="l-${k}" data-a="pref-sw" data-k="${k}"></button></div>`;
+  return sub("Görünüm ve erişilebilirlik", "Senin telefonuna özel", `
+    <section class="sec" aria-labelledby="h-a1"><h2 id="h-a1">Yazı boyutu</h2>${seg("size", [["m", "Normal"], ["l", "Büyük"], ["xl", "Çok büyük"]])}<p class="small muted">Atölyede telefon kol mesafesindeyse "Büyük" önerilir. Telefonun kendi yazı boyutu ayarına da uyar.</p></section>
+    <section class="sec" aria-labelledby="h-a2"><h2 id="h-a2">Tema</h2>${seg("theme", [["system", "Telefona göre"], ["light", "Açık"], ["dark", "Koyu"]])}</section>
+    <div class="list">${sw("contrast", "Yüksek kontrast", "Gri yazılar siyahlaşır, çerçeveler kalınlaşır; güneş altında okunur.", p.contrast === "high")}${sw("bold", "Kalın yazı", "Tüm yazılar bir kademe kalınlaşır.", !!p.bold)}${sw("motion", "Hareketi azalt", "Geçiş ve canlanma efektleri kapanır.", p.motion === "off")}</div>
+    <div class="card" style="display:grid;gap:6px"><b>Bu uygulamada her zaman</b><ul class="small muted" style="margin:0;padding-left:18px;display:grid;gap:4px"><li>Dokunma alanları en az 48 piksel; eldivenle de isabet edilir.</li><li>Durumlar yalnız renkle değil, ikon ve yazıyla da anlatılır.</li><li>Ekran okuyucu her düğmenin ne yaptığını söyler; pencereler klavyeyle kapanır.</li><li>Geri alınabilen işlerde onay sorulmaz, 6 saniye "Geri al" çıkar.</li></ul></div>`);
+}
+function viewNotif() {
+  const n = S.prefs.notify, sw = (k, t, d, on, a = "notif-sw") => `<div class="set"><div><b id="n-${k}">${t}</b><p class="small muted">${d}</p></div><button class="sw" role="switch" aria-checked="${on}" aria-labelledby="n-${k}" data-a="${a}" data-k="${k}"></button></div>`;
+  return sub("Bildirimler", "Az ama doğru zamanda", `<div class="list">${sw("mine", "Bana iş düşünce", "Bir aşama ya da görev sana geldiğinde.", n.mine)}${sw("issues", "Sorun bildirilince", "Ekipten biri sorun bildirdiğinde (yöneticiler).", n.issues)}${sw("done", "Açtığım iş bitince", "Tamamlanan işler.", n.done)}${sw("chat", "Mesajlar", "Sana yazılan ve seni anan mesajlar.", n.chat)}</div>
+    <div class="list">${sw("quiet", "Mesai dışında sessiz", "18:00–08:00 arası yalnız acil sorunlar bildirilir.", S.prefs.quiet, "pref-sw")}${sw("digest", "Akşam özeti", "18:00'de tek bildirim: bugün ne bitti, yarın ne var.", S.prefs.digest, "pref-sw")}</div>`);
+}
+function viewIntegrations() {
+  const I = [["doc", "e-Fatura / e-Arşiv", "Fatura aşaması gelince kendiliğinden kesilir", "Paraşüt, Logo İşbaşı, Uyumsoft"], ["chat", "WhatsApp Business", "Müşteriye aşama bilgisi, gelen mesajlar sohbete düşer", "Meta Cloud API"], ["phone", "SMS", "WhatsApp'ı olmayan müşteriye bilgi", "Netgsm ve benzeri"], ["money", "Online tahsilat", "Tahsilat aşamasında ödeme linki", "iyzico ve benzeri"]];
+  return sub("Bağlantılar", "Uygulama dışı sistemler", `<div class="list">${I.map(([i, t, d, p]) => `<div class="row"><span class="ic">${ic(i)}</span><span><span class="t">${t}</span><span class="s">${d} · ${p}</span></span><span class="pill">Bağlı değil</span></div>`).join("")}</div>
+    <p class="small muted">Altyapı hazır: sağlayıcı seçilir, anahtar sunucu kasasına kaydedilir, olaylar kendiliğinden gider. Akışlar ve ekranlar değişmez.</p>`);
+}
+function viewWhy() {
+  const W = [
+    ["Bugün ekranı", "Patron her şeyi değil, yalnız dikkat gerektireni görür (istisna yönetimi). Özet tek cümle, renk en kötü duruma göre. Çalışan ise sadece sıradaki işini görür; en acil olan en üstte."],
+    ["Tek ana düğme", "Her kartta bir büyük eylem var: başla, bitir, onayla. Kapalıysa nedeni altında yazar; kişi neyi eksik bıraktığını tahmin etmek zorunda kalmaz."],
+    ["Onay yerine geri al", "Bitirme, atama, acil işaretleme gibi geri alınabilen işlerde \"emin misin?\" sorulmaz; 6 saniye \"Geri al\" çıkar. Yalnız iptal gibi geri dönmeyen işler sorulur. Daha az dokunuş, daha az yorgunluk."],
+    ["Akıllı ekleme", "＋ düğmesinde tek satır yeter: \"Murat yarın 10'da Kaya İnşaat'a numune götürsün, acil\". Kişi, zaman, müşteri ve aciliyet çıkarılır, istersen tek tek düzeltirsin."],
+    ["Öneriler", "Sistem dolu/boş kişiyi, termin riskini ve bekleyen onayı görür; çözümü önerir ve tek dokunuşla uygular. Karar yine insanda."],
+    ["Durum hiçbir zaman yalnız renk değil", "Her durum etiketi ikon + yazı taşır; renk körlüğünde ve güneş altında da okunur. Renkler beyaz ve koyu zeminde en az 4,5:1 kontrastlı."],
+    ["Okunaklı ölçüler", "Gövde 17 px, dokunma alanları en az 48 px, kartlar tek sütun. Yazı boyutu, yüksek kontrast, kalın yazı ve hareketi azaltma Menü'de."],
+    ["Klavye ve ekran okuyucu", "Her ekran başlığa odaklanarak açılır; pencereler Esc ile kapanır ve odağı geri verir; kontrol adımları gerçek onay kutusu, kararlar radyo grubu olarak okunur; bildirimler sesli duyurulur."],
+    ["İnternetsiz çalışma", "Prototip çubuğundan \"İnternet yok\" açılabilir: iş durmaz, değişiklikler sıraya girer, bağlantı gelince gider. Atölye ve şantiye için."],
+    ["Akış tasarlayıcısı", "Aşamalar sıralı liste olarak dizilir; kutu-ok çizmek gerekmez. Karar aşaması \"hayır\" dalında önceki bir aşamaya döner. Kaydetmeden önce kontrol ve deneme işi var; süren işler eski sürümle biter."],
+  ];
+  return sub("Neden böyle tasarlandı?", "Tasarım kararları", `<div class="list">${W.map(([t, d], i) => `<div class="row" style="align-items:start"><span class="ic">${i + 1}</span><span><span class="t">${esc(t)}</span><span class="s">${esc(d)}</span></span><span></span></div>`).join("")}</div>`);
+}
+
+/* ---------- AÇILIŞ ---------- */
+function viewWelcome() {
+  return `<div class="page enter" style="padding-top:48px;gap:24px">
+    <div style="display:grid;gap:16px"><span class="ic" style="width:64px;height:64px;border-radius:20px;background:var(--accent);color:var(--on-accent);box-shadow:var(--lift)">${ic("flow", "l")}</span>
+      <h1 tabindex="-1" style="font-size:var(--t-3xl)">Workflow</h1>
+      <p style="font-size:var(--t-lg);color:var(--ink-2)">İş kimde, hangi aşamada, ne zaman biter? Ekibine iş ver; biri işini bitirince sıradakine kendiliğinden geçsin.</p></div>
+    <div style="display:grid;gap:10px">
+      <button class="btn big block" data-a="demo">${ic("eye")}Örnek işletmeyi gez</button>
+      <p class="small muted" style="text-align:center">10 kişilik bir metal atölyesi. Üstteki menüden patron, usta ya da şoför gözüyle bakabilirsin.</p></div>
+    <div style="display:grid;gap:10px"><p class="lbl" style="text-align:center">Kendi işletmeni kur</p>
+      <button class="btn line block" data-a="login" data-v="Apple">${ic("user")}Apple ile devam et</button>
+      <button class="btn line block" data-a="login" data-v="Google">${ic("user")}Google ile devam et</button>
+      <button class="btn line block" data-a="login" data-v="E-posta">${ic("send")}E-posta ile devam et</button>
+      <p class="xs muted" style="text-align:center">Prototipte giriş yapılmaz; bir sonraki adıma geçer.</p></div>
+  </div>`;
+}
+function viewSetup() {
+  const v = R.setup || (R.setup = { me: "", biz: "", sector: "" });
+  const S3 = [["uretim", "Üretim, atölye", "Sipariş → üretim → teslim"], ["servis", "Montaj, servis", "Randevu → montaj → onay"], ["genel", "Başka bir iş", "Hazırlık → iş → kontrol"]];
+  return `<div class="page enter" style="padding-top:32px"><button class="back" data-a="welcome">${ic("back")}Geri</button>
+    ${head(`${esc(R.login || "")} ile giriş · 1 adım`, "İşletmeni tanıyalım")}
+    <form data-form="setup" style="display:grid;gap:18px" novalidate>
+      <div class="field"><label for="su-me">Adın soyadın</label><input id="su-me" class="in" value="${esc(v.me)}" autocomplete="name" placeholder="Ör: Ayten Yılmaz" required></div>
+      <div class="field"><label for="su-biz">İşletmenin adı</label><input id="su-biz" class="in" value="${esc(v.biz)}" autocomplete="organization" placeholder="Ör: Yılmaz Klima" required></div>
+      <fieldset style="border:0;padding:0;margin:0;display:grid;gap:8px"><legend class="lbl" style="margin-bottom:8px">Ne iş yapıyorsunuz?</legend>
+        <div role="radiogroup" aria-label="İş türü" class="list">${S3.map(([k, t, d]) => `<button type="button" class="row" role="radio" aria-checked="${v.sector === k}" data-a="sector" data-v="${k}"><span class="ic ${v.sector === k ? "" : ""}" style="${v.sector === k ? "background:var(--accent);color:var(--on-accent)" : ""}">${ic(v.sector === k ? "check" : "flow")}</span><span><span class="t">${t}</span><span class="s">${d}</span></span><span></span></button>`).join("")}</div>
+        <p class="small muted">Hazır bir iş akışıyla başlarsın; aşamaları sonra değiştirebilirsin.</p></fieldset>
+      <p class="hint bad" id="su-err" role="alert"></p>
+      <button class="btn big block" type="submit">Başla</button>
+    </form></div>`;
+}
+
+/* ---------- pencere altyapısı: odak tuzağı, Esc, odağı geri verme ---------- */
+let sheetReturn = null;
+function openSheet(id, html, opts = {}) {
+  sheetReturn = document.activeElement;
+  R.sheet = id;
+  const root = $("#sheets");
+  root.innerHTML = `<div class="scrim ${opts.dialog ? "dialog" : ""}" data-a="scrim"><div class="sheet" role="${opts.dialog ? "alertdialog" : "dialog"}" aria-modal="true" aria-labelledby="sh-t" tabindex="-1">
+    ${opts.dialog ? "" : '<div class="grab" aria-hidden="true"></div>'}
+    <div class="sheet-h"><div>${opts.eyebrow ? `<p class="eyebrow">${opts.eyebrow}</p>` : ""}<h2 id="sh-t">${opts.title}</h2>${opts.sub ? `<p class="small muted" style="margin-top:4px">${opts.sub}</p>` : ""}</div><button class="x" data-a="close" aria-label="Kapat">${ic("x")}</button></div>
+    ${html}</div></div>`;
+  const sh = $(".sheet", root);
+  setTimeout(() => { const f = opts.focus ? $(opts.focus, sh) : sh; (f || sh).focus(); }, 30);
+}
+function closeSheet() { R.sheet = null; $("#sheets").innerHTML = ""; if (sheetReturn && document.contains(sheetReturn)) sheetReturn.focus(); sheetReturn = null; }
+function trapFocus(e) {
+  const sh = $("#sheets .sheet"); if (!sh || e.key !== "Tab") return;
+  const f = $$('button:not([disabled]),input,select,textarea,[tabindex]:not([tabindex="-1"])', sh).filter(x => x.offsetParent !== null);
+  if (!f.length) return;
+  if (e.shiftKey && document.activeElement === f[0]) { e.preventDefault(); f.at(-1).focus(); }
+  else if (!e.shiftKey && document.activeElement === f.at(-1)) { e.preventDefault(); f[0].focus(); }
+}
+
+/* ---------- ＋: akıllı ekleme ---------- */
+function sheetPlus(seed = "") {
+  const opts = [can("create") && ["task", "bolt", "Görev ver", "Kime, ne, ne zamana · alt adımlar"], can("create") && ["job", "list", "İş emri aç", "Akış seç, müşteri, termin"], can("create") && ["customer", "user", "Müşteri ekle", "İsim ve telefon"], can("team") && ["add-person", "users", "Çalışan ekle", "Davet linki gider"]].filter(Boolean);
+  openSheet("plus", `<form data-form="smart" class="smart" novalidate>
+      <label class="lbl" for="sm-in">Ne yapılacak? Tek cümle yeterli</label>
+      <input id="sm-in" class="in" value="${esc(seed)}" placeholder="Ör: Murat yarın 10'da Kaya İnşaat'a numune götürsün, acil" autocomplete="off" enterkeyhint="done" aria-describedby="sm-out">
+      <div id="sm-out" aria-live="polite">${smartPreview(seed)}</div>
+    </form>
+    <div class="list">${opts.map(([a, i, t, d]) => `<button class="row" data-a="${a === "task" ? "taskform" : a === "job" ? "newjob" : a}"><span class="ic">${ic(i)}</span><span><span class="t">${t}</span><span class="s">${d}</span></span><span class="chev">${ic("chev")}</span></button>`).join("")}</div>`,
+    { title: "Ne oluşturalım?", focus: "#sm-in" });
+}
+function smartPreview(text) {
+  if (!text.trim()) return `<p class="small muted">Yazdıkça kişi, zaman, müşteri ve aciliyet ayıklanır.</p>`;
+  const p = parseSmart(text), c = (ok, label, v) => `<span class="chip ${ok ? "" : "miss"}">${label}: ${esc(v)}</span>`;
+  const ok = p.title && (p.kind === "job" || p.who.length);
+  return `<div class="parsed">${c(!!p.title, "Ne", p.title || "—")}${p.kind === "task" ? c(p.who.length, "Kime", p.who.map(first).join(", ") || "seç") : c(true, "Akış", S.flows[p.flowId].name)}${c(!!p.due, "Ne zaman", p.due ? when(p.due) : "bugün 17:00")}${p.customer ? c(true, "Müşteri", p.customer.name) : ""}${p.urgent ? c(true, "Öncelik", "acil") : ""}</div>
+    <div class="grid2" style="margin-top:4px"><button class="btn" type="submit" ${ok ? "" : 'aria-disabled="true"'}>${p.kind === "job" ? "İş emrini aç" : p.who.length > 1 ? `${p.who.length} kişiye ver` : "Görevi ver"}</button><button class="btn line" type="button" data-a="smart-edit">Ayrıntılı düzenle</button></div>
+    ${ok ? "" : `<p class="hint" style="margin-top:6px">${ic("alert", "s")}${p.kind === "task" && !p.who.length ? "Kime vereceğini cümleye yaz (ör: Murat) ya da ayrıntılı düzenle." : "Ne yapılacağını yaz."}</p>`}`;
+}
+
+/* ---------- görev ver (ayrıntılı) ---------- */
+function sheetTask(pre = {}) {
+  const st = R.tf = { title: pre.title || "", who: pre.who || [], day: pre.day ?? 0, hour: pre.hour ?? 17, steps: pre.steps || "", note: pre.note || "", urgent: !!pre.urgent };
+  const ppl = S.people.filter(p => p.id !== S.me || S.people.length === 1);
+  openSheet("task", `<form data-form="task" style="display:grid;gap:16px" novalidate>
+    <div class="field"><label for="tf-title">Ne yapılacak</label><input id="tf-title" class="in" value="${esc(st.title)}" placeholder="Ör: Numuneyi Kaya İnşaat'a götür" autocomplete="off"></div>
+    <fieldset style="border:0;padding:0;margin:0;display:grid;gap:8px"><legend class="lbl" style="margin-bottom:8px">Kime <span class="muted" style="font-weight:500">· birden fazla seçebilirsin</span></legend>
+      <div class="chips">${ppl.map(p => `<button type="button" class="chip" aria-pressed="${st.who.includes(p.id)}" data-a="tf-who" data-id="${p.id}">${esc(first(p.id))}<span class="n">${loadOf(p.id) ? ` · ${loadOf(p.id)} iş` : " · boşta"}</span></button>`).join("")}</div></fieldset>
+    <fieldset style="border:0;padding:0;margin:0;display:grid;gap:8px"><legend class="lbl" style="margin-bottom:8px">Ne zaman</legend>
+      <div class="chips" role="radiogroup" aria-label="Gün">${[[0, "Bugün"], [1, "Yarın"], [Math.max(1, 5 - new Date().getDay()), "Hafta sonuna"]].map(([d, l]) => `<button type="button" class="chip" role="radio" aria-checked="${st.day === d}" data-a="tf-day" data-v="${d}">${l}</button>`).join("")}
+      <label class="sr" for="tf-hour">Saat</label><select id="tf-hour" class="in" style="width:auto;min-height:40px;border-radius:999px;padding:4px 12px">${[9, 10, 12, 14, 16, 17, 18].map(h => `<option value="${h}" ${st.hour === h ? "selected" : ""}>${String(h).padStart(2, "0")}:00</option>`).join("")}</select></div></fieldset>
+    <details ${st.steps || st.note ? "open" : ""}><summary class="lbl" style="min-height:44px;display:flex;align-items:center;cursor:pointer">Alt adımlar ve not (isteğe bağlı)</summary>
+      <div style="display:grid;gap:12px;margin-top:8px"><div class="field"><label for="tf-steps">Alt adımlar · her satıra bir tane</label><textarea id="tf-steps" class="in" placeholder="Numuneyi paketle&#10;İrsaliyeyi imzalat">${esc(st.steps)}</textarea></div>
+      <div class="field"><label for="tf-note">Not</label><textarea id="tf-note" class="in" placeholder="Adres, ölçü, ayrıntı">${esc(st.note)}</textarea></div></div></details>
+    <div class="set" style="border:1px solid var(--line);border-radius:var(--r)"><div><b id="tf-ul">Acil</b><p class="small muted">Listesinde en üste çıkar.</p></div><button type="button" class="sw" role="switch" aria-checked="${st.urgent}" aria-labelledby="tf-ul" data-a="tf-urgent"></button></div>
+    <p class="hint bad" id="tf-err" role="alert"></p>
+    <button class="btn ok big block" type="submit">Görevi ver</button></form>`, { title: "Görev ver", sub: "Kişiye bildirim gider; başladığını ve bitirdiğini görürsün.", focus: "#tf-title" });
+}
+
+/* ---------- yeni iş emri ---------- */
+function sheetJob(pre = {}) {
+  const fs = Object.values(S.flows).filter(f => !f.hidden);
+  const st = R.jf = { flow: pre.flow || fs[0]?.id, cust: pre.cust || "", title: pre.title || "", qty: 1, day: pre.day ?? 3, urgent: !!pre.urgent, amount: "", data: {} };
+  openSheet("job", jobForm(), { title: "Yeni iş emri", sub: "İlk aşama hemen ilgili kişiye düşer.", focus: "#jf-cust" });
+}
+function jobForm() {
+  const st = R.jf, f = S.flows[st.flow], fs = Object.values(S.flows).filter(x => !x.hidden);
+  const fields = (f?.fields || []).filter(x => x.requiredAt === "create" || !x.requiredAt);
+  return `<form data-form="job" style="display:grid;gap:16px" novalidate>
+    <fieldset style="border:0;padding:0;margin:0;display:grid;gap:8px"><legend class="lbl" style="margin-bottom:8px">İş akışı</legend>
+      <div role="radiogroup" aria-label="İş akışı" class="list">${fs.map(x => `<button type="button" class="row" role="radio" aria-checked="${x.id === st.flow}" data-a="jf-flow" data-id="${x.id}"><span class="ic" style="${x.id === st.flow ? "background:var(--accent);color:var(--on-accent)" : ""}">${ic(x.id === st.flow ? "check" : x.icon || "flow")}</span><span><span class="t">${esc(x.name)}</span><span class="s">${esc(x.stages.map(s => s.name).slice(0, 4).join(" → "))}${x.stages.length > 4 ? " …" : ""}</span></span><span></span></button>`).join("")}</div></fieldset>
+    <div class="field"><label for="jf-cust">Müşteri</label><input id="jf-cust" class="in" list="cust-list" value="${esc(st.cust)}" placeholder="Ör: Kaya İnşaat" autocomplete="off"><datalist id="cust-list">${S.customers.map(c => `<option value="${esc(c.name)}"></option>`).join("")}</datalist></div>
+    <div class="field"><label for="jf-title">İşin adı</label><input id="jf-title" class="in" value="${esc(st.title)}" placeholder="Ör: Çelik kapı, 12 adet" autocomplete="off"></div>
+    <div class="grid2"><div class="field"><label for="jf-qty">Miktar</label><input id="jf-qty" class="in" inputmode="numeric" value="${esc(st.qty)}"></div>${can("money") ? `<div class="field"><label for="jf-amount">Tutar, ₺ (KDV hariç)</label><input id="jf-amount" class="in" inputmode="decimal" value="${esc(st.amount)}" placeholder="0"></div>` : ""}</div>
+    <fieldset style="border:0;padding:0;margin:0;display:grid;gap:8px"><legend class="lbl" style="margin-bottom:8px">Termin</legend><div class="chips" role="radiogroup" aria-label="Termin">${[[1, "Yarın"], [3, "3 gün"], [7, "1 hafta"], [14, "2 hafta"]].map(([d, l]) => `<button type="button" class="chip" role="radio" aria-checked="${st.day === d}" data-a="jf-day" data-v="${d}">${l}</button>`).join("")}<button type="button" class="chip" aria-pressed="${st.urgent}" data-a="jf-urgent">${ic("flag", "s")}Acil</button></div></fieldset>
+    ${fields.map(x => x.type === "select" ? `<fieldset style="border:0;padding:0;margin:0"><legend class="lbl" style="margin-bottom:8px">${esc(x.label)}${x.requiredAt === "create" ? " *" : ""}</legend><div class="chips" role="radiogroup">${x.options.map(o => `<button type="button" class="chip" role="radio" aria-checked="${st.data[x.key] === o}" data-a="jf-field" data-k="${x.key}" data-v="${esc(o)}">${esc(o)}</button>`).join("")}</div></fieldset>`
+      : `<div class="field"><label for="jf-f-${x.key}">${esc(x.label)}${x.requiredAt === "create" ? " *" : ""}</label><input id="jf-f-${x.key}" class="in" data-jf-field="${x.key}" value="${esc(st.data[x.key] || "")}" ${x.requiredAt === "create" ? 'aria-required="true"' : ""}></div>`).join("")}
+    <p class="hint bad" id="jf-err" role="alert"></p>
+    <button class="btn ok big block" type="submit">İşi aç</button></form>`;
+}
+
+/* ---------- diğerleri ---------- */
+function sheetNotices() {
+  const list = S.notices.filter(n => n.to === S.me);
+  openSheet("notices", list.length ? `<div class="list">${list.slice(0, 40).map(n => `<button class="row" data-a="notice" data-id="${n.id}"><span class="dot" style="color:${n.read ? "var(--line-2)" : "var(--accent)"}" aria-hidden="true"></span><span><span class="t" style="${n.read ? "font-weight:600" : ""}">${esc(n.text)}</span><span class="s">${esc(ago(n.at))}${n.read ? "" : " · yeni"}</span></span><span class="chev">${ic("chev")}</span></button>`).join("")}</div><button class="btn line block" data-a="readall">Hepsini okundu yap</button>` : `<div class="empty">${ic("bell", "l")}Bildirim yok. Sana iş düştüğünde ya da açtığın iş bittiğinde burada görünür.</div>`, { title: "Bildirimler" });
+}
+function sheetIssue(k) {
+  R.issue = { k, type: "" };
+  openSheet("issue", `<form data-form="issue" style="display:grid;gap:14px"><div role="radiogroup" aria-label="Sorun türü" class="grid2">${ISSUES.map(t => `<button type="button" class="chip" role="radio" aria-checked="false" data-a="issue-type" data-v="${t}" style="justify-content:center;min-height:52px;border-radius:var(--r)">${t}</button>`).join("")}</div>
+    <div class="field"><label for="is-note">Kısaca ne oldu? (isteğe bağlı)</label><textarea id="is-note" class="in" placeholder="Ör: 40x40 profil bitti"></textarea></div>
+    <p class="hint bad" id="is-err" role="alert"></p><button class="btn danger big block" type="submit" style="background:var(--bad);color:#fff">Sorunu bildir</button></form>`, { title: "Ne sorun var?", sub: "İş duraklar; ustabaşı ve patron hemen bilgilendirilir." });
+}
+function sheetAssign(k) {
+  const [id, key] = k.split("|"), j = jobById(id), s = stageDef(j, key), r = j.stages[key];
+  const ppl = S.people.filter(p => p.id !== r.owner).sort((a, b) => ((b.depts || []).includes(s.assign?.dept) - (a.depts || []).includes(s.assign?.dept)) || loadOf(a.id) - loadOf(b.id));
+  openSheet("assign", `<div class="list">${ppl.map(p => `<button class="row" data-a="assign-to" data-k="${k}" data-id="${p.id}">${avatar(p)}<span><span class="t">${esc(p.name)}</span><span class="s">${(p.depts || []).includes(s.assign?.dept) ? `${esc(DEPTS[s.assign.dept])} · ` : ""}${loadOf(p.id) ? `${loadOf(p.id)} iş` : "Boşta"}</span></span>${(p.depts || []).includes(s.assign?.dept) && !loadOf(p.id) ? '<span class="pill ok">Önerilen</span>' : ""}</button>`).join("")}</div>`, { title: `${s.name}: kim yapsın?`, sub: `Şu an ${first(r.owner)}'da. Seçtiğin kişiye bildirim gider.` });
+}
+function sheetPerson(id) {
+  const p = person(id), w = myWork(id);
+  openSheet("person", `${w.length ? `<div class="list">${w.map(x => `<button class="row" data-a="job" data-id="${x.j.id}"><span class="ic">${ic(KINDS[x.s.kind]?.ic || "box")}</span><span><span class="t">${esc(isTask(x.j) ? x.j.title : `${x.s.name} · ${x.j.title}`)}</span><span class="s">${x.r.status === "working" ? "Çalışıyor" : x.r.status === "blocked" ? "Sorun var" : "Sırada"} · termin ${esc(dayLabel(x.j.due))}</span></span><span class="chev">${ic("chev")}</span></button>`).join("")}</div>` : `<div class="empty">Şu an boşta.</div>`}
+    ${p.phone ? `<p class="small muted">Telefon: <span class="num" style="user-select:all">${esc(p.phone)}</span></p>` : ""}
+    <div class="grid2">${can("create") && id !== S.me ? `<button class="btn" data-a="task-for" data-id="${id}">${ic("bolt")}Görev ver</button>` : ""}${id !== S.me ? `<button class="btn line" data-a="dm" data-id="${id}">${ic("chat")}Mesaj yaz</button>` : ""}</div>`, { title: esc(p.name), eyebrow: `${esc(groupOf(id).name)} · ${esc(p.title)}` });
+}
+function sheetAddPerson() {
+  openSheet("add-person", `<form data-form="person" style="display:grid;gap:14px" novalidate>
+    <div class="field"><label for="ap-name">Ad soyad</label><input id="ap-name" class="in" autocomplete="off" placeholder="Ör: Serkan Aksoy"></div>
+    <div class="field"><label for="ap-phone">Telefon</label><input id="ap-phone" class="in" inputmode="tel" autocomplete="off" placeholder="0532 123 45 67" aria-describedby="ap-ph-h"><p class="small muted" id="ap-ph-h">Davet linki WhatsApp ya da SMS ile bu numaraya gider.</p></div>
+    <div class="field"><label for="ap-dept">Ne iş yapar?</label><select id="ap-dept" class="in">${Object.entries(DEPTS).filter(([k]) => k !== "yonetim").map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select></div>
+    <div class="field"><label for="ap-grp">Yetkisi</label><select id="ap-grp" class="in"><option value="calisan">Çalışan · yalnız kendi işlerini görür</option><option value="ustabasi">Ustabaşı · her şeyi görür, iş dağıtır, onaylar</option><option value="sofor">Şoför · teslimatları görür</option><option value="yonetici">Yönetici · patron gibi, sistem ayarı hariç</option></select></div>
+    <p class="hint bad" id="ap-err" role="alert"></p><button class="btn ok big block" type="submit">Ekle ve davet gönder</button></form>`, { title: "Çalışan ekle", focus: "#ap-name" });
+}
+function sheetCustomer() {
+  openSheet("customer", `<form data-form="customer" style="display:grid;gap:14px" novalidate><div class="field"><label for="cu-name">Firma ya da kişi adı</label><input id="cu-name" class="in" autocomplete="off"></div>
+    <div class="field"><label for="cu-phone">Telefon</label><input id="cu-phone" class="in" inputmode="tel" autocomplete="off"></div><p class="hint bad" id="cu-err" role="alert"></p><button class="btn ok big block" type="submit">Müşteriyi ekle</button></form>`, { title: "Müşteri ekle", focus: "#cu-name" });
+}
+function sheetPublic(id) {
+  const j = jobById(id), f = flowOf(j), vis = f.stages.filter(s => !["notify", "invoice", "payment", "decision"].includes(s.kind));
+  const cur = active(j)[0];
+  openSheet("public", `<div class="public" aria-label="Müşterinin göreceği sayfa"><div class="ph"><span class="eyebrow" style="color:inherit;opacity:.85">${esc(S.biz.name)}</span><b style="font-size:var(--t-lg)">${esc(j.title)}</b><span class="small" style="opacity:.9">Tahmini teslim: ${esc(dayLabel(j.due))}</span></div>
+      <div class="pb"><ol class="steps" style="list-style:none;margin:0;padding:0">${vis.map((s, i) => { const r = j.stages[s.key]; return `<li class="step ${r.status === "done" ? "done" : cur && cur.key === s.key ? "now" : ""}"><span class="n" aria-hidden="true">${r.status === "done" ? ic("check", "s") : i + 1}</span><div><span class="b">${esc(s.publicName || s.name)}</span><p class="small muted">${r.status === "done" ? "Tamamlandı" : cur && cur.key === s.key ? "Şu an bu aşamada" : ""}</p></div></li>`; }).join("")}</ol>
+      <p class="xs muted">Çalışan adları, fiyat ve iç notlar müşteriye gösterilmez.</p></div></div>
+    <div class="field"><label for="pl">Bağlantı</label><input id="pl" class="in num" readonly value="https://takip.workflow.app/${esc(j.id)}" onclick="this.select()"></div>
+    <button class="btn block" data-a="copy" data-v="https://takip.workflow.app/${esc(j.id)}">${ic("link")}Bağlantıyı kopyala</button>`, { title: "Müşteri takip sayfası", sub: "Müşteri uygulama indirmeden işinin nerede olduğunu görür." });
+}
+function sheetJobMenu(id) {
+  const j = jobById(id), act0 = active(j)[0], done = flowOf(j).stages.filter(s => j.stages[s.key].status === "done" && s.kind !== "notify");
+  openSheet("jobmenu", `<div class="list">
+    ${j.status === "open" ? `<button class="row" data-a="hold" data-id="${id}"><span class="ic warn">${ic("pause")}</span><span><span class="t">Beklet</span><span class="s">Ör: ödeme bekleniyor; kimseye iş düşmez</span></span></button>` : `<button class="row" data-a="resume" data-id="${id}"><span class="ic">${ic("play")}</span><span><span class="t">Devam ettir</span></span></button>`}
+    ${act0 && done.length ? `<button class="row" data-a="sendback" data-id="${id}"><span class="ic">${ic("undo")}</span><span><span class="t">Bir aşamaya geri gönder</span><span class="s">Eksik ya da hatalı iş yeniden yapılır</span></span></button>` : ""}
+    ${!j.urgent ? `<button class="row" data-a="urgent" data-id="${id}"><span class="ic">${ic("flag")}</span><span><span class="t">Acil işaretle</span><span class="s">Ekibin listesinde en üste çıkar</span></span></button>` : ""}
+    <button class="row" data-a="cancel-ask" data-id="${id}"><span class="ic bad">${ic("x")}</span><span><span class="t" style="color:var(--bad)">İşi iptal et</span><span class="s">Geri alınamaz; sorulur</span></span></button></div>`, { title: "Diğer işlemler", eyebrow: `#${j.number}` });
+}
+function sheetSendBack(id) {
+  const j = jobById(id), from = active(j)[0], done = flowOf(j).stages.filter(s => j.stages[s.key].status === "done" && s.kind !== "notify");
+  openSheet("sendback", `<div class="list">${done.reverse().map(s => `<button class="row" data-a="sendback-to" data-id="${id}" data-from="${from.key}" data-to="${s.key}"><span class="ic">${ic("undo")}</span><span><span class="t">${esc(s.name)}</span><span class="s">${esc(first(j.stages[s.key].owner))} yeniden yapacak</span></span></button>`).join("")}</div>`, { title: "Nereye geri gönderilsin?", sub: "Seçtiğin aşama ve sonrası yeniden açılır." });
+}
+function dialogCancel(id) {
+  const j = jobById(id);
+  openSheet("cancel", `<p>“${esc(j.title)}” iptal edilecek. Açık aşamalar kapanır ve ekipten kimseye iş düşmez. Bu işlem geri alınamaz.</p>
+    <div class="field"><label for="cx-why">Neden? (müşteri kaydında görünür)</label><input id="cx-why" class="in" placeholder="Ör: Müşteri vazgeçti"></div>
+    <div class="grid2"><button class="btn line" data-a="close">Vazgeç</button><button class="btn" style="background:var(--bad);color:#fff" data-a="cancel-do" data-id="${id}">İptal et</button></div>`, { title: "İş iptal edilsin mi?", dialog: true, focus: ".btn.line" });
+}
+function sheetSign(k) {
+  openSheet("sign", `<canvas class="sig" id="sig" aria-label="İmza alanı: parmakla imzala" role="img"></canvas>
+    <div class="field"><label for="sg-name">Teslim alanın adı</label><input id="sg-name" class="in" autocomplete="off" placeholder="Ör: Levent Kaya" aria-describedby="sg-h"><p id="sg-h" class="small muted">İmza atamayan biri için adı yeterli; fotoğraf da eklenebilir.</p></div>
+    <div class="grid2"><button class="btn line" data-a="sig-clear">Temizle</button><button class="btn ok" data-a="sig-save" data-k="${k}">Kaydet</button></div>`, { title: "Teslim alan imzalasın", focus: "#sg-name" });
+  const cv = $("#sig"), c = cv.getContext("2d"); let draw = false;
+  const fit = () => { const r = cv.getBoundingClientRect(); cv.width = r.width * 2; cv.height = r.height * 2; c.scale(2, 2); c.lineWidth = 2.5; c.lineCap = "round"; c.strokeStyle = getComputedStyle(document.body).color; };
+  fit();
+  const pt = e => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  cv.onpointerdown = e => { draw = true; cv.setPointerCapture(e.pointerId); c.beginPath(); c.moveTo(...pt(e)); R.signed = true; };
+  cv.onpointermove = e => { if (draw) { c.lineTo(...pt(e)); c.stroke(); } };
+  cv.onpointerup = () => { draw = false; };
+}
+function sheetStepEdit(i) {
+  const s = FE.steps[i], prev = FE.steps.slice(0, i);
+  const deptOpts = Object.entries(DEPTS).map(([k, v]) => `<option value="d:${k}" ${s.assign?.mode === "dept" && s.assign.dept === k ? "selected" : ""}>${v} (${S.people.filter(p => (p.depts || []).includes(k)).length} kişi)</option>`).join("") + `<option value="previous" ${s.assign?.mode === "previous" ? "selected" : ""}>Önceki aşamayı yapan kişi</option><option value="creator" ${s.assign?.mode === "creator" ? "selected" : ""}>İşi açan kişi</option>`;
+  openSheet("step", `<form data-form="step" data-i="${i}" style="display:grid;gap:14px" novalidate>
+    <div class="field"><label for="st-name">Aşamanın adı</label><input id="st-name" class="in" value="${esc(s.name)}" autocomplete="off"></div>
+    <div class="field"><label for="st-kind">Türü</label><select id="st-kind" class="in">${Object.entries(KINDS).map(([k, v]) => `<option value="${k}" ${s.kind === k ? "selected" : ""}>${v.n} · ${v.d}</option>`).join("")}</select></div>
+    <div class="field"><label for="st-own">Kim yapar</label><select id="st-own" class="in">${deptOpts}</select><p class="small muted">Departmandan en az işi olana düşer; izinli olan atlanır.</p></div>
+    ${s.kind === "decision" ? `<div class="grid2"><div class="field"><label for="st-yes">Evet seçeneği</label><input id="st-yes" class="in" value="${esc(s.yes || "Uygun")}"></div><div class="field"><label for="st-no">Hayır seçeneği</label><input id="st-no" class="in" value="${esc(s.no || "Uygun değil")}"></div></div>
+      <div class="field"><label for="st-back">Hayır olunca dönülecek aşama</label><select id="st-back" class="in">${prev.map(p => `<option value="${p.key}" ${s.back === p.key ? "selected" : ""}>${esc(p.name)}</option>`).join("") || `<option value="">Önce bir aşama ekle</option>`}</select></div>` : ""}
+    ${s.kind === "timer" ? `<div class="field"><label for="st-timer">Bekleme süresi (saat)</label><input id="st-timer" class="in" inputmode="numeric" value="${esc(s.timer || 12)}"></div>` : ""}
+    <div class="field"><label for="st-check">Kontrol adımları · her satıra bir tane</label><textarea id="st-check" class="in" placeholder="Ör: Ölçüler kontrol edildi">${esc((s.checklist || []).join("\n"))}</textarea></div>
+    <div class="field"><label for="st-sla">Hedef süre (saat, isteğe bağlı)</label><input id="st-sla" class="in" inputmode="numeric" value="${esc(s.sla || "")}"></div>
+    <div class="list">
+      <div class="set"><div><b id="st-pl">Bitirmek için fotoğraf şart</b></div><button type="button" class="sw" role="switch" aria-checked="${!!s.photo}" aria-labelledby="st-pl" data-a="st-sw" data-k="photo"></button></div>
+      ${i && s.kind !== "decision" && FE.steps[i - 1].kind !== "decision" ? `<div class="set"><div><b id="st-par">Öncekiyle aynı anda yürüsün</b><p class="small muted">"${esc(FE.steps[i - 1].name)}" ile paralel</p></div><button type="button" class="sw" role="switch" aria-checked="${!!s.par}" aria-labelledby="st-par" data-a="st-sw" data-k="par"></button></div>` : ""}</div>
+    <div class="grid2"><button type="button" class="btn danger" data-a="st-del" data-i="${i}">${ic("trash")}Sil</button><button class="btn ok" type="submit">Tamam</button></div></form>`, { title: s.name || "Yeni aşama", eyebrow: `${i + 1}. aşama`, focus: "#st-name" });
+}
+
+/* ---------- ekran yönetimi ---------- */
+const TABS = () => isMgr()
+  ? [["today", "home", "Bugün"], ["jobs", "list", "İşler"], ...(can("create") ? [["plus", "plus", "Yeni"]] : []), ["chat", "chat", "Sohbet"], ["menu", "menu", "Menü"]]
+  : [["today", home() === "driver" ? "truck" : "home", home() === "driver" ? "Teslimat" : "Bugün"], ["chat", "chat", "Sohbet"], ["menu", "menu", "Menü"]];
+const top = () => R.stack.at(-1);
+function go(view, params = {}) { R.stack.push({ view, ...params }); R.focusNext = true; render(); scrollTop(); }
+function goBack() { R.stack.pop(); R.focusNext = true; render(); }
+function switchTab(t) { R.tab = t; R.stack = []; R.focusNext = true; render(); scrollTop(); }
+const scrollTop = () => { const s = $("#screen"); if (s) s.scrollTop = 0; window.scrollTo(0, 0); };
+
+function applyPrefs() {
+  const p = S.prefs, el = document.documentElement;
+  p.theme === "system" ? el.removeAttribute("data-theme") : el.setAttribute("data-theme", p.theme);
+  el.setAttribute("data-size", p.size); el.setAttribute("data-contrast", p.contrast); el.setAttribute("data-motion", p.motion); el.setAttribute("data-bold", p.bold ? "1" : "0");
+}
+function render() {
+  applyPrefs();
+  protoBar();
+  const main = $("#main");
+  let html, key;
+  if (S.phase === "welcome") { html = R.login ? viewSetup() : viewWelcome(); key = R.login ? "setup" : "welcome"; }
+  else {
+    const t = top();
+    if (t) {
+      key = t.view + (t.id || "");
+      html = t.view === "job" ? viewJob(t.id) : t.view === "thread" ? viewThread(t.id) : t.view === "team" ? viewTeam() : t.view === "customers" ? viewCustomers() : t.view === "flows" ? viewFlows()
+        : t.view === "flowedit" ? viewFlowEdit() : t.view === "reports" ? viewReports() : t.view === "a11y" ? viewA11y() : t.view === "notif" ? viewNotif() : t.view === "integrations" ? viewIntegrations() : viewWhy();
+    } else {
+      key = R.tab + S.me;
+      html = R.tab === "jobs" ? viewJobs() : R.tab === "chat" ? viewChat() : R.tab === "menu" ? viewMenu() : viewToday();
+    }
+  }
+  const changed = key !== R.lastKey;
+  // aynı ekranda yeniden çizimde arama kutusundaki imleç korunur
+  const qFocus = document.activeElement?.id === "q" ? document.activeElement.selectionStart : null;
+  main.innerHTML = html;
+  if (!changed) $$(".enter", main).forEach(e => e.classList.remove("enter"));
+  R.lastKey = key;
+  if (qFocus != null && $("#q")) { $("#q").focus(); $("#q").setSelectionRange(qFocus, qFocus); }
+  if (changed && R.focusNext) { const h = $("h1", main); if (h) h.focus({ preventScroll: true }); }
+  R.focusNext = false;
+  // alt menü
+  const nav = $("#tabs");
+  if (S.phase !== "app") { nav.innerHTML = ""; nav.hidden = true; return; }
+  nav.hidden = false;
+  const chatN = visibleThreads().reduce((a, t) => a + threadUnread(t), 0), jobsN = isMgr() ? openJobs().filter(j => late(j) || blockedSt(j).length).length : 0;
+  nav.innerHTML = TABS().map(([k, i, l]) => k === "plus"
+    ? `<button class="tab plus" data-a="plus" aria-label="Yeni oluştur"><span class="pip">${ic(i)}</span>${l}</button>`
+    : `<button class="tab" data-a="tab" data-v="${k}" ${R.tab === k && !top() ? 'aria-current="page"' : ""}><span class="pip">${ic(i)}${k === "chat" && chatN ? `<span class="badge" aria-label="${chatN} okunmamış">${chatN}</span>` : k === "jobs" && jobsN ? `<span class="badge" aria-label="${jobsN} dikkat gerektiren">${jobsN}</span>` : ""}</span>${l}</button>`).join("");
+}
+function protoBar() {
+  const sel = $("#who");
+  if (S.phase !== "app") { $("#proto").hidden = true; return; }
+  $("#proto").hidden = false;
+  const opts = S.people.map(p => `<option value="${p.id}" ${p.id === S.me ? "selected" : ""}>${esc(p.name)} · ${esc(groupOf(p.id).name)}</option>`).join("");
+  if (sel.dataset.sig !== opts) { sel.innerHTML = opts; sel.dataset.sig = opts; }
+  sel.value = S.me;
+  $("#net").setAttribute("aria-pressed", S.offline);
+  $("#net").textContent = S.offline ? "İnternet yok" : "Çevrimiçi";
+}
+
+/* ---------- bildirim (geri al ile) ---------- */
+let toastT;
+function toast(title, sub = "", withUndo = true, bad = false) {
+  const root = $("#toasts");
+  root.innerHTML = `<div class="toast" role="${bad ? "alert" : "status"}">${ic(bad ? "alert" : "check")}<div><b>${esc(title)}</b>${sub ? `<span>${esc(sub)}</span>` : ""}</div>${withUndo && undoSnap ? `<button class="undo" data-a="undo">Geri al</button>` : "<span></span>"}</div>`;
+  clearTimeout(toastT); toastT = setTimeout(() => { root.innerHTML = ""; }, withUndo ? 6000 : 4000);
+}
+
+/* ---------- dokunma ---------- */
+const splitK = k => k.split("|");
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-a]"); if (!b) return;
+  const a = b.dataset.a, d = b.dataset;
+  if (a === "scrim") { if (e.target === b) closeSheet(); return; }
+  if (b.getAttribute("aria-disabled") === "true" && !["finish"].includes(a) && b.type !== "submit") return;
+  switch (a) {
+    case "close": return closeSheet();
+    case "undo": return undo();
+    case "tab": return switchTab(d.v);
+    case "back": return goBack();
+    case "go": return go(d.v);
+    case "plus": if (S.setup && "job" in S.setup) { /* başlarken listesi */ } return sheetPlus();
+    case "notices": return sheetNotices();
+    case "notice": { const n = S.notices.find(x => x.id === d.id); n.read = true; save(); closeSheet(); if (n.jobId && jobById(n.jobId)) go("job", { id: n.jobId }); else render(); return; }
+    case "readall": S.notices.forEach(n => { if (n.to === S.me) n.read = true; }); save(); closeSheet(); render(); return;
+    case "job": closeSheet(); return go("job", { id: d.id });
+    case "thread": closeSheet(); return go("thread", { id: d.id });
+    case "person": return sheetPerson(d.id);
+    case "filter": R.filter = d.f; R.jobView = "liste"; if (d.stay) { render(); return; } R.tab = "jobs"; R.stack = []; R.focusNext = true; render(); scrollTop(); return;
+    case "jobview": R.jobView = d.v; return render();
+    case "flowview": R.flowView = d.id; return render();
+    case "demo": seedDemo(); save(); R.tab = "today"; R.stack = []; R.focusNext = true; render(); toast("Örnek işletme açıldı", "Üstten kimin gözüyle bakacağını seçebilirsin", false); return;
+    case "login": R.login = d.v; R.focusNext = true; return render();
+    case "welcome": R.login = null; R.focusNext = true; return render();
+    case "sector": R.setup = { me: $("#su-me").value, biz: $("#su-biz").value, sector: d.v }; return render();
+    case "setup-close": S.setup.closed = true; save(); return render();
+    case "signout": localStorage.removeItem(KEY); S = fresh(); R.login = null; R.stack = []; R.tab = "today"; R.focusNext = true; render(); return;
+    // görev kartı
+    case "start": { const [id, k] = splitK(d.k); return act(() => cmd.start(id, k), "Başladın", { sub: "Sayaç çalışıyor" }); }
+    case "check": { const [id, k] = splitK(d.k); cmd.check(id, k, +d.i); save(); render(); const el = $(`[data-a="check"][data-k="${d.k}"][data-i="${d.i}"]`); if (el) el.focus(); return; }
+    case "choose": { const [id, k] = splitK(d.k); (R.choice ??= {})[d.k] = d.v; render(); const el = $(`[data-a="choose"][data-k="${d.k}"][data-v="${d.v}"]`); if (el) el.focus(); return; }
+    case "photo": { const [id, k] = splitK(d.k); act(() => cmd.photo(id, k), "Fotoğraf eklendi", { sub: "Prototipte gerçek fotoğraf çekilmez" }); return; }
+    case "voice": { const [id, k] = splitK(d.k); const j = jobById(id); act(() => { j.log.push({ at: Date.now(), by: S.me, text: "Sesli not ekledi (0:12)", stageKey: k }); return j; }, "Sesli not eklendi", { sub: "Prototipte kayıt yapılmaz" }); return; }
+    case "issue": return sheetIssue(d.k);
+    case "issue-type": R.issue.type = d.v; $$('[data-a="issue-type"]').forEach(x => x.setAttribute("aria-checked", x.dataset.v === d.v)); return;
+    case "resolve": { const [id, k] = splitK(d.k); return act(() => cmd.resolve(id, k), "Sorun çözüldü", { sub: "İş kaldığı yerden devam ediyor" }); }
+    case "sign": return sheetSign(d.k);
+    case "sig-clear": { const cv = $("#sig"); cv.getContext("2d").clearRect(0, 0, cv.width, cv.height); R.signed = false; return; }
+    case "sig-save": { const name = $("#sg-name").value.trim(); if (!name && !R.signed) { $("#sg-name").setAttribute("aria-invalid", "true"); $("#sg-name").focus(); toast("İmza ya da ad gerekli", "", false, true); return; }
+      const [id, k] = splitK(d.k), j = jobById(id); j.data["_imza_" + k] = name || "İmzalı"; closeSheet(); act(() => j, "İmza alındı", { noUndo: true }); return; }
+    case "finish": {
+      const [id, k] = splitK(d.k), j = jobById(id), s = stageDef(j, k), sel = R.choice?.[d.k];
+      const bl = WF.blockers(j, flowOf(j), k, sel).concat(s.kind === "delivery" && !j.data["_imza_" + k] ? ["Teslim alanın imzası ya da adı gerekli"] : []);
+      if (bl.length) { toast("Henüz bitirilemez", bl.join(", "), false, true); const why = $(`#why-${id}-${k}`); if (why) why.scrollIntoView({ block: "center" }); return; }
+      const before = myWork().length;
+      return act(() => cmd.done(id, k, sel ? { choice: sel } : {}), () => (s.kind === "decision" ? "Karar kaydedildi" : s.kind === "approval" ? "Onaylandı" : "Bitti"), { sub: () => { const nx = myWork()[0]; const st = jobById(id); return st.status === "done" ? "İş tamamlandı, açan kişiye haber gitti" : nx && !isMgr() ? `Sıradaki işin: ${isTask(nx.j) ? nx.j.title : nx.s.name}` : "Sıradaki kişiye bildirim gitti"; } });
+    }
+    case "assign": return sheetAssign(d.k);
+    case "assign-to": { const [id, k] = splitK(d.k); closeSheet(); return act(() => cmd.reassign(id, k, d.id), `${first(d.id)}'a verildi`, { sub: "Bildirim gitti" }); }
+    case "public": return sheetPublic(d.id);
+    case "copy": navigator.clipboard?.writeText(d.v).then(() => toast("Bağlantı kopyalandı", "", false), () => { $("#pl").select(); toast("Bağlantıyı seçtim", "Kopyalamak için basılı tut", false); }); return;
+    case "jobmenu": return sheetJobMenu(d.id);
+    case "hold": closeSheet(); return act(() => cmd.hold(d.id, "Patron bekletti"), "İş bekletiliyor", { sub: "Kimseye iş düşmeyecek" });
+    case "resume": closeSheet(); return act(() => cmd.resume(d.id), "İş devam ediyor");
+    case "urgent": { closeSheet(); const j = jobById(d.id); return act(() => { j.urgent = true; j.log.push({ at: Date.now(), by: S.me, text: "Acil işaretlendi" }); return j; }, "Acil işaretlendi"); }
+    case "sendback": return sheetSendBack(d.id);
+    case "sendback-to": closeSheet(); return act(() => cmd.back(d.id, d.from, d.to, `${first(S.me)} geri gönderdi`), "Geri gönderildi", { sub: `${stageDef(jobById(d.id), d.to).name} yeniden açıldı` });
+    case "cancel-ask": return dialogCancel(d.id);
+    case "cancel-do": { const why = $("#cx-why").value.trim() || "Belirtilmedi"; closeSheet(); act(() => cmd.cancel(d.id, why), "İş iptal edildi", { noUndo: true }); return; }
+    case "tip": { const t = suggestions().find(x => x.id === d.id); if (!t) return; const w = t[d.w === "alt" ? "alt" : "apply"]; S.dismissed.push(t.id); return act(() => w.do(), w.msg); }
+    case "tipx": S.dismissed.push(d.id); save(); render(); toast("Öneri gizlendi", "", false); return;
+    // ＋ ve formlar
+    case "taskform": closeSheet(); return sheetTask();
+    case "task-for": closeSheet(); return sheetTask({ who: [d.id] });
+    case "newjob": closeSheet(); return sheetJob();
+    case "newjob-for": return sheetJob({ cust: S.customers.find(c => c.id === d.id).name });
+    case "customer": closeSheet(); return sheetCustomer();
+    case "add-person": closeSheet(); return sheetAddPerson();
+    case "smart-edit": { const p = parseSmart($("#sm-in").value); closeSheet(); return p.kind === "job" ? sheetJob({ flow: p.flowId, cust: p.customer?.name, title: p.title, urgent: p.urgent }) : sheetTask({ title: p.title, who: p.who, urgent: p.urgent, day: p.dueDay ?? 0, hour: p.hour ?? 17 }); }
+    case "tf-who": { const w = R.tf.who; const i = w.indexOf(d.id); i >= 0 ? w.splice(i, 1) : w.push(d.id); b.setAttribute("aria-pressed", w.includes(d.id)); return; }
+    case "tf-day": R.tf.day = +d.v; $$('[data-a="tf-day"]').forEach(x => x.setAttribute("aria-checked", x === b)); return;
+    case "tf-urgent": R.tf.urgent = !R.tf.urgent; b.setAttribute("aria-checked", R.tf.urgent); return;
+    case "jf-flow": syncJf(); R.jf.flow = d.id; R.jf.data = {}; $(".sheet form").outerHTML = jobForm(); $(`[data-a="jf-flow"][data-id="${d.id}"]`).focus(); return;
+    case "jf-day": R.jf.day = +d.v; $$('[data-a="jf-day"]').forEach(x => x.setAttribute("aria-checked", x === b)); return;
+    case "jf-urgent": R.jf.urgent = !R.jf.urgent; b.setAttribute("aria-pressed", R.jf.urgent); return;
+    case "jf-field": R.jf.data[d.k] = d.v; $$(`[data-a="jf-field"][data-k="${d.k}"]`).forEach(x => x.setAttribute("aria-checked", x === b)); return;
+    // sohbet
+    case "msg": R.chatOpenMsg = R.chatOpenMsg === d.id ? null : d.id; render(); { const el = $(`[data-a="msg"][data-id="${d.id}"]`); if (el) el.focus(); } return;
+    case "totask": { const t = S.threads.find(x => x.id === d.t), m = t.msgs.find(x => x.id === d.id); const p = parseSmart(m.text); const ment = S.people.filter(x => trn(m.text).includes("@" + trn(first(x.id)))).map(x => x.id);
+      R.chatOpenMsg = null; return sheetTask({ title: p.title.replace(/@\S+\s*/g, "").trim() || m.text.slice(0, 80), who: ment.length ? ment : m.by !== S.me ? [m.by] : [], note: `Sohbetten · ${first(m.by)}` }); }
+    case "reply": { const i = $("#msg-in"); i.value = `@${d.v} `; i.focus(); return; }
+    case "quickreply": { const i = $("#msg-in"); i.value = d.v; i.focus(); return; }
+    case "dm": case "dm-foreman": { closeSheet(); const other = a === "dm" ? d.id : S.people.find(p => home(p.id) === "foreman")?.id || S.people.find(p => home(p.id) === "boss").id;
+      let t = S.threads.find(x => x.kind === "dm" && x.members.includes(S.me) && x.members.includes(other)); if (!t) { t = { id: "dm" + uid(), kind: "dm", members: [S.me, other], msgs: [], read: {} }; S.threads.push(t); save(); }
+      return go("thread", { id: t.id }); }
+    // ayarlar
+    case "pref": S.prefs[d.k] = d.v; save(); render(); { const el = $(`[data-a="pref"][data-k="${d.k}"][data-v="${d.v}"]`); if (el) el.focus(); } return;
+    case "pref-sw": { const k = d.k; if (k === "contrast") S.prefs.contrast = S.prefs.contrast === "high" ? "normal" : "high"; else if (k === "motion") S.prefs.motion = S.prefs.motion === "off" ? "on" : "off"; else S.prefs[k] = !S.prefs[k]; save(); render(); const el = $(`[data-a="pref-sw"][data-k="${k}"]`); if (el) el.focus(); return; }
+    case "notif-sw": S.prefs.notify[d.k] = !S.prefs.notify[d.k]; save(); render(); { const el = $(`[data-a="notif-sw"][data-k="${d.k}"]`); if (el) el.focus(); } return;
+    // akış tasarlayıcısı
+    case "flows": S.setup.flow = true; save(); return go("flows");
+    case "editflow": FE = JSON.parse(JSON.stringify(S.flows[d.id].model)); FE.version = S.flows[d.id].version; return go("flowedit");
+    case "newflow": FE = { id: "f" + uid().slice(-5), name: "", steps: [], fields: [], _new: true }; return go("flowedit");
+    case "fe-move": { const i = +d.i, j2 = i + +d.d; [FE.steps[i], FE.steps[j2]] = [FE.steps[j2], FE.steps[i]]; if (FE.steps[0]) FE.steps[0].par = false; FE._checked = FE._checked; FE._sim = null; render(); const el = $(`[data-a="fe-move"][data-i="${j2}"][data-d="${d.d}"]`) || $(`[data-a="fe-edit"][data-i="${j2}"]`); el?.focus(); return; }
+    case "fe-edit": return sheetStepEdit(+d.i);
+    case "fe-add": FE.steps.push({ key: "s" + uid().slice(-5), name: "", kind: "task", assign: { mode: "dept", dept: "uretim" } }); FE._sim = null; render(); return sheetStepEdit(FE.steps.length - 1);
+    case "st-sw": b.setAttribute("aria-checked", b.getAttribute("aria-checked") !== "true"); return;
+    case "st-del": FE.steps.splice(+d.i, 1); FE._sim = null; closeSheet(); render(); toast("Aşama silindi", "", false); return;
+    case "fe-check": FE._checked = true; render(); $('[role="status"]', $("#main"))?.scrollIntoView({ block: "center" }); return;
+    case "fe-sim": { FE._checked = true; const errs = modelErrors(FE); if (errs.length) { render(); return; } FE._sim = simulate(FE); render(); return; }
+    case "fe-save": { FE._checked = true; const errs = modelErrors(FE); if (errs.length) { render(); toast("Kaydedilmedi", `${errs.length} şey düzeltilmeli`, false, true); return; }
+      const old = S.flows[FE.id], m = JSON.parse(JSON.stringify(FE)); delete m._checked; delete m._sim; delete m._new; m.version = (old?.version || 0) + 1;
+      S.flows[FE.id] = toFlow(m); save(); goBack(); toast(old ? `Sürüm ${m.version} kaydedildi` : "Akış oluşturuldu", "Yeni işler bu sürümle açılacak", false); return; }
+  }
+});
+function syncJf() { if (!R.jf) return; R.jf.cust = $("#jf-cust")?.value ?? R.jf.cust; R.jf.title = $("#jf-title")?.value ?? R.jf.title; R.jf.qty = $("#jf-qty")?.value ?? R.jf.qty; R.jf.amount = $("#jf-amount")?.value ?? R.jf.amount; $$("[data-jf-field]").forEach(i => { R.jf.data[i.dataset.jfField] = i.value; }); }
+function simulate(m) {
+  const f = toFlow(JSON.parse(JSON.stringify(m))), path = [];
+  let r = WF.createJob(f, { id: "sim", businessId: "x", number: 0, title: "Deneme", due: Date.now() + 9 * DAY, data: Object.fromEntries(f.fields.map(x => [x.key, x.options ? x.options[0] : "deneme"])) }, { now: Date.now(), by: S.me, resolve: resolver });
+  for (let guard = 0; guard < 40 && r.job.status === "open"; guard++) {
+    const s = WF.activeStages(r.job, f)[0]; if (!s) break;
+    const run = r.job.stages[s.key]; run.checks = run.checks.map(() => true); run.photos = 1;
+    path.push(`${s.name} · ${first(run.owner) || "sahibi yok"}${WF.activeStages(r.job, f).length > 1 ? ` (aynı anda: ${WF.activeStages(r.job, f).slice(1).map(x => x.name).join(", ")})` : ""}`);
+    r = WF.completeStage(r.job, f, s.key, { now: Date.now(), by: S.me, resolve: resolver }, s.kind === "decision" ? { choice: "evet" } : {});
+  }
+  path.push(r.job.status === "done" ? "İş tamamlanır" : "Akış bir yerde takıldı");
+  return { path, choice: "evet" };
+}
+
+/* ---------- formlar ---------- */
+document.addEventListener("submit", e => {
+  const f = e.target.closest("[data-form]"); if (!f) return; e.preventDefault();
+  const k = f.dataset.form;
+  if (k === "send") { const i = $("#msg-in"), v = i.value.trim(); if (!v) { i.focus(); return; } const t = S.threads.find(x => x.id === f.dataset.id); t.msgs.push({ id: uid(), by: S.me, at: Date.now(), kind: "text", text: v });
+    for (const p of S.people) if (p.id !== S.me && trn(v).includes("@" + trn(first(p.id)))) notify(p.id, `${first(S.me)} seni andı: ${v.slice(0, 60)}`, t.jobId, "chat");
+    if (S.offline) S.queue.push({ type: "message", at: Date.now() }); save(); render(); $("#msg-in")?.focus(); const s = $("#screen"); if (s) s.scrollTop = s.scrollHeight; window.scrollTo(0, document.body.scrollHeight); return; }
+  if (k === "smart") { const p = parseSmart($("#sm-in").value);
+    if (!p.title || (p.kind === "task" && !p.who.length)) { $("#sm-in").focus(); return; }
+    closeSheet();
+    if (p.kind === "job") { const c = p.customer; return act(() => { const j = cmd.create(p.flowId, { title: p.title, customerName: c.name, customerId: c.id, due: p.due || atHour(3), urgent: p.urgent }); S.setup.job = true; return j; }, "İş emri açıldı", { sub: j => `#${j.number} · ilk aşama ${first(active(j)[0] ? j.stages[active(j)[0].key].owner : S.me)}'a düştü` }); }
+    return act(() => cmd.task({ title: p.title, who: p.who, due: p.due || atHour(0), urgent: p.urgent }), p.who.length > 1 ? `${p.who.length} kişiye görev verildi` : "Görev verildi", { sub: `${p.who.map(first).join(", ")} · ${when(p.due || atHour(0))}` }); }
+  if (k === "task") { const t = $("#tf-title").value.trim(), st = R.tf, err = $("#tf-err");
+    if (!t) { err.textContent = "Ne yapılacağını yaz."; $("#tf-title").setAttribute("aria-invalid", "true"); $("#tf-title").focus(); return; }
+    if (!st.who.length) { err.textContent = "Görevi kime vereceğini seç."; $('[data-a="tf-who"]').focus(); return; }
+    const due = atHour(st.day, +$("#tf-hour").value), steps = $("#tf-steps").value.split("\n").map(x => x.trim()).filter(Boolean), note = $("#tf-note").value.trim();
+    closeSheet(); return act(() => cmd.task({ title: t, who: st.who, due, note, steps, urgent: st.urgent }), st.who.length > 1 ? `${st.who.length} kişiye görev verildi` : "Görev verildi", { sub: `${st.who.map(first).join(", ")} · ${when(due)}` }); }
+  if (k === "job") { syncJf(); const st = R.jf, err = $("#jf-err"), f2 = S.flows[st.flow];
+    const miss = [!st.cust.trim() && ["#jf-cust", "Müşteriyi yaz."], !st.title.trim() && ["#jf-title", "İşin adını yaz."], ...f2.fields.filter(x => x.requiredAt === "create" && !String(st.data[x.key] || "").trim()).map(x => [`#jf-f-${x.key}`, `${x.label} gerekli.`])].filter(Boolean);
+    $$(".sheet .in").forEach(i => i.removeAttribute("aria-invalid"));
+    if (miss.length) { err.textContent = miss.map(m => m[1]).join(" "); miss.forEach(m => $(m[0])?.setAttribute("aria-invalid", "true")); $(miss[0][0])?.focus(); return; }
+    let c = S.customers.find(x => trn(x.name) === trn(st.cust)); if (!c) { c = { id: "c" + uid(), name: st.cust.trim() }; S.customers.push(c); }
+    closeSheet();
+    return act(() => { const j = cmd.create(st.flow, { title: st.title.trim(), customerName: c.name, customerId: c.id, due: atHour(st.day), qty: Number(st.qty) || 1, urgent: st.urgent, amount: st.amount ? WF.tl(Number(String(st.amount).replace(/\./g, "").replace(",", "."))) : 0, data: Object.fromEntries(Object.entries(st.data).filter(([, v]) => v !== "")) }); S.setup.job = true; return j; },
+      "İş emri açıldı", { sub: j => `#${j.number} · ilk aşama ${first(active(j)[0] ? j.stages[active(j)[0].key].owner : S.me)}'a düştü` }); }
+  if (k === "issue") { if (!R.issue.type) { $("#is-err").textContent = "Sorunun türünü seç."; $('[data-a="issue-type"]').focus(); return; }
+    const [id, sk] = splitK(R.issue.k), note = $("#is-note").value.trim(); closeSheet(); return act(() => cmd.issue(id, sk, R.issue.type, note), "Sorun bildirildi", { sub: "Ustabaşı ve patron bilgilendirildi" }); }
+  if (k === "person") { const n = $("#ap-name").value.trim(), ph = $("#ap-phone").value.trim(), err = $("#ap-err");
+    if (!n) { err.textContent = "Ad soyad gerekli."; $("#ap-name").focus(); return; } if (ph.replace(/\D/g, "").length < 10) { err.textContent = "Davet için 10 haneli telefon gerekli."; $("#ap-phone").focus(); return; }
+    const g = $("#ap-grp").value, dept = $("#ap-dept").value; closeSheet(); return act(() => { S.people.push({ id: "p" + uid(), name: n, phone: ph, title: DEPTS[dept] || "Çalışan", group: g, depts: [dept], joined: false }); S.setup.team = true; }, `${n} davet edildi`, { sub: `Davet linki ${ph} numarasına gider (prototipte gönderilmez)` }); }
+  if (k === "customer") { const n = $("#cu-name").value.trim(); if (!n) { $("#cu-err").textContent = "Müşterinin adını yaz."; $("#cu-name").focus(); return; } closeSheet(); return act(() => S.customers.push({ id: "c" + uid(), name: n, phone: $("#cu-phone").value.trim() }), "Müşteri eklendi"); }
+  if (k === "setup") { const me = $("#su-me").value.trim(), biz = $("#su-biz").value.trim(), sec = R.setup?.sector;
+    const err = !me ? ["#su-me", "Adını yaz."] : !biz ? ["#su-biz", "İşletmenin adını yaz."] : !sec ? ['[data-a="sector"]', "Ne iş yaptığınızı seç."] : null;
+    if (err) { $("#su-err").textContent = err[1]; $(err[0]).focus(); return; }
+    seedNew({ me, biz, sector: sec, method: R.login }); save(); R.login = null; R.tab = "today"; R.stack = []; R.focusNext = true; render(); toast(`${biz} hazır`, "Başlarken listesinden devam edebilirsin", false); return; }
+  if (k === "step") { const i = +f.dataset.i, s = FE.steps[i];
+    s.name = $("#st-name").value.trim() || s.name; s.kind = $("#st-kind").value; const own = $("#st-own").value;
+    s.assign = own.startsWith("d:") ? { mode: "dept", dept: own.slice(2) } : { mode: own };
+    if ($("#st-yes")) { s.yes = $("#st-yes").value.trim(); s.no = $("#st-no").value.trim(); s.back = $("#st-back").value || FE.steps[0].key; }
+    if (s.kind === "decision" && !s.back) s.back = FE.steps[0].key;
+    if ($("#st-timer")) s.timer = +$("#st-timer").value || 12;
+    s.checklist = $("#st-check").value.split("\n").map(x => x.trim()).filter(Boolean); s.sla = +$("#st-sla").value || undefined;
+    s.photo = $('[data-k="photo"]', f).getAttribute("aria-checked") === "true"; const par = $('[data-k="par"]', f); s.par = par ? par.getAttribute("aria-checked") === "true" : false;
+    if (!s.name) { $("#st-name").setAttribute("aria-invalid", "true"); $("#st-name").focus(); return; }
+    FE._sim = null; closeSheet(); render(); $(`[data-a="fe-edit"][data-i="${i}"]`)?.focus(); return; }
+});
+
+document.addEventListener("input", e => {
+  const t = e.target;
+  if (t.id === "q") { R.q = t.value; const jl = $("#jl"); if (jl) { const html = viewJobs(); const tmp = document.createElement("div"); tmp.innerHTML = html; jl.innerHTML = $("#jl", tmp).innerHTML; $$(".chips [data-stay]").forEach((c, i) => { const x = $$(".chips [data-stay]", tmp)[i]; if (x) c.innerHTML = x.innerHTML; }); } return; }
+  if (t.id === "sm-in") { $("#sm-out").innerHTML = smartPreview(t.value); return; }
+  if (t.id === "fe-name") { FE.name = t.value; return; }
+  if (t.id === "su-me" || t.id === "su-biz") { R.setup = { ...(R.setup || {}), me: $("#su-me").value, biz: $("#su-biz").value }; return; }
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.id === "who") { S.me = t.value; save(); R.tab = "today"; R.stack = []; R.focusNext = true; closeSheet(); render(); scrollTop(); toast(`${person(S.me).name} gözüyle`, groupOf(S.me).name, false); return; }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && R.sheet) { e.preventDefault(); closeSheet(); return; }
+  trapFocus(e);
+});
+$("#net").addEventListener("click", () => {
+  S.offline = !S.offline;
+  if (!S.offline && S.queue.length) { const n = S.queue.length; S.queue = []; toast("Bağlantı geldi", `${n} değişiklik gönderildi`, false); } else if (S.offline) toast("İnternet yok", "Çalışmaya devam et; değişiklikler sıraya girer", false);
+  save(); render();
+});
+$("#reset").addEventListener("click", () => { closeSheet(); seedDemo(); save(); R.tab = "today"; R.stack = []; R.focusNext = true; render(); toast("Örnek işletme baştan kuruldu", "", false); });
+
+/* ---------- saat, sayaç, zamanlayıcı ---------- */
+setInterval(() => { $$("[data-timer]").forEach(el => { el.textContent = clock(+el.dataset.timer); }); }, 1000);
+setInterval(() => { const t = $("#sbTime"); if (t) t.textContent = hm(Date.now()); if (S.phase === "app") cmd.tick(); }, 30000);
+
+document.documentElement.lang = "tr";
+load();
+if (S.phase === "app" && !S.people.length) S = fresh();
+R.focusNext = false;
+render();
+{ const t = $("#sbTime"); if (t) t.textContent = hm(Date.now()); }
+
+})();
+</script>
