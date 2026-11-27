@@ -721,6 +721,20 @@ details.hist .feed { border: 0; border-top: 1px solid var(--line); border-radius
 .setup { background: var(--surface); border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); border-radius: var(--r-lg); padding: 14px; gap: 10px; }
 .setup .list { border: 0; box-shadow: none; } .setup .att { padding-left: 0; padding-right: 0; }
 .att:disabled { opacity: 1; cursor: default; }
+/* görevler */
+.seg.seg5 { grid-template-columns: repeat(5, minmax(0, 1fr)); } .seg.seg5 button { font-size: var(--t-sm); padding: 9px 2px; }
+.tcks { display: grid; gap: 6px; margin-top: 8px; }
+.tck { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 10px; align-items: center; text-align: left; min-height: 44px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); font: inherit; }
+.tck .bx { width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--line-2); display: grid; place-items: center; color: transparent; }
+.tck .bx svg { width: 16px; height: 16px; }
+.tck[aria-pressed="true"] { color: var(--ink-3); } .tck[aria-pressed="true"] span:last-child { text-decoration: line-through; }
+.tck[aria-pressed="true"] .bx { background: var(--ok); border-color: var(--ok); color: #fff; }
+.trow-who { display: inline-flex; align-items: center; gap: 6px; }
+.tk-steps { display: grid; gap: 6px; }
+.tk-steps .row { display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: 6px; }
+.tk-opt { border: 1px solid var(--line); border-radius: var(--r-lg); padding: 4px 14px; background: var(--surface); }
+.tk-opt > summary { min-height: 48px; display: flex; align-items: center; font-weight: 600; cursor: pointer; }
+.tk-opt[open] { padding-bottom: 14px; } .tk-opt .stack { gap: 14px; }
 /* alt menü: ortada yükseltilmiş ＋ */
 .tab.tplus { color: var(--ink-2); }
 .tab.tplus .i { width: 54px; height: 54px; border-radius: 50%; background: var(--accent); color: var(--on-accent); margin-top: -22px; box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 38%, transparent); border: 3px solid var(--surface); }
@@ -3526,7 +3540,8 @@ var qrcode = function() {
     const hint = st.missing.length ? `Formda ${st.missing.length} zorunlu alan eksik: ${st.missing.map(f => esc(f.label)).join(", ")}`
       : photo ? "Bu aşamada bitirmeden önce fotoğraf eklemen gerekiyor."
       : st.fails.length ? `<span class="w">⚠ Tolerans dışı: ${st.fails.map(f => esc(f.label)).join(", ")}.</span> ${s.type === "approval" ? "Onaylarsan sapma kayda geçer; düzeltme gerekiyorsa geri gönder." : "Bitirince ustabaşı bilgilendirilir."}` : "";
-    return { block: !!st.missing.length || photo, hint, fails: st.fails.length };
+    const ckl = (s.ck || []).filter(x => !x).length;
+    return { block: !!st.missing.length || photo || !!ckl, hint: hint || (ckl ? `${ckl} alt adım işaretlenmedi.` : ""), fails: st.fails.length };
   }
   function fieldHtml(k, f, val) {
     const bad = fFail(f, val), id = `ff-${k.replace(":", "-")}-${f.id}`, tol = tolText(f);
@@ -3899,6 +3914,7 @@ var qrcode = function() {
     const nextG = curGroup(j);
     if (nextG == null) {
       j.done = true; j.doneAt = Date.now();
+      if (j.quick) { notify(`${first(by)} görevi bitirdi: ${j.title}`, "✅", [j.by || PAT()]); if (j.spec && j.spec.repeat && !j.spawned) spawnRepeat(j); return { finished: true }; }
       notify(`#${j.id} ${j.title} tamamlandı · rapor hazır`, "🏁", [PAT()]);
       if (flowOf(j).prefs.custNotify && D.mods.customers) notify(`Müşteriye mesaj gitti: “${j.title} siparişiniz tamamlandı”`, "📲");
       return { finished: true };
@@ -4369,6 +4385,7 @@ var qrcode = function() {
         <span class="mt">${hm(m.at)}${t.kind === "announce" && isMgr(me) ? ` · Okundu ${readers}/${staff}` : mine ? " · ✓✓" : ""}</span>
         <div class="mact" data-actfor="${m.id}" hidden>${isMgr(me) ? `<button class="chip" data-pin="${t.id}:${m.id}">${m.pinned ? "Sabitlemeyi kaldır" : "📌 Sabitle"}</button>` : ""}
           ${t.kind === "job" && j && !j.done && isMgr(me) && m.kind === "text" ? `<button class="chip" data-toissue="${t.id}:${m.id}">⚠️ Soruna çevir</button>` : ""}
+          ${can(me, "create") && m.kind === "text" && !me.startsWith("c:") ? `<button class="chip" data-totask="${t.id}:${m.id}">⚡ Göreve çevir</button>` : ""}
           <button class="chip" data-reply="${esc(whoName(m.by))}">Yanıtla</button></div></div>`;
     }).join("");
     layer.innerHTML = `<div class="chatview" role="dialog" aria-modal="true" aria-label="${esc(threadTitle(t))}">
@@ -4447,35 +4464,106 @@ var qrcode = function() {
   }
   function openPlus() {
     const A = [];
-    if (can(me, "create")) A.push(["quick", "Hızlı görev", "Akış seçmeden: kime, ne, ne zamana", "bolt"], ["job", "İş emri", "Müşteri siparişi: kalemler, aşamalar, termin", "list"]);
+    if (can(me, "create")) A.push(["quick", "Görev ver", "Kime, ne, ne zamana · alt adım, tekrar, onay", "bolt"], ["job", "İş emri", "Müşteri siparişi: kalemler, aşamalar, termin", "list"]);
     if (can(me, "money")) A.push(["quote", "Teklif", "Katalogdan fiyatlı teklif, WhatsApp'tan gönder", "money"]);
     if (can(me, "create")) A.push(["cust", "Müşteri", "İletişim, adres ve vergi bilgisi", "user"]);
     if (can(me, "team")) A.push(["person", "Çalışan davet et", "Telefonuna davet linki gider", "team"]);
     sheet(`<div class="stack"><div><h2>Ne oluşturalım?</h2></div><div class="list">${A.map(([k, t, d, ic]) => `<button class="att" data-new="${k}"><span class="aic info">${ico(ic)}</span><span class="atx"><b>${t}</b><span>${d}</span></span><span class="chev">${ico("chev")}</span></button>`).join("")}</div></div>`);
   }
-  function openQuick() {
+  const REP = { gun: ["Her gün", DAY], hafta: ["Her hafta", 7 * DAY], ay: ["Her ay", 30 * DAY] };
+  function makeTask(spec, due, who) {
     ensureQuickFlow();
-    const ppl = PEOPLE.filter(p => p.id !== me || PEOPLE.length === 1); let who = (ppl.find(p => homeOf(p.id) === "worker") || ppl[0]).id;
+    const base = flowById("_quick"), flow = { ...base, finalBy: spec.approve && !who.includes(spec.by) ? spec.by : null,
+      stages: [{ ...QUICK_FLOW.stages[0], checklist: spec.steps.slice(), photo: !!spec.photo, mode: who.length > 1 ? "crew" : "solo" }] };
+    const lk = spec.link ? jobById(spec.link) : null;
+    const j = mkJob({ flow, id: D.nextId++, title: spec.title, customer: "", qty: lk ? `#${lk.id} ${lk.title}` : "Görev", due, at: 0, waiting: 0, createdAt: Date.now(), owners: { q1: who[0] }, urgent: spec.urgent });
+    j.flowId = "_quick"; j.quick = true; j.by = spec.by; j.spec = { ...spec };
+    const st = j.steps[0]; if (who.length > 1) st.crew = [...who]; st.ck = st.checklist.map(() => false); if (spec.note) st.detail = spec.note;
+    j.steps.forEach(x => { if (x.status === "ready") x.readyAt = Date.now(); });
+    return j;
+  }
+  function spawnRepeat(j) {
+    const r = REP[j.spec.repeat]; if (!r) return; let d = j.due + r[1];
+    while (d < sod() + WD_E * HOUR) d += r[1];
+    if (!WD_SAT && new Date(d).getDay() === 6) d += 2 * DAY; if (new Date(d).getDay() === 0) d += DAY;
+    const st = j.steps[0], n = makeTask(j.spec, d, crewOf(st)); D.jobs.push(n); j.spawned = n.id;
+    notify(`Tekrarlayan görev yeniden açıldı: ${n.title} · ${dayLabel(d)}`, "🔁", crewOf(st));
+  }
+  const taskState = j => { if (j.cancelled) return ["İptal", "mute"]; if (j.done) return ["Bitti", "ok"]; const st = j.steps[0], fin = j.steps.find(x => x.final);
+    if (fin && fin.status === "ready") return ["Onay bekliyor", "warn"]; if (st.status === "blocked") return ["Sorun", "bad"]; if (st.status === "working") return ["Yapılıyor", "acc"]; return ["Bekliyor", "mute"]; };
+  function taskRow(j) {
+    const st = j.steps[0], who = crewOf(st), [l, c] = taskState(j), ck = st.ck || [], late = !j.done && !j.cancelled && j.due < Date.now();
+    return `<button class="jr" data-job="${j.id}"><div class="jr-h"><span class="t">${esc(j.title)}</span>${j.spec && j.spec.repeat ? `<span class="pill mute">🔁 ${REP[j.spec.repeat][0]}</span>` : ""}</div>
+      <div class="jr-m"><span class="trow-who">${who.map(id => avatar(id, 20)).join("")} ${esc(who.map(first).join(", "))}</span> · ${esc(dayLabel(j.due))}${ck.length ? ` · ✓ ${ck.filter(Boolean).length}/${ck.length}` : ""}${j.by && j.by !== me ? ` · veren ${esc(first(j.by))}` : ""}</div>
+      <div class="st"><span class="pill ${c}">${l}</span>${late ? `<span class="pill bad">Gecikti</span>` : ""}${j.urgent ? `<span class="pill acc">Acil</span>` : ""}${j.steps.some(x => x.final) ? `<span class="pill mute">Onay gerekli</span>` : ""}</div></button>`;
+  }
+  let taskFilter = "acik", taskWho = "";
+  function tasksHtml() {
+    const all = D.jobs.filter(j => j.quick && (!taskWho || crewOf(j.steps[0]).includes(taskWho)));
+    const F = [["acik", "Açık", j => !j.done && !j.cancelled], ["geciken", "Geciken", j => !j.done && !j.cancelled && j.due < Date.now()], ["onay", "Onayımda", j => !j.done && j.steps.some(x => x.final && x.status === "ready" && x.owner === me)], ["biten", "Biten", j => j.done]];
+    const f = (F.find(x => x[0] === taskFilter) || F[0])[2], L = all.filter(f).sort((a, b) => taskFilter === "biten" ? b.doneAt - a.doneAt : a.due - b.due);
+    const ppl = [...new Set(D.jobs.filter(j => j.quick && !j.done).flatMap(j => crewOf(j.steps[0])))];
+    const B = [["Gecikmiş", j => j.due < Date.now()], ["Bugün", j => sod(j.due) === sod() && j.due >= Date.now()], ["Yarın", j => sod(j.due) === sod() + DAY], ["Sonra", j => sod(j.due) > sod() + DAY]];
+    const rows = taskFilter === "acik" ? B.map(([h, t]) => { const x = L.filter(t); return x.length ? `<section><h2>${h} · ${x.length}</h2><div class="list">${x.map(taskRow).join("")}</div></section>` : ""; }).join("")
+      : L.length ? `<div class="list">${L.map(taskRow).join("")}</div>` : "";
+    return `<div class="chips">${F.map(([k, l, fn]) => `<button class="chip" data-tf="${k}" aria-pressed="${taskFilter === k}">${l} · ${all.filter(fn).length}</button>`).join("")}</div>
+      ${ppl.length > 1 ? `<select class="in" id="tWho" aria-label="Kişiye göre"><option value="">Herkesin görevleri</option>${ppl.map(id => `<option value="${id}"${taskWho === id ? " selected" : ""}>${esc(person(id).name)} · ${D.jobs.filter(j => j.quick && !j.done && crewOf(j.steps[0]).includes(id)).length} açık</option>`).join("")}</select>` : ""}
+      ${rows || `<div class="empty">${D.jobs.some(j => j.quick) ? "Bu filtrede görev yok." : "Henüz görev yok. Kime ne yapacağını yaz; kişiye bildirim gider, bitirince sana haber gelir."}</div>`}
+      ${can(me, "create") ? `<button class="btn block" data-new="quick">${ico("bolt")} Görev ver</button>` : ""}`;
+  }
+  function tasksCard() {
+    const open = D.jobs.filter(j => j.quick && !j.done && !j.cancelled); if (!open.length) return "";
+    const late = open.filter(j => j.due < Date.now()).length, appr = open.filter(j => j.steps.some(x => x.final && x.status === "ready" && x.owner === me)).length;
+    return `<section><div class="sec-h"><h2>Verilen görevler</h2><button class="link" data-tasks>Tümü · ${open.length}</button></div>
+      <div class="sm" style="margin:-4px 0 8px">${[`${open.length} açık`, late && `${late} gecikmiş`, appr && `${appr} onayını bekliyor`].filter(Boolean).join(" · ")}</div>
+      <div class="list">${open.sort((a, b) => a.due - b.due).slice(0, 3).map(taskRow).join("")}</div></section>`;
+  }
+  function openTask(pre = {}) {
+    ensureQuickFlow();
+    const ppl = PEOPLE, sel = new Set((pre.who || []).filter(id => person(id)));
+    if (!sel.size) { const w = ppl.find(p => homeOf(p.id) === "worker" && p.id !== me) || ppl.find(p => p.id !== me) || ppl[0]; if (w) sel.add(w.id); }
+    let together = false, repeat = "", steps = [];
     const dv = k => { const d = new Date(sod() + k * DAY); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
-    sheet(`<div class="stack"><div><div class="eyebrow">Hızlı görev</div><h2>Kime, ne, ne zamana?</h2><div class="sm">Tek adımlık işler için. Kişiye bildirim gider; bitirince sana haber gelir.</div></div>
-      <div><label class="sm" for="qkT"><b>Ne yapılacak</b></label><input class="in" id="qkT" placeholder="Ör: Kaya İnşaat'a numune götür" autocomplete="off"></div>
-      <div><div class="sm" style="margin-bottom:6px"><b style="color:var(--ink)">Kime</b></div><div class="chips">${ppl.map(p => `<button class="chip" data-qkw="${p.id}" aria-pressed="${p.id === who}">${esc(first(p.id))}${p.id === me ? " (sen)" : ""}</button>`).join("")}</div></div>
+    const jobs = D.jobs.filter(j => !j.done && !j.quick && !j.cancelled);
+    sheet(`<div class="stack"><div><div class="eyebrow">Görev ver</div><h2>Kime, ne, ne zamana?</h2><div class="sm">Kişiye bildirim gider; başladığını ve bitirdiğini görürsün.</div></div>
+      <div><label class="sm" for="qkT"><b>Ne yapılacak</b></label><input class="in" id="qkT" value="${esc(pre.title || "")}" placeholder="Ör: Kaya İnşaat'a numune götür" autocomplete="off"></div>
+      <div><div class="sm" style="margin-bottom:6px"><b style="color:var(--ink)">Kime</b> · birden fazla seçebilirsin</div><div class="chips">${ppl.map(p => `<button class="chip" data-qkw="${p.id}" aria-pressed="${sel.has(p.id)}">${esc(first(p.id))}${p.id === me ? " (sen)" : p.joined === false ? " (davetli)" : ""}</button>`).join("")}</div>
+        <div class="seg" id="qkMode" role="group" aria-label="Birden fazla kişi" style="margin-top:8px" ${sel.size > 1 ? "" : "hidden"}><button data-qkm="0" aria-pressed="true">Her biri ayrı yapar</button><button data-qkm="1" aria-pressed="false">Birlikte yaparlar</button></div></div>
       <div><div class="sm" style="margin-bottom:6px"><b style="color:var(--ink)">Ne zamana</b></div><div class="chips">${[["Bugün", 0], ["Yarın", 1], ["Bu hafta", Math.max(1, 6 - new Date().getDay())]].map(([l, k], i) => `<button class="chip" data-qkd="${dv(k)}" aria-pressed="${i === 0}">${l}</button>`).join("")}</div>
         <input class="in" id="qkD" type="date" value="${dv(0)}" style="margin-top:8px" aria-label="Termin"></div>
-      <textarea class="in" id="qkN" rows="2" placeholder="Not (isteğe bağlı)"></textarea>
-      <label class="ed-checks"><label><input type="checkbox" id="qkU"> Acil</label></label>
+      <details class="tk-opt"${pre.link || pre.note ? " open" : ""}><summary>Alt adım, not, tekrar, onay</summary><div class="stack">
+        <div><div class="sm" style="margin-bottom:6px"><b style="color:var(--ink)">Alt adımlar</b> · kişi tek tek işaretler</div><div class="tk-steps" id="qkS"></div><button class="link" id="qkAdd" type="button">＋ Adım ekle</button></div>
+        <div><label class="sm" for="qkN"><b>Not</b></label><textarea class="in" id="qkN" rows="2" placeholder="Ayrıntı, adres, ölçü…">${esc(pre.note || "")}</textarea></div>
+        ${jobs.length ? `<div><label class="sm" for="qkJ"><b>Bir işe bağla</b> · isteğe bağlı</label><select class="in" id="qkJ"><option value="">Bağımsız görev</option>${jobs.sort((a, b) => b.id - a.id).map(j => `<option value="${j.id}"${pre.link === j.id ? " selected" : ""}>#${j.id} ${esc(j.title)}${j.customer ? " · " + esc(j.customer) : ""}</option>`).join("")}</select></div>` : ""}
+        <div><div class="sm" style="margin-bottom:6px"><b style="color:var(--ink)">Tekrar</b></div><div class="chips">${[["", "Tekrar yok"], ...Object.entries(REP).map(([k, v]) => [k, v[0]])].map(([k, l]) => `<button class="chip" data-qkr="${k}" aria-pressed="${k === ""}">${l}</button>`).join("")}</div><div class="sm" style="margin-top:4px">Bitince bir sonraki kendiliğinden açılır.</div></div>
+        <div class="list">
+          <div class="set"><div><b>Bitince ben onaylayayım</b><div class="sm">Görev, sen onaylayana kadar bitmiş sayılmaz.</div></div><button class="sw" role="switch" aria-checked="false" id="qkA" aria-label="Bitince ben onaylayayım"></button></div>
+          <div class="set"><div><b>Fotoğraf zorunlu</b><div class="sm">Fotoğraf eklemeden bitiremez.</div></div><button class="sw" role="switch" aria-checked="false" id="qkP" aria-label="Fotoğraf zorunlu"></button></div>
+          <div class="set"><div><b>Acil</b><div class="sm">Listesinde en üstte, kırmızı görünür.</div></div><button class="sw" role="switch" aria-checked="false" id="qkU" aria-label="Acil"></button></div></div>
+      </div></details>
       <div class="sm err" id="qkM" role="alert"></div><button class="btn ok xl block" id="qkGo">Görevi ver</button></div>`, () => {
-      setTimeout(() => $("#qkT")?.focus(), 60);
-      layer.querySelectorAll("[data-qkw]").forEach(b => b.onclick = () => { who = b.dataset.qkw; layer.querySelectorAll("[data-qkw]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
+      if (!pre.title) setTimeout(() => $("#qkT")?.focus(), 60);
+      const drawS = () => { $("#qkS").innerHTML = steps.map((t, i) => `<div class="row"><input class="in" data-qks="${i}" value="${esc(t)}" placeholder="Adım ${i + 1}" aria-label="Adım ${i + 1}"><button class="ibtn" data-qkx="${i}" aria-label="Adımı sil" type="button">${ico("x")}</button></div>`).join("");
+        layer.querySelectorAll("[data-qks]").forEach(el => { el.oninput = () => steps[+el.dataset.qks] = el.value; el.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); $("#qkAdd").click(); } }; });
+        layer.querySelectorAll("[data-qkx]").forEach(b => b.onclick = () => { steps.splice(+b.dataset.qkx, 1); drawS(); }); };
+      $("#qkAdd").onclick = () => { steps.push(""); drawS(); const L = layer.querySelectorAll("[data-qks]"); L[L.length - 1].focus(); };
+      ["qkA", "qkP", "qkU"].forEach(id => $("#" + id).onclick = e => { const b = e.currentTarget; b.setAttribute("aria-checked", b.getAttribute("aria-checked") !== "true"); });
+      layer.querySelectorAll("[data-qkw]").forEach(b => b.onclick = () => { const id = b.dataset.qkw; sel.has(id) ? sel.delete(id) : sel.add(id); b.setAttribute("aria-pressed", sel.has(id)); $("#qkMode").hidden = sel.size < 2; });
+      layer.querySelectorAll("[data-qkm]").forEach(b => b.onclick = () => { together = b.dataset.qkm === "1"; layer.querySelectorAll("[data-qkm]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
       layer.querySelectorAll("[data-qkd]").forEach(b => b.onclick = () => { $("#qkD").value = b.dataset.qkd; layer.querySelectorAll("[data-qkd]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
+      layer.querySelectorAll("[data-qkr]").forEach(b => b.onclick = () => { repeat = b.dataset.qkr; layer.querySelectorAll("[data-qkr]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
       $("#qkGo").onclick = () => { const t = $("#qkT").value.trim(); if (!t) { $("#qkM").textContent = "Ne yapılacağını yaz."; $("#qkT").focus(); return; }
-        const [y, m, d] = ($("#qkD").value || dv(0)).split("-").map(Number), flow = flowById("_quick");
-        const j = mkJob({ flow, id: D.nextId++, title: t, customer: "", qty: "1 görev", due: new Date(y, m - 1, d, WD_E).getTime(), at: 0, waiting: 0, createdAt: Date.now(), owners: { q1: who }, urgent: $("#qkU").checked });
-        j.quick = true; const n = $("#qkN").value.trim(); if (n) j.steps[0].detail = n; j.steps.forEach(s => { if (s.status === "ready") s.readyAt = Date.now(); });
-        D.jobs.push(j); notify(`${first(me)} hızlı görev verdi: ${t} · ${first(who)}`, "🆕", [who]); save(); closeSheet(); render();
-        toast("⚡", "Görev verildi", `${first(who)} · ${new Date(j.due).toLocaleDateString("tr-TR")}`); };
+        if (!sel.size) { $("#qkM").textContent = "Görevi kime vereceğini seç."; return; }
+        const [y, m, d] = ($("#qkD").value || dv(0)).split("-").map(Number), due = new Date(y, m - 1, d, WD_E).getTime(), on = id => $("#" + id).getAttribute("aria-checked") === "true";
+        const spec = { title: t, by: me, steps: steps.map(x => x.trim()).filter(Boolean), note: $("#qkN").value.trim(), link: $("#qkJ") && $("#qkJ").value ? +$("#qkJ").value : null, repeat, approve: on("qkA"), photo: on("qkP"), urgent: on("qkU") };
+        const who = [...sel], made = together || who.length === 1 ? [makeTask(spec, due, who)] : who.map(id => makeTask(spec, due, [id]));
+        made.forEach(j => { D.jobs.push(j); const to = crewOf(j.steps[0]).filter(x => x !== me); if (to.length) notify(`${first(me)} sana görev verdi: ${t} · ${dayLabel(due)}`, "🆕", to); });
+        const lk = spec.link && jobById(spec.link); if (lk && D.chat) { const th = D.chat.threads.find(x => x.kind === "job" && x.jobId === lk.id); if (th) th.msgs.push({ id: "m" + Date.now(), by: me, at: Date.now(), kind: "system", text: `Görev verildi: ${t} → ${who.map(first).join(", ")}` }); }
+        save(); closeSheet(); render();
+        toast("⚡", made.length > 1 ? `${made.length} kişiye görev verildi` : "Görev verildi", `${who.map(first).join(", ")} · ${new Date(due).toLocaleDateString("tr-TR")}${repeat ? " · " + REP[repeat][0] : ""}`); };
     });
   }
+  const openQuick = () => openTask();
   function head(eyebrow, title, bell) {
     return `<div class="top gut"><div style="min-width:0"><div class="eyebrow">${eyebrow}</div><h1>${title}</h1></div>${bell != null ? `<button class="bell" id="bell" aria-label="Bildirimler">${ico("bell")}${bell ? `<b>${bell}</b>` : ""}</button>` : ""}</div>`;
   }
@@ -4513,6 +4601,7 @@ var qrcode = function() {
         <button class="kpi" data-goto="isler:aktif"><div class="v">${deliveriesToday}</div><div class="l">Bugünkü teslimatlar</div></button>
       </div>
       ${attention()}
+      ${tasksCard()}
       ${mineHtml(me)}
       <section><div class="sec-h"><h2>Devam eden işler</h2><button class="link" data-goto="isler:aktif">Tümü</button></div>
         <div class="list">${active.sort((a, b) => order(a) - order(b)).slice(0, 5).map(jobRow).join("")}</div>
@@ -4607,20 +4696,21 @@ var qrcode = function() {
       : jobFilter === "onay" ? !j.done && j.steps.some(s => s.type === "approval" && s.status === "ready") : j.done;
     const hay = j => trn(`${j.id} ${j.title} ${j.customer} ${(j.items || []).map(i => `${i.code} ${i.name} ${i.variant || ""}`).join(" ")}`);
     const qm = j => !jobQ || trn(jobQ).split(" ").filter(Boolean).every(t => hay(j).includes(t));
-    const list = D.jobs.filter(j => match(j) && qm(j)).sort((a, b) => a.due - b.due);
+    const list = D.jobs.filter(j => !j.quick && match(j) && qm(j)).sort((a, b) => a.due - b.due);
+    if (jobView === "tasks") return head("Kim ne yapıyor", "Görevler") + `<main class="gut">${viewSeg()}${tasksHtml()}</main>`;
     if (jobView === "quotes" && can(me, "money")) return head("Teklif ve iş emirleri", "İşler") + `<main class="gut">${viewSeg()}${quotesHtml()}</main>`;
     if (jobView === "cust") return head("Müşteri kartları", "İşler") + `<main class="gut">${viewSeg()}${custHtml()}</main>`;
     if (jobView === "board") return head("İş emirleri", "İşler") + `<main class="gut">${viewSeg()}${boardHtml()}${can(me, "create") ? `<button class="btn block" id="newJob">${ico("plus")} Yeni iş oluştur</button>` : ""}</main>`;
     return head("İş emirleri", "İşler") + `<main class="gut">${viewSeg()}
       <div class="psearch" style="margin-top:0">${ico("search")}<input class="in" id="jq" value="${esc(jobQ)}" placeholder="İş no, müşteri ya da ürün ara" autocomplete="off" aria-label="İşlerde ara"></div>
-      <div class="chips">${F.map(([k, l]) => `<button class="chip" data-filter="${k}" aria-pressed="${jobFilter === k}">${l} · ${D.jobs.filter(j => { const o = jobFilter; jobFilter = k; const r = match(j) && qm(j); jobFilter = o; return r; }).length}</button>`).join("")}</div>
+      <div class="chips">${F.map(([k, l]) => `<button class="chip" data-filter="${k}" aria-pressed="${jobFilter === k}">${l} · ${D.jobs.filter(j => !j.quick).filter(j => { const o = jobFilter; jobFilter = k; const r = match(j) && qm(j); jobFilter = o; return r; }).length}</button>`).join("")}</div>
       ${list.length ? `<div class="list">${list.map(jobRow).join("")}</div>` : `<div class="empty">${jobQ ? `“${esc(jobQ)}” için iş bulunamadı.` : "Bu filtrede iş yok."}</div>`}
       ${can(me, "create") ? `<button class="btn block" id="newJob">${ico("plus")} Yeni iş oluştur</button>` : ""}
     </main>`;
   }
   let jobView = "list", kbFlow = null, jobQ = "", custQ = "";
   const viewSeg = () => { const qok = can(me, "money"); if (!qok && jobView === "quotes") jobView = "list";
-    return `<div class="seg ${qok ? "seg4" : "seg3"}" role="group" aria-label="Görünüm"><button data-jv="list" aria-pressed="${jobView === "list"}">Liste</button><button data-jv="board" aria-pressed="${jobView === "board"}">Pano</button>${qok ? `<button data-jv="quotes" aria-pressed="${jobView === "quotes"}">Teklifler${(D.quotes || []).filter(q => q.status === "talk").length ? " •" : ""}</button>` : ""}<button data-jv="cust" aria-pressed="${jobView === "cust"}">Müşteriler</button></div>`; };
+    return `<div class="seg ${qok ? "seg5" : "seg4"}" role="group" aria-label="Görünüm"><button data-jv="list" aria-pressed="${jobView === "list"}">Liste</button><button data-jv="board" aria-pressed="${jobView === "board"}">Pano</button><button data-jv="tasks" aria-pressed="${jobView === "tasks"}">Görev${D.jobs.some(j => j.quick && !j.done && j.due < Date.now()) ? " •" : ""}</button>${qok ? `<button data-jv="quotes" aria-pressed="${jobView === "quotes"}">Teklif${(D.quotes || []).filter(q => q.status === "talk").length ? " •" : ""}</button>` : ""}<button data-jv="cust" aria-pressed="${jobView === "cust"}">Müşteri</button></div>`; };
   const custRows = () => { const L = (D.customers || []).filter(c => !custQ || trn(`${c.name} ${c.contact || ""} ${c.phone || ""}`).includes(trn(custQ))).sort((a, b) => a.name.localeCompare(b.name, "tr"));
     return L.length ? `<div class="list">${L.map(c => { const js = D.jobs.filter(j => trn(j.customer) === trn(c.name)), act = js.filter(j => !j.done).length, qs = (D.quotes || []).filter(q => trn(q.customer) === trn(c.name) && ["sent", "talk", "draft"].includes(q.status)).length;
       return `<button class="pr" data-cust="${c.id}"><span class="cav2">${esc(c.name.split(" ").map(w => w[0]).slice(0, 2).join(""))}</span><div><b>${esc(c.name)}</b><div class="sm">${esc([c.contact, c.phone].filter(Boolean).join(" · ") || "İletişim bilgisi yok")}</div><div class="sm">${act} açık iş · ${js.length - act} biten${qs ? ` · ${qs} teklif` : ""}${can(me, "money") && js.length ? ` · ${tl(js.filter(j => !j.cancelled).reduce((a, j) => a + (j.price || 0), 0))}` : ""}</div></div><span class="chev">${ico("chev")}</span></button>`; }).join("")}</div>`
@@ -4793,6 +4883,7 @@ var qrcode = function() {
     const sk = new Set(p.skills || []);
     sheet(`<div class="stack"><div><div class="eyebrow">${id ? "Çalışan" : "Yeni çalışan"}</div><h2>${id ? esc(p.name) : "Çalışan ekle"}</h2>
         <div class="sm">${id ? "Departmanları değiştir, işler buna göre dağıtılır." : "Çalışan uygulamayı ücretsiz indirir, davet linkiyle katılır."}</div></div>
+      ${id && can(me, "create") ? (() => { const op = D.jobs.filter(j => j.quick && !j.done && crewOf(j.steps[0]).includes(id)); return `<button class="btn line block" data-taskfor="${id}">${ico("bolt")} ${esc(first(id))}'a görev ver</button>${op.length ? `<div class="list">${op.map(taskRow).join("")}</div>` : ""}`; })() : ""}
       ${id ? "" : `<div><label class="sm" for="pName"><b>Ad soyad</b></label><input class="in" id="pName" autocomplete="off" placeholder="Ör: Serkan Aksoy"></div>
       <div><label class="sm" for="pPhone"><b>Telefon</b> · davet linki WhatsApp ya da SMS ile gider</label><input class="in" id="pPhone" inputmode="tel" autocomplete="off" placeholder="0532 123 45 67"></div>`}
       <div><label class="sm" for="pTitle"><b>Unvan</b></label><input class="in" id="pTitle" value="${esc(p.title)}" placeholder="Ör: Döşemeci" autocomplete="off"></div>
@@ -5312,8 +5403,11 @@ var qrcode = function() {
         </div>`).join("")}</div></div>`;
     }).join("");
     sheet(`<div class="stack">
-      <div><div class="eyebrow">İş emri #${j.id} · ${esc(flowOf(j).ico)} ${esc(flowOf(j).name)}</div><h2>${esc(j.title)}</h2>
-        <div class="sm">${esc(j.customer)} · ${esc(j.qty)} · Termin ${esc(when(j.due))}</div>
+      <div><div class="eyebrow">${j.quick ? `Görev${j.by ? " · " + esc(first(j.by)) + " verdi" : ""}` : `İş emri #${j.id} · ${esc(flowOf(j).ico)} ${esc(flowOf(j).name)}`}</div><h2>${esc(j.title)}</h2>
+        <div class="sm">${j.quick ? `${esc(crewOf(j.steps[0]).map(first).join(", "))}${j.spec && j.spec.link ? ` · <button class="link" data-job="${j.spec.link}">${esc(j.qty)}</button>` : ""}` : `${esc(j.customer)} · ${esc(j.qty)}`} · Termin ${esc(when(j.due))}</div>
+        ${j.quick && j.steps[0].ck && j.steps[0].ck.length ? `<div class="sm" style="margin-top:6px">Alt adımlar: ${j.steps[0].checklist.map((c, i) => `${j.steps[0].ck[i] ? "☑" : "☐"} ${esc(c)}`).join(" · ")}</div>` : ""}
+        ${j.quick && j.spec && j.spec.repeat && !j.spec.stopped ? `<div class="note info" style="margin-top:8px"><b>🔁 ${REP[j.spec.repeat][0]} tekrarlanıyor</b><span>Bitince bir sonraki kendiliğinden açılır.</span>${can(me, "create") ? `<button class="link" data-stoprep="${j.id}">Tekrarı durdur</button>` : ""}</div>` : ""}
+        ${!j.done && !j.quick && can(me, "create") ? `<button class="btn line block" data-taskjob="${j.id}" style="margin-top:12px">${ico("bolt")} Bu işle ilgili görev ver</button>` : ""}
         <div class="chips" style="margin-top:8px"><span class="pill ${jobState(j).cls}">${esc(jobState(j).label)}</span>${isLate(j) ? `<span class="pill bad">Gecikme mevcut</span>` : ""}<span class="pill mute">%${pct(j)}</span></div>
         ${!j.done && (can(me, "create") || can(me, "assign")) ? `<button class="btn line block" data-jedit="${j.id}" style="margin-top:12px">${ico("pen")} Düzenle ya da iptal et</button>` : ""}</div>
       ${!j.done && etaOf(j) ? `<div class="note ${SIM.res[j.id].risk ? "" : "info"}"><b>Tahmini bitiş: ${esc(when(etaOf(j)))}</b><span>${SIM.res[j.id].risk ? `Termin ${esc(when(j.due))}. Mevcut kuyruğa göre yaklaşık ${fmtH((etaOf(j) - j.due) / HOUR)} geç kalıyor.` : `Termine ${fmtH((j.due - etaOf(j)) / HOUR)} pay var.`} Hesap, ekiplerin şu anki iş sırasına ve hedef sürelere göre yapılır.</span></div>` : ""}
@@ -5778,7 +5872,7 @@ var qrcode = function() {
     const pooled = D.jobs.flatMap(j => j.done ? [] : j.steps.filter(s => isPool(s.owner) && s.status === "ready").map(s => ({ j, s })));
     const inProd = D.jobs.filter(j => !j.done).sort((a, b) => a.due - b.due);
     $("#app").innerHTML = head("Ustabaşı paneli", `Günaydın ${esc(first(me))}`, bellCount(me)) + `<main class="gut">
-      ${mineHtml(me)}
+      ${mineHtml(me)}${tasksCard()}
       <section><div class="sec-h"><h2>Sorun bildirimleri</h2><span class="pill ${issues.length ? "bad" : "ok"}">${issues.length}</span></div>
         ${issues.length ? issues.map(({ j, s }) => `<div class="task blocked"><div class="task-top"><span class="wo">İŞ EMRİ #${j.id} · ${esc(s.name.toUpperCase())}</span><span class="pill bad">${ago(s.issue.at)}</span></div>
           <div class="issue"><b>${esc(s.issue.type)}</b> · ${esc(s.issue.note)}<div class="sm">Bildiren: ${esc(person(s.issue.by || s.owner).name)}</div></div>
@@ -5817,7 +5911,7 @@ var qrcode = function() {
   function taskCard(j, s) {
     const k = `${j.id}:${s.key}`;
     const status = s.status === "working" ? `<span class="pill acc">Çalışıyor</span>` : s.status === "blocked" ? `<span class="pill bad">Sorun bildirildi</span>` : `<span class="pill warn">${s.type === "approval" ? "Onayını bekliyor" : "Bekliyor"}</span>`;
-    const facts = `<div class="facts">${s.place ? `<span>${ico("pin")}${esc(s.place)}</span>` : ""}<span>${ico("clock")}Teslim: ${esc(s.deadline ? when(s.deadline) : dayLabel(j.due))}</span><span>${ico("box")}${esc(j.qty)}</span></div>`;
+    const facts = `<div class="facts">${s.place ? `<span>${ico("pin")}${esc(s.place)}</span>` : ""}<span>${ico("clock")}Teslim: ${esc(s.deadline ? when(s.deadline) : dayLabel(j.due))}</span>${j.quick && j.qty === "Görev" ? "" : `<span>${ico("box")}${esc(j.qty)}</span>`}</div>`;
     const attach = s.photos.length || s.notes.length ? `<div class="attach">${s.photos.map(p => `<img src="${p}" alt="Eklenen fotoğraf">`).join("")}${s.notes.map(n => `<span class="vn">${n.kind === "voice" ? "🎙 " + esc(n.text) : "📝 " + esc(n.text)}</span>`).join("")}</div>` : "";
     const tools = `<div class="grid3">
         <label class="tool"><span class="i">${ico("camera")}</span>Fotoğraf<input type="file" accept="image/*" data-photo="${k}"></label>
@@ -5841,9 +5935,9 @@ var qrcode = function() {
       return `<button class="btn ok xl block" data-done="${k}"${gate(s).block ? " disabled" : ""}>${sp ? `Payımı bitirdim ✓ · ${sp.n} ${esc(unitOf(j))}` : "İşi tamamla ✓"}</button>`; })()}<div class="sm fhint" data-fhint="${k}">${gate(s).hint}</div>`;
     else body = `${formHtml(j, s, k, false)}<button class="btn xl block" data-start="${k}">${ico("play")} İşe başla</button>${tools}`;
     return `<article class="task ${s.status}">
-      <div class="task-top"><span class="wo">İŞ EMRİ #${j.id}</span>${status}</div>${slaPill(j, s) ? `<div>${slaPill(j, s)}</div>` : ""}
+      <div class="task-top"><span class="wo">${j.quick ? `GÖREV${j.by && j.by !== me ? " · " + esc(first(j.by)).toLocaleUpperCase("tr") + " VERDİ" : ""}${j.spec && j.spec.repeat ? " · 🔁 " + REP[j.spec.repeat][0].toLocaleUpperCase("tr") : ""}` : `İŞ EMRİ #${j.id}`}</span>${status}</div>${slaPill(j, s) ? `<div>${slaPill(j, s)}</div>` : ""}
       ${warnHtml(j)}
-      <div><h3>${esc(s.detail ? s.name.split(" ")[0] + ": " + j.title : `${s.name} · ${j.title}`)}</h3>${s.detail || typeof s.checklist === "string" ? `<p style="margin-top:6px">${esc(s.detail || s.checklist)}</p>` : ""}${Array.isArray(s.checklist) && s.checklist.length && !s.detail ? `<ul class="cl">${s.checklist.map(c => `<li>${esc(c)}</li>`).join("")}</ul>` : ""}</div>
+      <div><h3>${esc(j.quick && !s.final ? j.title : s.detail ? s.name.split(" ")[0] + ": " + j.title : `${s.name} · ${j.title}`)}</h3>${s.detail || typeof s.checklist === "string" ? `<p style="margin-top:6px">${esc(s.detail || s.checklist)}</p>` : ""}${s.ck && s.checklist.length ? `<div class="tcks">${s.checklist.map((c, i) => `<button class="tck" data-tck="${k}:${i}" aria-pressed="${!!s.ck[i]}"><span class="bx">${ico("check")}</span><span>${esc(c)}</span></button>`).join("")}</div>` : Array.isArray(s.checklist) && s.checklist.length && !s.detail ? `<ul class="cl">${s.checklist.map(c => `<li>${esc(c)}</li>`).join("")}</ul>` : ""}</div>
       ${facts}
       ${crewOf(s).length > 1 ? `<div class="crew">${s.mode === "split" ? "Bölüşüldü:" : "Birlikte:"} ${crewOf(s).map(id => `<span>${avatar(id, 22)} ${id === me ? "Sen" : esc(first(id))}${s.split?.[id] ? ` · ${s.split[id].n} ${esc(unitOf(j))}${s.split[id].done ? ` <span class="dn">✓</span>` : ""}` : ""}</span>`).join("")}</div>` : ""}
       ${s.final ? `<div class="note info"><b>Tamamlanma onayı</b><span>Bütün aşamalar bitti. Ürün ya da hizmet eksiksizse onayla; eksik varsa istediğin aşamaya geri gönder.</span></div>` : ""}
@@ -5860,7 +5954,8 @@ var qrcode = function() {
   const parseK = k => { const [id, key] = k.split(":"); const j = jobById(+id); return { j, s: j.steps.find(x => x.key === key) }; };
   function afterComplete(j, s, r) {
     save(); render();
-    if (r.finished) toast("🏁", `#${j.id} tamamlandı`, "Patrona teslimat, süre ve maliyet raporu gitti");
+    if (r.finished && j.quick) toast("✅", "Görev bitti", `${j.by && j.by !== me ? first(j.by) + " bilgilendirildi" : "Kayda geçti"}${j.spawned ? " · bir sonraki " + dayLabel(jobById(j.spawned).due) : ""}`);
+    else if (r.finished) toast("🏁", `#${j.id} tamamlandı`, "Patrona teslimat, süre ve maliyet raporu gitti");
     else if (r.waitingParallel) toast("✅", "Görev tamamlandı", `Paralel aşama bekleniyor: ${r.waitingParallel.map(x => x.name).join(", ")}`);
     else toast("➡️", "Görev tamamlandı", `Sıradaki: ${r.next.map(x => `${x.name} (${first(x.owner)})`).join(" ∥ ")} · bildirim gönderildi`);
   }
@@ -5992,6 +6087,7 @@ var qrcode = function() {
   document.addEventListener("change", e => {
     const el = e.target;
     if (el.id === "who") { me = el.value; tab = "panel"; closeSheet(); render(); window.scrollTo(0, 0); return; }
+    if (el.id === "tWho") { taskWho = el.value; render(); return; }
     if (el.dataset.photo && el.files[0]) { const { j, s } = parseK(el.dataset.photo); readPhoto(el.files[0], url => { s.photos.push(url); notify(`${first(me)} #${j.id} için fotoğraf ekledi`, "📷"); save(); render(); toast("📷", "Fotoğraf eklendi", `#${j.id} ${s.name}`); }); }
     if (el.id === "bz_logo" && el.files[0]) { readPhoto(el.files[0], url => { (D.biz = D.biz || {}).logo = url; save(); render(); toast("✓", "Logo eklendi", "Formların üstünde görünür"); }); return; }
     if (el.dataset.moveto) { const j = jobById(+el.dataset.moveto); closeSheet(); moveJobTo(j, +el.value); return; }
@@ -6070,6 +6166,17 @@ var qrcode = function() {
     if (d.tab) { tab = d.tab; render(); window.scrollTo(0, 0); return; }
     if (d.goto) { const [t, f] = d.goto.split(":"); tab = t; if (f) jobFilter = f; render(); window.scrollTo(0, 0); return; }
     if (d.filter) { jobFilter = d.filter; render(); return; }
+    if (d.tf) { taskFilter = d.tf; render(); return; }
+    if (d.tasks != null) { tab = "isler"; jobView = "tasks"; taskFilter = "acik"; render(); window.scrollTo(0, 0); return; }
+    if (d.tck) { const [k, i] = [d.tck.slice(0, d.tck.lastIndexOf(":")), +d.tck.slice(d.tck.lastIndexOf(":") + 1)], { j, s } = parseK(k); s.ck[i] = !s.ck[i];
+      if (s.ck.every(Boolean)) toast("✓", "Bütün adımlar tamam", "Görevi bitirebilirsin"); save(); render(); return; }
+    if (d.taskfor) { closeSheet(); openTask({ who: [d.taskfor] }); return; }
+    if (d.taskjob) { closeSheet(); openTask({ link: +d.taskjob }); return; }
+    if (d.stoprep) { const j = jobById(+d.stoprep); D.jobs.filter(x => x.quick && x.spec && x.spec.title === j.spec.title && x.spec.repeat).forEach(x => { x.spec.repeat = ""; }); save(); closeSheet(); render(); toast("✓", "Tekrar durduruldu", "Bu görev bitince yenisi açılmaz"); return; }
+    if (d.totask) { const [tid, mid] = d.totask.split(":"), t = D.chat.threads.find(x => x.id === tid), m = t && t.msgs.find(x => x.id === mid); if (!m) return;
+      const ment = PEOPLE.filter(p => m.text.toLocaleLowerCase("tr-TR").includes("@" + first(p.id).toLocaleLowerCase("tr-TR"))).map(p => p.id);
+      const other = m.by !== me && !m.by.startsWith("c:") ? m.by : (t.members || []).find(x => x !== me && !String(x).startsWith("c:"));
+      openTask({ title: m.text.replace(/@\S+\s*/g, "").replace(/\s+/g, " ").trim().slice(0, 90), who: ment.length ? ment : other ? [other] : [], link: t.kind === "job" ? t.jobId : null, note: m.by !== me ? `Sohbetten: ${whoName(m.by)}` : "" }); return; }
     if (d.job) { openJob(+d.job); return; }
     if (el.id === "newJob") { openNewJob(); return; }
     if (el.id === "bell") { const mine = D.feed.filter(f => f.to && f.to.includes(me)).reverse();
