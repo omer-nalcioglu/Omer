@@ -918,6 +918,39 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 94%, transparent); bord
 .ob-logo { border-radius: 18px; box-shadow: 0 12px 28px color-mix(in srgb, var(--accent) 35%, transparent); }
 .ob-hero h1 { font-weight: 800; letter-spacing: -.03em; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+/* ==========================================================================
+   Telefon görünümü: geniş ekranda prototip gerçek telefon kasası içinde açılır.
+   Kasa "transform" taşıdığı için içindeki sabit öğeler (alt menü, pencere, bildirim)
+   ekrana değil telefona yapışır; içerik kasanın içinde kayar. Telefonda kasa yoktur.
+   ========================================================================== */
+.sbar, .homebar { display: none; }
+@media (min-width: 720px) and (min-height: 640px) {
+  html, body { height: 100%; overflow: hidden; }
+  body { background: radial-gradient(1200px 700px at 50% 0%, var(--accent-soft), transparent 70%), var(--sunk); display: grid; place-items: center; padding: 64px 24px 24px; box-sizing: border-box; }
+  body::before { display: none; }
+  .band { position: fixed; top: 0; left: 0; right: 0; z-index: 40; background: transparent; color: var(--ink); }
+  .band-in { max-width: 560px; padding-block: 12px; }
+  .band-in span { color: var(--ink-2); opacity: 1; font-weight: 600; }
+  .band select { background: var(--surface); color: var(--ink); border-color: var(--line-2); box-shadow: var(--shadow); }
+  .band button { color: var(--ink-2); opacity: 1; }
+  .device { position: relative; height: min(844px, calc(100vh - 124px)); aspect-ratio: 390 / 844; box-sizing: content-box; border: 12px solid #0d0f16; border-radius: 58px;
+    background: var(--bg); overflow: hidden; transform: translateZ(0); isolation: isolate;
+    box-shadow: 0 0 0 2px #2b2f3d, 0 40px 80px rgba(17, 24, 39, .28), 0 12px 24px rgba(17, 24, 39, .14); }
+  .sbar { display: flex; position: absolute; z-index: 34; top: 0; left: 0; right: 0; height: 50px; padding: 0 30px 0 34px; align-items: center; justify-content: space-between;
+    font: 700 15px/1 var(--text); color: var(--ink); background: var(--bg); pointer-events: none; }
+  .sbar .island { position: absolute; left: 50%; top: 11px; width: 116px; height: 32px; margin-left: -58px; border-radius: 20px; background: #000; }
+  .sbar .sbi { display: inline-flex; gap: 6px; align-items: center; }
+  .screen { position: absolute; inset: 50px 0 0; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; scrollbar-width: none; }
+  .screen::-webkit-scrollbar { display: none; }
+  .app { min-height: 100%; }
+  nav.tabs { padding-bottom: 20px; }
+  .homebar { display: block; position: absolute; z-index: 31; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: var(--ink); opacity: .85; pointer-events: none; }
+  .scrim { z-index: 35; } .sheet { padding-bottom: 34px; }
+  .chatview { z-index: 32; padding-top: 50px; } .cvc { padding-bottom: 26px; }
+  .toast { z-index: 45; top: 58px; }
+  body.ob .device .screen { inset: 50px 0 0; }
+}
 </style>
 
 <div class="band"><div class="band-in gut">
@@ -925,9 +958,13 @@ nav.tabs { background: color-mix(in srgb, var(--surface) 94%, transparent); bord
   <select id="who" aria-label="Kimin ekranını görmek istiyorsun"></select>
   <button id="reset">Baştan başla</button>
 </div></div>
-<div class="app" id="app"></div>
-<div id="nav"></div>
-<div id="layer"></div>
+<div class="device" id="device">
+  <div class="sbar" aria-hidden="true"><span id="sbTime">9:41</span><i class="island"></i><span class="sbi"><svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg><svg width="16" height="11" viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M1.5 4a9.5 9.5 0 0113 0M4 6.8a6 6 0 018 0"/><circle cx="8" cy="9.4" r=".9" fill="currentColor" stroke="none"/></svg><svg width="26" height="12" viewBox="0 0 26 12" fill="none"><rect x=".5" y=".5" width="22" height="11" rx="3.5" stroke="currentColor" opacity=".45"/><rect x="2.5" y="2.5" width="15" height="7" rx="2" fill="currentColor"/><path d="M24 4v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" opacity=".45"/></svg></span></div>
+  <div class="screen" id="screen"><div class="app" id="app"></div></div>
+  <div id="nav"></div>
+  <div id="layer"></div>
+  <i class="homebar" aria-hidden="true"></i>
+</div>
 <script>
 /* qrcode-generator 1.4.4 · Copyright (c) 2009 Kazuhiko Arase · MIT License · sipariş formundaki QR için sayfaya gömüldü */
 //---------------------------------------------------------------------
@@ -4100,12 +4137,14 @@ var qrcode = function() {
   }
   const closeSheet = () => { layer.innerHTML = ""; stopSig = null; };
   let toastT;
+  const scrollTop0 = () => { window.scrollTo(0, 0); const sc = document.getElementById("screen"); if (sc) sc.scrollTop = 0; };
+  setInterval(() => { const t = document.getElementById("sbTime"); if (t) { const d = new Date(); t.textContent = d.getHours() + ":" + String(d.getMinutes()).padStart(2, "0"); } }, 15000);
   function toast(ic, title, sub) {
     document.querySelector(".toast")?.remove();
     const el = document.createElement("div"); el.className = "toast"; el.setAttribute("role", "status");
     const [tn, tt] = emo(ic);
     el.innerHTML = `<span class="tic ${tt}">${ico(tn)}</span><div style="min-width:0"><b>${esc(title)}</b>${sub ? `<div class="sm">${esc(sub)}</div>` : ""}</div>`;
-    document.body.appendChild(el); clearTimeout(toastT); toastT = setTimeout(() => el.remove(), 4200);
+    (document.getElementById("device") || document.body).appendChild(el); clearTimeout(toastT); toastT = setTimeout(() => el.remove(), 4200);
   }
   const since = t => { const m = Math.max(1, Math.round((Date.now() - t) / MIN)); if (m < 60) return `${m} dakikadır`; const h = Math.round(m / 60); return h < 48 ? `${h} saattir` : `${Math.round(h / 24)} gündür`; };
   const ago = t => { const m = Math.max(0, Math.round((Date.now() - t) / MIN)); if (m < 60) return `${m} dk`; const h = Math.round(m / 60); return h < 48 ? `${h} sa` : `${Math.round(h / 24)} gün`; };
@@ -4256,11 +4295,11 @@ var qrcode = function() {
     (o.step === 2 && !o.name ? $("#obName") : o.step === 2 ? $("#obBiz") : $("#obCode") || $("#obMail"))?.focus();
   }
   const obMsg = t => { const m = $("#obMsg"); if (m) m.textContent = t; };
-  function obGo(step) { OB.step = step; renderOb(); window.scrollTo(0, 0); }
+  function obGo(step) { OB.step = step; renderOb(); scrollTop0(); }
   function obAct(a) {
     const o = OB;
     if (a === "quit") { OB = null; document.body.classList.remove("ob"); render(); return; }
-    if (a === "demo") { D = seed(); D.chat = seedChat(); syncPeople(); save(); OB = null; me = "selim"; tab = "panel"; document.body.classList.remove("ob"); render(); window.scrollTo(0, 0);
+    if (a === "demo") { D = seed(); D.chat = seedChat(); syncPeople(); save(); OB = null; me = "selim"; tab = "panel"; document.body.classList.remove("ob"); render(); scrollTop0();
       toast("👋", "Örnek işletme: Demirtaş Metal", "Üstteki menüden kimin gözüyle bakacağını seç"); return; }
     if (a === "start") return obGo(1);
     if (a === "google" || a === "apple") { o.provider = a === "google" ? "Google" : "Apple"; o.email = ""; return obGo(2); }
@@ -4284,12 +4323,12 @@ var qrcode = function() {
       depts, flows: [flow], defaultFlow: "f1", jobs: [], feed: [], stock: [], nextId: 1001,
       mods: { chat: true, planning: true, rules: true, fleet: false, stock: false, scan: false, finance: true, customers: true, forms: false, reports: true },
       privacy: { loc: true, perf: true, quiet: true }, chat: { nextId: 1, threads: [{ id: "t-duyuru", kind: "announce", title: "Duyurular", msgs: [], read: {} }] } };
-    syncPeople(); OB = null; me = "selim"; tab = "panel"; document.body.classList.remove("ob"); save(); render(); window.scrollTo(0, 0);
+    syncPeople(); OB = null; me = "selim"; tab = "panel"; document.body.classList.remove("ob"); save(); render(); scrollTop0();
     toast("🎉", `${D.biz.name} hazır`, "Başlangıç listesindeki adımlarla devam et");
   }
   function startOb(canQuit) {
     OB = { step: 0, canQuit, name: "", email: "", provider: null, emailOpen: false, codeSent: false, biz: "", what: "", tplPick: "" };
-    renderOb(); window.scrollTo(0, 0);
+    renderOb(); scrollTop0();
   }
   function renderJoin(p) {
     setNav(null);
@@ -5249,7 +5288,7 @@ var qrcode = function() {
           d.stages.forEach(x => { if ((x.type === "pack" && !wz.mods.scan) || (x.type === "delivery" && !wz.mods.fleet)) x.type = "task"; });
           d.id = "f" + Date.now().toString(36); D.flows.push(d); fid = d.id; }
         D.defaultFlow = fid; CATALOG.forEach(m => D.mods[m.id] = !!wz.mods[m.id]);
-        save(); closeSheet(); tab = "ayar"; render(); window.scrollTo(0, 0);
+        save(); closeSheet(); tab = "ayar"; render(); scrollTop0();
         toast("✓", "Sistemin kuruldu", `${flowById(fid).name} · ${CATALOG.filter(m => D.mods[m.id]).length} modül`);
       };
     }, !!still);
@@ -5957,7 +5996,7 @@ var qrcode = function() {
         D.jobs.push(j);
         const g0 = j.steps.filter(s => s.g === 0);
         notify(`${first(PAT())} yeni iş açtı: #${j.id} ${title} (${customer}) · ${g0.map(s => first(s.owner)).join(" ve ")} bilgilendirildi`, "🆕", g0.map(s => s.owner));
-        save(); closeSheet(); tab = "panel"; render(); window.scrollTo(0, 0);
+        save(); closeSheet(); tab = "panel"; render(); scrollTop0();
         toast("🆕", `#${j.id} iş emri dağıtıldı`, `${j.steps.length} aşama · ilk aşama: ${g0.map(s => first(s.owner)).join(" ∥ ")}`);
       };
     });
@@ -6186,7 +6225,7 @@ var qrcode = function() {
   }
   document.addEventListener("change", e => {
     const el = e.target;
-    if (el.id === "who") { me = el.value; tab = "panel"; closeSheet(); render(); window.scrollTo(0, 0); return; }
+    if (el.id === "who") { me = el.value; tab = "panel"; closeSheet(); render(); scrollTop0(); return; }
     if (el.id === "tWho") { taskWho = el.value; render(); return; }
     if (el.dataset.photo && el.files[0]) { const { j, s } = parseK(el.dataset.photo); readPhoto(el.files[0], url => { s.photos.push(url); notify(`${first(me)} #${j.id} için fotoğraf ekledi`, "📷"); save(); render(); toast("📷", "Fotoğraf eklendi", `#${j.id} ${s.name}`); }); }
     if (el.id === "bz_logo" && el.files[0]) { readPhoto(el.files[0], url => { (D.biz = D.biz || {}).logo = url; save(); render(); toast("✓", "Logo eklendi", "Formların üstünde görünür"); }); return; }
@@ -6241,12 +6280,12 @@ var qrcode = function() {
     if (d.jv) { jobView = d.jv; render(); return; }
     if (d.plus != null) { openPlus(); return; }
     if (d.new) { const k = d.new; closeSheet(); if (k === "quick") openQuick(); else if (k === "job") openNewJob(); else if (k === "quote") openQuoteForm(null); else if (k === "cust") openCust(null); else if (k === "person") openPerson(null); return; }
-    if (d.sysgo) { tab = "ayar"; sysTab = d.sysgo; render(); window.scrollTo(0, 0); return; }
+    if (d.sysgo) { tab = "ayar"; sysTab = d.sysgo; render(); scrollTop0(); return; }
     if (d.support != null) { toast("📲", "Destek", "Gerçek uygulamada buradan destek ekibine yazılır (prototipte gönderilmez)"); return; }
     if (d.setup) { const k = d.setup; if (k === "job") openNewJob(); else if (k === "team") openPerson(null); else if (k === "flow") openFlowEditor({ id: D.defaultFlow, back: "panel" });
-      else if (k === "prod" || k === "biz") { tab = "ayar"; sysTab = k === "prod" ? "urun" : "isletme"; render(); window.scrollTo(0, 0); } else if (k === "close") { D.setupDone = true; save(); render(); } return; }
+      else if (k === "prod" || k === "biz") { tab = "ayar"; sysTab = k === "prod" ? "urun" : "isletme"; render(); scrollTop0(); } else if (k === "close") { D.setupDone = true; save(); render(); } return; }
     if (d.tplg != null) { tplG = d.tplg; const l = $("#tgl"); if (l) l.innerHTML = tplRows(); document.querySelectorAll("[data-tplg]").forEach(b => b.setAttribute("aria-pressed", b.dataset.tplg === tplG)); return; }
-    if (d.syst) { sysTab = d.syst; render(); window.scrollTo(0, 0); return; }
+    if (d.syst) { sysTab = d.syst; render(); scrollTop0(); return; }
     if (d.prod) { openProduct(d.prod); return; }
     if (el.id === "prodNew") { openProduct(null); return; }
     if (el.id === "prodImp") { openProdImport(); return; }
@@ -6257,17 +6296,17 @@ var qrcode = function() {
     if (el.id === "newGrp") { const k = "g" + Date.now().toString(36); D.groups[k] = { name: "Yeni grup", home: "worker", p: {} }; save(); render(); openGroup(k); return; }
     if (d.claim) { const { j, s } = parseK(d.claim); if (!isPool(s.owner)) { toast("✋", "Bu işi başkası aldı", `${first(s.owner)} üstlendi`); render(); return; }
       s.owner = me; if (s.mode && s.mode !== "solo") s.crew = [me]; s.claimedAt = Date.now(); s.log.push({ at: Date.now(), by: me, act: "claimed" });
-      notify(`${first(me)} #${j.id} ${s.name} işini panodan aldı`, "🙋", [PAT(), ...FORE()]); save(); tab = "panel"; render(); window.scrollTo(0, 0);
+      notify(`${first(me)} #${j.id} ${s.name} işini panodan aldı`, "🙋", [PAT(), ...FORE()]); save(); tab = "panel"; render(); scrollTop0();
       toast("🙋", "İş sende", `#${j.id} ${s.name} · Görevlerim'de en üstte`); return; }
-    if (d.join) { person(d.join).joined = true; notify(`${first(d.join)} ekibe katıldı`, "👋", [PAT()]); save(); tab = "panel"; render(); window.scrollTo(0, 0); toast("👋", "Ekibe katıldın", "Görevlerin burada; sıra sana gelince bildirim gelir"); return; }
+    if (d.join) { person(d.join).joined = true; notify(`${first(d.join)} ekibe katıldı`, "👋", [PAT()]); save(); tab = "panel"; render(); scrollTop0(); toast("👋", "Ekibe katıldın", "Görevlerin burada; sıra sana gelince bildirim gelir"); return; }
     if (d.capprove) { const { j, s } = parseK(d.capprove); if (s.status !== "ready") return; const r = completeStep(j, s, me, "approved");
       notify(`${j.customer} #${j.id} için onay verdi${r.next ? ` · ${r.next.map(x => `${x.name} (${first(x.owner)})`).join(", ")} başladı` : ""}`, "✅", [PAT(), ...(r.next || []).map(x => x.owner)]);
       save(); render(); toast("✅", "Onayınız alındı", `${BIZ()} bilgilendirildi, iş devam ediyor`); return; }
-    if (d.tab) { tab = d.tab; render(); window.scrollTo(0, 0); return; }
-    if (d.goto) { const [t, f] = d.goto.split(":"); tab = t; if (f) jobFilter = f; render(); window.scrollTo(0, 0); return; }
+    if (d.tab) { tab = d.tab; render(); scrollTop0(); return; }
+    if (d.goto) { const [t, f] = d.goto.split(":"); tab = t; if (f) jobFilter = f; render(); scrollTop0(); return; }
     if (d.filter) { jobFilter = d.filter; render(); return; }
     if (d.tf) { taskFilter = d.tf; render(); return; }
-    if (d.tasks != null) { tab = "isler"; jobView = "tasks"; taskFilter = "acik"; render(); window.scrollTo(0, 0); return; }
+    if (d.tasks != null) { tab = "isler"; jobView = "tasks"; taskFilter = "acik"; render(); scrollTop0(); return; }
     if (d.tck) { const [k, i] = [d.tck.slice(0, d.tck.lastIndexOf(":")), +d.tck.slice(d.tck.lastIndexOf(":") + 1)], { j, s } = parseK(k); s.ck[i] = !s.ck[i];
       if (s.ck.every(Boolean)) toast("✓", "Bütün adımlar tamam", "Görevi bitirebilirsin"); save(); render(); return; }
     if (d.taskfor) { closeSheet(); openTask({ who: [d.taskfor] }); return; }
