@@ -214,6 +214,7 @@ html { scroll-behavior: smooth; }
         <tr><td>Sistem sekmesi</td><td>Akışlar, şablonlar ve modüller alt alta, çok uzun</td><td>Üç bölmeli seçici: Akışlar · Şablonlar · Modüller</td></tr>
         <tr><td>Akış düzenleyici</td><td>Her aşamada 10'dan fazla alan açık</td><td>Aşama adı ve tek satırlık özet; ayarlar “Ayrıntılar” altında, yeni eklenen aşama açık gelir</td></tr>
         <tr><td>Değer</td><td>Uygulamanın yaptığı iş görünmüyordu</td><td>Patron panelinde “Son 7 gün”: kendiliğinden yapılan devirler, tamamlanan işler, giden müşteri bilgilendirmeleri</td></tr>
+        <tr><td>Sipariş girişi</td><td>Tek ürün ve miktar; kalemli kağıt sipariş girilemiyordu</td><td>Kalem listesi: yapıştır, tek tek ya da kopyala; kağıdın fotoğrafı; dikkat notları; çalışan kalemleri tek tek işaretler, eksik kalemle bitirmeden önce uyarı alır</td></tr>
         <tr><td>Prototip bandı</td><td>Uygulamanın parçası gibi görünüyordu</td><td>Koyu ve ince; uygulamadan açıkça ayrı</td></tr>
       </tbody></table></div>
   </section>
@@ -314,7 +315,7 @@ html { scroll-behavior: smooth; }
       { n: "Raporlar", tab: "Raporlar", st: "have", mod: "Performans ve raporlar", goal: "Zamanında teslim oranı, ortalama iş süresi, en uzun süren aşama.", wf: [["bar", "Raporlar"], ["kpi", "Zamanında · Süre · Ciro · Kâr"], ["wb", "Aşamalarda ortalama süre"], ["list", "Tamamlanan işler"], ["nav"]], acts: [["İş satırı", "İş detayı"]] },
       { n: "Sistem", tab: "Sistem", st: "have", goal: "Uygulamanın nasıl çalışacağı burada belirlenir: akışlar, şablonlar, modüller.", wf: [["bar", "Sistem"], ["wb", "Senin sistemin: çekirdek + modüller"], ["list", "İş akışların"], ["btn", "＋ Kendi akışını kur"], ["wb", "Şablon galerisi"], ["wb", "Modül deposu"], ["nav"]], acts: [["Akışı düzenle", "Akış düzenleyici"], ["＋ Kendi akışını kur", "Başlangıç seçimi"], ["Şablon", "Şablon önizleme"], ["Modül", "Modül kartı"]] },
     ], sheets: [
-      ["Yeni iş", "Akış seçilir; iş adı, müşteri, termin, acil. Her aşamaya en erken boşalacak kişi önerilir, değiştirilebilir. Tahmini bitiş canlı hesaplanır."],
+      ["Yeni iş (sipariş girişi)", "Müşteri, sipariş adı ve kalemler. Kalemler üç yolla girilir: tekliften ya da Excel'den yapıştır (kod, ürün, özellik ve adet kendiliğinden ayrılır), tek tek yaz (daha önce girilen ürünler önerilir) ya da önceki siparişten kopyala. Kağıdın fotoğrafı eklenebilir. Dikkat notları ekibin görev kartında kırmızı görünür. Termin, acil, aşama sorumluları ve tahmini bitiş."],
       ["İş detayı", "Aşama aşama ilerleme: kim yapıyor, ne zamandır bekliyor, fotoğraf ve notlar. Başkasına ata, sorunu çöz, onayla."],
       ["Kim yapıyor", "Aşamayı tek kişiye ver, birlikte çalışacak kişileri seç, işi paylara böl (ör. 14 + 10 profil) ya da panoya bırak. Her kişinin yükü yanında görünür."],
       ["Yetki grubu", "Grubun adı, açılış ekranı ve 9 yetki anahtarı. Patron grubu değiştirilemez."],

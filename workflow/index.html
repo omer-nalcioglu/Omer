@@ -551,6 +551,30 @@ details.ed-more[open] > summary .more svg { transform: rotate(90deg); }
 .ed-top { grid-template-columns: 28px minmax(0, 1fr); }
 .ed-acts { display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: 6px; } .ed-acts .ed-b { font-size: var(--t-sm); padding: 0 8px; }
 .set.flowc { grid-template-columns: minmax(0, 1fr); } .set.flowc > div:last-child { display: flex !important; flex-wrap: wrap; gap: 8px; }
+/* kalemli sipariş */
+.warnbox { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; align-items: start; background: var(--bad-soft); color: var(--bad); border-radius: var(--r); padding: 12px 14px; }
+.warnbox svg { width: 22px; height: 22px; } .warnbox > div { display: grid; gap: 2px; } .warnbox b { font-weight: 700; overflow-wrap: anywhere; }
+.items { display: grid; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; background: var(--surface); }
+.items .ih { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 14px; background: var(--surface-2); border-bottom: 1px solid var(--line); }
+.items > .sm { padding: 10px 14px; }
+.it { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; text-align: left; min-height: 56px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.items .it:last-child { border-bottom: 0; }
+.it .bx { width: 28px; height: 28px; border-radius: 8px; border: 2px solid var(--line-2); display: grid; place-items: center; color: transparent; background: var(--surface); }
+.it .bx svg { width: 18px; height: 18px; }
+.it.on .bx { background: var(--ok); border-color: var(--ok); color: #fff; }
+.it.on .itx b, .it.on .iq { color: var(--ink-2); }
+.itx { display: grid; min-width: 0; } .itx b { font-weight: 600; font-size: var(--t-sm); overflow-wrap: anywhere; line-height: 1.35; } .itx > span { font-size: var(--t-sm); color: var(--ink-2); overflow-wrap: anywhere; }
+.itx .mono { color: var(--ink-3); font-weight: 500; }
+.iq { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.itr { display: grid; grid-template-columns: minmax(0, 1fr) 72px 44px; gap: 6px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.itr:last-child { border-bottom: 0; }
+.itr input { width: 100%; min-width: 0; min-height: 40px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--surface); }
+.itr .stk { display: grid; gap: 4px; } .itr .nm { font-weight: 600; } .itr .ed-b { height: 40px; }
+.addit { display: grid; grid-template-columns: minmax(0, 1fr) 84px; gap: 6px; } .addit .in { min-height: 44px; } .addit .full { grid-column: 1 / -1; }
+.paper { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: center; text-align: left; width: 100%; padding: 8px; border-radius: var(--r); border: 1px solid var(--line); background: var(--surface); }
+.paper img { width: 64px; height: 64px; object-fit: cover; border-radius: var(--r-sm); }
+.paperbig img { width: 100%; border-radius: var(--r); border: 1px solid var(--line); }
+.kal { background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px; }
 /* v2 düzeltmeleri: sonradan eklenen bileşenler yeni ölçüye */
 .kdrag { width: 36px; height: 40px; margin: -6px 0 -6px -6px; }
 .kcard { padding: 12px; } .kopen { font-size: var(--t-md); }
@@ -953,6 +977,50 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
     return rows.length - 1;
   }
 
+  // ---------- kalemli sipariş: tekliften/Excel'den yapıştırılan metni kalemlere ayırır ----------
+  const fmtQ = q => String(+(+q).toFixed(2)).replace(".", ",");
+  const itemSum = j => (j.items || []).reduce((a, it) => a + (+it.qty || 0), 0);
+  function parseItems(txt) {
+    const QTY = /^(\d+(?:[.,]\d+)?)\s*(ad|adet|adt|pcs|pc|mt|metre|m|kg|takım|set|paket|koli)\.?$/i;
+    const lines = String(txt || "").split(/\r?\n/).map(l => { const c = l.split("\t"); if (c.length > 1 && /^\s*\d{1,3}\s*$/.test(c[0])) c.shift(); return c.join("  ").replace(/\s{2,}/g, " ").trim(); }).filter(Boolean);
+    const out = []; let cur = null;
+    const push = () => { if (cur && cur.name) out.push(cur); cur = null; };
+    lines.forEach((l, i) => {
+      if (/^(açıklama|aciklama|miktar|ürün|urun|sıra|no|kod)\b/i.test(l) && l.length < 40) return;
+      if (QTY.test(l)) { const m = l.match(QTY); if (cur) { cur.qty = parseFloat(m[1].replace(",", ".")); cur.unit = m[2].toLowerCase(); push(); } return; }
+      if (/^\d{1,3}$/.test(l)) { if (cur && cur.qty == null && !(lines[i + 1] && /^[A-Za-zÇĞİÖŞÜçğıöşü(]/.test(lines[i + 1]) && cur.name)) { cur.qty = +l; push(); } else push(); return; }
+      if (/^\(.*\)$/.test(l) && cur) { cur.variant = (cur.variant ? cur.variant + " " : "") + l.slice(1, -1).trim(); return; }
+      push();
+      let t = l, qty = null, unit = "ad";
+      const mq = t.match(/\s(\d+(?:[.,]\d+)?)\s*(ad|adet|adt|pcs|pc|mt|metre|m|kg|takım|set|paket|koli)\.?$/i) || t.match(/\s(\d+(?:[.,]\d+)?)$/);
+      if (mq) { qty = parseFloat(mq[1].replace(",", ".")); if (mq[2]) unit = mq[2].toLowerCase(); t = t.slice(0, mq.index).trim(); }
+      t = t.replace(/^\d{1,3}\s*[.)\-]\s+/, ""); if (/^\d{1,3}\s+[A-ZÇĞİÖŞÜ]{2,4}[-\s]?\d{2,6}\b/.test(t)) t = t.replace(/^\d{1,3}\s+/, "");
+      let code = ""; const mc = t.match(/^([A-ZÇĞİÖŞÜ]{2,4}[-\s]?\d{2,6}[A-Z]?)\s+(.+)$/);
+      if (mc) { code = mc[1].replace(/\s+/, " "); t = mc[2]; }
+      let variant = ""; const mv = t.match(/\(([^)]*)\)\s*$/); if (mv) { variant = mv[1].trim(); t = t.slice(0, mv.index).trim(); }
+      cur = { code, name: t, variant, qty, unit };
+      if (qty != null) push();
+    });
+    push();
+    return out.map(it => ({ ...it, qty: it.qty == null ? 1 : it.qty }));
+  }
+  const prodCatalog = () => { const m = new Map(); D.jobs.forEach(j => (j.items || []).forEach(it => { const k = `${it.code} ${it.name}`.trim(); if (!m.has(k)) m.set(k, { code: it.code, name: it.name, variants: new Set() }); if (it.variant) m.get(k).variants.add(it.variant); })); return [...m.values()]; };
+  function itemsHtml(j, s, k, ro) {
+    const its = j.items || []; if (!its.length || ["pack", "delivery"].includes(s.type)) return "";
+    const dn = s.itemsDone || {}, n = its.filter((_, i) => dn[i]).length, ed = !ro && s.status === "working";
+    return `<div class="items"><div class="ih"><b>Kalemler</b><span class="sm" data-icount="${k}">${n} / ${its.length} hazır</span></div>${its.map((it, i) => { const tag = ed ? "button" : "div";
+      return `<${tag} class="it${dn[i] ? " on" : ""}"${ed ? ` data-item="${k}:${i}" aria-pressed="${!!dn[i]}"` : ""}><span class="bx">${ico("check")}</span><span class="itx"><b>${it.code ? `<span class="mono">${esc(it.code)}</span> ` : ""}${esc(it.name)}</b>${it.variant ? `<span>${esc(it.variant)}</span>` : ""}</span><span class="iq">${fmtQ(it.qty)} ${esc(it.unit || "ad")}</span></${tag}>`; }).join("")}
+      ${!ed && s.status !== "done" && !ro ? `<div class="sm">İşe başlayınca hazır olan kalemleri tek tek işaretlersin.</div>` : ""}</div>`;
+  }
+  const warnHtml = j => j.warn && j.warn.length ? `<div class="warnbox">${ico("alert")}<div>${j.warn.map(w => `<b>${esc(w)}</b>`).join("")}</div></div>` : "";
+  const paperHtml = j => j.paper ? `<button class="paper" data-paper="${j.id}"><img src="${j.paper}" alt="Sipariş kağıdı"><span><b>Sipariş kağıdı</b><span class="sm" style="display:block">Büyütmek için dokun</span></span></button>` : "";
+  function readBig(file, cb) {
+    const r = new FileReader();
+    r.onload = () => { const img = new Image(); img.onload = () => { const c = document.createElement("canvas"), sc = Math.min(1, 1100 / Math.max(img.width, img.height));
+      c.width = img.width * sc; c.height = img.height * sc; c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); cb(c.toDataURL("image/jpeg", .62)); }; img.src = r.result; };
+    r.readAsDataURL(file);
+  }
+
   function mkJob(o) {
     const now = Date.now();
     const flow = o.flow || flowById(o.flowId || D.defaultFlow);
@@ -1033,6 +1101,10 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
     Object.assign(S(1042, "kaynak"), { detail: "24 adet çelik profilin teknik çizime uygun şekilde kaynatılması.", place: "Atölye 2", deadline: at(0, 16, 30), file: "Teknik çizim.pdf" });
     Object.assign(S(1042, "kaynak"), { mode: "split", crew: ["huseyin", "okan"], split: { huseyin: { n: 14, done: false }, okan: { n: 10, done: false } } });
     Object.assign(S(1049, "kaynak"), { detail: "3 adet kepenk kasasının kaynağı, ray yuvaları dahil.", place: "Atölye 1", deadline: at(1, 12), file: "Kepenk ölçüleri.pdf" });
+    Object.assign(J(1042), { warn: ["Kaynak dikişlerini taşlayın, boyadan önce pas bırakmayın"], items: [
+      { code: "PRF 4040", name: "Taşıyıcı profil", variant: "40×40×2 · 2400 mm", qty: 12, unit: "ad" }, { code: "PRF 4040", name: "Ara profil", variant: "40×40×2 · 1200 mm", qty: 8, unit: "ad" },
+      { code: "BGL 05", name: "Bağlantı plakası", variant: "5 mm · delikli", qty: 4, unit: "ad" }], qty: "24 profil" });
+    Object.assign(J(1040), { items: [{ code: "KP 90", name: "Çelik kapı kanadı", variant: "Antrasit · 90×210", qty: 6, unit: "ad" }, { code: "KS 90", name: "Kasa takımı", variant: "Antrasit", qty: 6, unit: "ad" }] });
     // 1044 blocked by material
     Object.assign(S(1044, "kesim"), { status: "blocked", issue: { type: "Malzeme eksik", note: "20 mm sac levha stokta yok, tedarikçi cumartesi diyor.", at: now - 29 * HOUR, by: "emre" } });
     // 1045 parallel: paint working, accessories done
@@ -1227,7 +1299,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
     const st = jobState(j), late = isLate(j), p = pct(j);
     return `<button class="jr" data-job="${j.id}">
       <div class="jr-h"><span class="t">${esc(j.title)}</span><span class="mono">#${j.id}</span></div>
-      <div class="jr-m">${esc(j.customer)} · Termin ${esc(dayLabel(j.due))}${!j.done && etaOf(j) ? ` · Tahmini <b style="color:var(${SIM.res[j.id].risk ? "--bad" : "--ok"})">${esc(when(etaOf(j)))}</b>` : ""}</div>
+      <div class="jr-m">${esc(j.customer)}${j.items && j.items.length ? ` · ${j.items.length} kalem` : ""} · Termin ${esc(dayLabel(j.due))}${!j.done && etaOf(j) ? ` · Tahmini <b style="color:var(${SIM.res[j.id].risk ? "--bad" : "--ok"})">${esc(when(etaOf(j)))}</b>` : ""}</div>
       <div class="prog ${j.done ? "ok" : st.cls === "bad" || late ? "bad" : ""}"><i style="width:${p}%"></i></div>
       <div class="st"><span class="pill ${st.cls}">${esc(st.label)}</span>${late ? `<span class="pill bad">Gecikti</span>` : ""}${atRisk(j) ? `<span class="pill warn">Termin riski</span>` : ""}${j.urgent ? `<span class="pill acc">Acil</span>` : ""}<span class="pct">%${p}</span></div>
     </button>`;
@@ -2367,6 +2439,10 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       ${!j.done && etaOf(j) ? `<div class="note ${SIM.res[j.id].risk ? "" : "info"}"><b>Tahmini bitiş: ${esc(when(etaOf(j)))}</b><span>${SIM.res[j.id].risk ? `Termin ${esc(when(j.due))}. Mevcut kuyruğa göre yaklaşık ${fmtH((etaOf(j) - j.due) / HOUR)} geç kalıyor.` : `Termine ${fmtH((j.due - etaOf(j)) / HOUR)} pay var.`} Hesap, ekiplerin şu anki iş sırasına ve hedef sürelere göre yapılır.</span></div>` : ""}
       ${(j.rules || []).length && (can(me, "money") || !j.rules.some(r => /₺/.test(r.text))) ? `<div class="note info"><b>Bu işte çalışan kurallar</b>${j.rules.map(r => `<span>${esc(r.text)}</span>`).join("")}</div>` : ""}
       ${D.mods.finance && can(me, "money") ? `<div class="grid3"><div class="kpi"><div class="l">Tutar</div><div class="num" style="font-weight:700">${tl(j.price)}</div></div><div class="kpi"><div class="l">Tahmini maliyet</div><div class="num" style="font-weight:700">${tl(j.cost)}</div></div><div class="kpi"><div class="l">Kâr</div><div class="num" style="font-weight:700;color:var(--ok)">${tl(j.price - j.cost)}</div></div></div>` : ""}
+      ${warnHtml(j)}
+      ${j.items && j.items.length ? `<section><div class="sec-h"><h2>Kalemler</h2><span class="sm">${j.items.length} kalem · ${fmtQ(itemSum(j))} adet</span></div><div class="items">${j.items.map((it, i) => { const by = j.steps.filter(x => x.itemsDone && x.itemsDone[i]).map(x => x.name);
+        return `<div class="it${by.length ? " on" : ""}"><span class="bx">${ico("check")}</span><span class="itx"><b>${it.code ? `<span class="mono">${esc(it.code)}</span> ` : ""}${esc(it.name)}</b>${it.variant ? `<span>${esc(it.variant)}</span>` : ""}${by.length ? `<span style="color:var(--ok)">Hazır: ${esc(by.join(", "))}</span>` : ""}</span><span class="iq">${fmtQ(it.qty)} ${esc(it.unit || "ad")}</span></div>`; }).join("")}</div></section>` : ""}
+      ${paperHtml(j)}
       <div class="graph">${graph}</div>
       ${!j.done && can(me, "assign") ? `<label class="sm" style="display:grid;gap:4px;font-weight:600">İşi başka aşamaya taşı<select class="in" data-moveto="${j.id}">${kbCols(flowOf(j)).map((c, i) => `<option value="${i}"${i === colOf(j) ? " selected" : ""}>${esc(c.name)}</option>`).join("")}</select></label>` : ""}
       ${j.done ? `<div class="note info"><b>İş tamamlandı</b><span>Toplam süre ${((j.doneAt - j.createdAt) / DAY).toFixed(1).replace(".", ",")} gün · ${j.doneAt <= j.due + DAY ? "zamanında teslim" : "gecikmeli teslim"}${D.mods.finance && can(me, "money") ? ` · kâr ${tl(j.price - j.cost)}` : ""}</span></div>` : ""}
@@ -2410,12 +2486,15 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
     sheet(`<div class="stack">
       <div><div class="eyebrow">Yeni iş emri #${D.nextId}</div><h2>Yeni iş oluştur</h2><div class="sm">İş, aşamalara bölünüp sorumlulara dağıtılır. İlk aşama bitince sıradakine otomatik bildirim gider.</div></div>
       <div><label class="sm" for="nFlow"><b>İş akışı</b></label><select class="in" id="nFlow">${D.flows.map(f => `<option value="${f.id}"${f.id === D.defaultFlow ? " selected" : ""}>${f.ico} ${esc(f.name)} · ${f.stages.length} aşama</option>`).join("")}</select></div>
-      <div class="grid2" style="grid-template-columns:minmax(0,2fr) minmax(0,1fr)">
-        <div><label class="sm" for="nTitle"><b>Ürün / iş</b></label><input class="in" id="nTitle" placeholder="Ör: Demir kapı" autocomplete="off"></div>
-        <div><label class="sm" for="nQty"><b>Miktar</b></label><input class="in" id="nQty" placeholder="50 adet" autocomplete="off"></div>
-      </div>
       <div><label class="sm" for="nCust"><b>Müşteri</b></label><input class="in" id="nCust" placeholder="Ör: Ahmet Bey" autocomplete="off" list="custList">
         <datalist id="custList">${[...new Set(D.jobs.map(j => j.customer))].map(c => `<option value="${esc(c)}">`).join("")}</datalist></div>
+      <div><label class="sm" for="nTitle"><b>Sipariş adı</b></label><input class="in" id="nTitle" placeholder="Ör: 28 Elek projesi ya da Demir kapı" autocomplete="off"></div>
+      <section class="kal"><div class="sec-h"><h2>Kalemler</h2><span class="sm" id="nSum">İsteğe bağlı</span></div>
+        <div class="seg seg3" role="group" aria-label="Kalem girişi"><button data-nim="paste" aria-pressed="true">Yapıştır</button><button data-nim="list" aria-pressed="false">Tek tek</button><button data-nim="photo" aria-pressed="false">Fotoğraf</button></div>
+        <div id="nIm"></div><div id="nItems"></div></section>
+      <div id="nQtyBox"><label class="sm" for="nQty"><b>Miktar</b></label><input class="in" id="nQty" placeholder="Ör: 50 adet" autocomplete="off"></div>
+      <div><label class="sm" for="nNote"><b>Dikkat notları</b> · her satır ayrı not, ekibin görev kartında kırmızı görünür</label><textarea class="in" id="nNote" rows="2" placeholder="Ör: Renk ve sokete dikkat"></textarea>
+        <div class="chips" style="margin-top:8px">${["Renge dikkat", "Sokete dikkat", "Ambalaj ve etikete dikkat", "Ölçüleri kontrol et"].map(x => `<button class="chip" data-nnote="${x}">＋ ${x}</button>`).join("")}</div></div>
       <div class="grid2">
         <div><label class="sm" for="nDue"><b>Termin</b></label><input class="in" id="nDue" type="date" value="${dv}"></div>
         ${D.mods.finance && can(me, "money") ? `<div><label class="sm" for="nPrice"><b>Tutar (₺)</b></label><input class="in" id="nPrice" inputmode="numeric" placeholder="0"></div>` : "<div></div>"}
@@ -2432,7 +2511,46 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       <button class="btn ghost block" id="closeS">Vazgeç</button>
     </div>`, () => {
       $("#closeS").onclick = closeSheet;
-      setTimeout(() => $("#nTitle").focus(), 60);
+      setTimeout(() => $("#nCust").focus(), 60);
+      // kalem girişi: yapıştır, tek tek, fotoğraf
+      const ni = { mode: "paste", items: [], paper: null };
+      const cat = prodCatalog(), prev = D.jobs.filter(j => j.items && j.items.length).sort((a, b) => b.createdAt - a.createdAt).slice(0, 3);
+      const drawItems = () => {
+        $("#nItems").innerHTML = ni.items.length ? `<div style="margin-top:10px">${ni.items.map((it, i) => `<div class="itr"><div class="stk"><input class="nm" data-nie="${i}:name" value="${esc((it.code ? it.code + " " : "") + it.name)}" aria-label="${i + 1}. kalem"><input data-nie="${i}:variant" value="${esc(it.variant)}" placeholder="Renk, ölçü, güç…" aria-label="${i + 1}. kalemin özelliği"></div>
+          <input type="number" min="0" step="any" inputmode="decimal" data-nie="${i}:qty" value="${it.qty}" aria-label="${i + 1}. kalemin adedi"><button class="ed-b del" data-nid="${i}" aria-label="${i + 1}. kalemi sil">✕</button></div>`).join("")}</div>` : "";
+        const sum = ni.items.reduce((a, it) => a + (+it.qty || 0), 0);
+        $("#nSum").textContent = ni.items.length ? `${ni.items.length} kalem · ${fmtQ(sum)} adet` : "İsteğe bağlı";
+        $("#nQtyBox").hidden = !!ni.items.length; if (ni.items.length) $("#nQty").value = `${fmtQ(sum)} adet`;
+      };
+      const drawMode = () => {
+        layer.querySelectorAll("[data-nim]").forEach(b => b.setAttribute("aria-pressed", b.dataset.nim === ni.mode));
+        $("#nIm").innerHTML = ni.mode === "paste" ? `<textarea class="in" id="nPaste" rows="5" style="margin-top:10px" placeholder="Tekliften, Excel'den ya da e-postadan kalemleri kopyalayıp buraya yapıştır.&#10;Ör: MRY 1576 MAGNET RAY SPOT (SİYAH KASA 4000K 20W)  47 ad"></textarea>
+            <button class="btn line block" id="nParse" style="margin-top:8px">Kalemlere ayır</button>
+            ${prev.length ? `<div class="chips" style="margin-top:8px">${prev.map(j => `<button class="chip" data-ncopy="${j.id}">Kopyala: #${j.id} ${esc(j.customer)}</button>`).join("")}</div>` : ""}`
+          : ni.mode === "list" ? `<div class="addit" style="margin-top:10px"><input class="in full" id="niName" list="prodList" placeholder="Ürün kodu ya da adı" autocomplete="off"><datalist id="prodList">${cat.map(c => `<option value="${esc((c.code ? c.code + " " : "") + c.name)}">`).join("")}</datalist>
+              <input class="in" id="niVar" list="varList" placeholder="Renk, ölçü, güç…" autocomplete="off"><datalist id="varList"></datalist><input class="in" id="niQty" type="number" min="0" step="any" inputmode="decimal" placeholder="Adet">
+              <button class="btn dark full" id="niAdd">${ico("plus")} Kalemi ekle</button></div>`
+          : `<label class="btn line block" style="margin-top:10px;position:relative">${ico("camera")} ${ni.paper ? "Fotoğrafı değiştir" : "Kağıdın fotoğrafını çek ya da seç"}<input type="file" accept="image/*" id="nPhoto" style="position:absolute;inset:0;opacity:0"></label>
+            ${ni.paper ? `<div class="paperbig" style="margin-top:8px"><img src="${ni.paper}" alt="Sipariş kağıdı"></div>` : ""}<div class="sm" style="margin-top:8px">Kağıt işe eklenir; her aşamadaki kişi görev kartında görür. Kalemleri işaretlenebilir yapmak için ayrıca Yapıştır ya da Tek tek ile gir.</div>`;
+        const pa = $("#nPaste"); if (pa) { const go = () => { const got = parseItems(pa.value); if (!got.length) { $("#nMsg").textContent = "Yapıştırdığın metinde kalem bulamadım. Her kalem ayrı satırda olmalı."; return; }
+            $("#nMsg").textContent = ""; ni.items.push(...got); pa.value = ""; drawItems(); toast("✓", `${got.length} kalem eklendi`, "Aşağıda kontrol et, gerekirse düzelt"); };
+          $("#nParse").onclick = go; pa.addEventListener("paste", () => setTimeout(go, 30)); }
+        const nn = $("#niName"); if (nn) { nn.oninput = () => { const c = cat.find(x => ((x.code ? x.code + " " : "") + x.name) === nn.value); $("#varList").innerHTML = c ? [...c.variants].map(v => `<option value="${esc(v)}">`).join("") : ""; };
+          const add = () => { const v = nn.value.trim(); if (!v) { nn.focus(); return; } const [it] = parseItems(v + " " + ($("#niQty").value || 1)); it.variant = $("#niVar").value.trim() || it.variant;
+            ni.items.push(it); nn.value = ""; $("#niVar").value = ""; $("#niQty").value = ""; drawItems(); nn.focus(); };
+          $("#niAdd").onclick = add; $("#niQty").onkeydown = e => { if (e.key === "Enter") add(); }; }
+        const ph = $("#nPhoto"); if (ph) ph.onchange = () => ph.files[0] && readBig(ph.files[0], url => { ni.paper = url; drawMode(); });
+      };
+      $("#nIm").parentElement.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return;
+        if (b.dataset.nim) { ni.mode = b.dataset.nim; drawMode(); }
+        if (b.dataset.nid) { ni.items.splice(+b.dataset.nid, 1); drawItems(); }
+        if (b.dataset.ncopy) { const src = jobById(+b.dataset.ncopy); ni.items.push(...src.items.map(x => ({ ...x }))); if (!$("#nCust").value) $("#nCust").value = src.customer; drawItems(); toast("⧉", `${src.items.length} kalem kopyalandı`, `#${src.id} siparişinden`); } });
+      $("#nItems").addEventListener("change", e => { const t = e.target.dataset.nie; if (!t) return; const [i, f] = t.split(":"), it = ni.items[+i];
+        if (f === "qty") it.qty = Math.max(0, parseFloat(e.target.value) || 0);
+        else if (f === "name") { const m = e.target.value.trim().match(/^([A-ZÇĞİÖŞÜ]{2,4}[-\s]?\d{2,6}[A-Z]?)\s+(.+)$/); it.code = m ? m[1] : ""; it.name = m ? m[2] : e.target.value.trim(); }
+        else it[f] = e.target.value.trim(); drawItems(); });
+      layer.querySelectorAll("[data-nnote]").forEach(b => b.onclick = () => { const t = $("#nNote"); t.value = (t.value.trim() ? t.value.trim() + "\n" : "") + b.dataset.nnote; b.disabled = true; });
+      drawMode();
       const drawStages = () => { const f = flowById($("#nFlow").value);
         $("#nStages").innerHTML = f.stages.map(s => `<div class="pl"><span class="n">${s.g + 1}</span><div style="min-width:0"><b style="font-size:.9rem">${esc(s.name)}</b>${f.stages.filter(x => x.g === s.g).length > 1 ? ` <span class="ptag">∥ paralel</span>` : ""}${s.type === "approval" ? ` <span class="ptag" style="color:var(--warn)">onay</span>` : ""}${s.photo ? ` <span class="ptag" style="color:var(--ink-2)">📷</span>` : ""}</div>
           <select data-owner="${s.key}" aria-label="${esc(s.name)} sorumlusu"><option value="pool:${s.skill}"${s.assign === "pool" && !s.fixed ? " selected" : ""}>📋 Panoya bırak · ilk alan yapar</option>${PEOPLE.filter(p => ((p.skills || []).includes(s.skill) || p.role === "ustabasi" || p.id === s.fixed)).map(p => `<option value="${p.id}"${s.assign !== "pool" && p.id === (s.fixed || earliestFree(s.skill, SIM.avail)) ? " selected" : ""}>${esc(first(p.id))} · ${SIM.avail[p.id] && SIM.avail[p.id] > Date.now() ? "boşalır " + esc(when(SIM.avail[p.id])) : "şu an boş"}</option>`).join("")}</select></div>`).join(""); };
@@ -2479,14 +2597,17 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       };
       ["nDue", "nQty", "nTitle", "nPrice", "nUrgent"].forEach(id => $("#" + id) && $("#" + id).addEventListener(id === "nUrgent" ? "change" : "input", warn)); warn();
       $("#nGo").onclick = () => {
-        const title = $("#nTitle").value.trim(), customer = $("#nCust").value.trim(), dvv = $("#nDue").value;
-        if (!title || !customer || !dvv) { $("#nMsg").textContent = "Ürün / iş, müşteri ve termin gerekli."; (!title ? $("#nTitle") : !customer ? $("#nCust") : $("#nDue")).focus(); return; }
+        const customer = $("#nCust").value.trim(), dvv = $("#nDue").value, title = $("#nTitle").value.trim() || (ni.items.length ? `${customer} siparişi` : "");
+        if (!title || !customer || !dvv) { $("#nMsg").textContent = "Müşteri, sipariş adı ya da en az bir kalem, ve termin gerekli."; (!customer ? $("#nCust") : !title ? $("#nTitle") : $("#nDue")).focus(); return; }
         const owners = {}; layer.querySelectorAll("[data-owner]").forEach(x => owners[x.dataset.owner] = x.value);
         const [y, m, d] = dvv.split("-").map(Number);
         const price = $("#nPrice") ? +($("#nPrice").value || "0").replace(/\D/g, "") : 0;
         const j = mkJob({ flowId: $("#nFlow").value, id: D.nextId++, title, customer, qty: $("#nQty").value.trim() || "1 adet", due: new Date(y, m - 1, d, 17).getTime(), at: 0, waiting: 0,
           price, cost: Math.round(price * .65), createdAt: Date.now(), owners, urgent: $("#nUrgent").checked, address: D.mods.fleet ? $("#nAddr").value.trim() : "" });
         if (!D.mods.fleet) { j.steps = j.steps.filter(s => s.type !== "delivery"); normalize(j); }
+        if (ni.items.length) j.items = ni.items.map(x => ({ ...x }));
+        const wn = $("#nNote").value.split("\n").map(x => x.trim()).filter(Boolean); if (wn.length) j.warn = wn;
+        if (ni.paper) j.paper = ni.paper;
         applyCreateRules(j, false);
         const mz = j.steps.find(s => s.key === "malzeme") || j.steps[0];
         warn().filter(x => x.startsWith("Stok")).forEach(x => mz.notes.push({ kind: "text", text: x, by: "selim", at: Date.now() }));
@@ -2571,10 +2692,12 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
     else body = `${formHtml(j, s, k, false)}<button class="btn xl block" data-start="${k}">${ico("play")} İşe başla</button>${tools}`;
     return `<article class="task ${s.status}">
       <div class="task-top"><span class="wo">İŞ EMRİ #${j.id}</span>${status}</div>${slaPill(j, s) ? `<div>${slaPill(j, s)}</div>` : ""}
+      ${warnHtml(j)}
       <div><h3>${esc(s.detail ? s.name.split(" ")[0] + ": " + j.title : `${s.name} · ${j.title}`)}</h3>${s.detail || typeof s.checklist === "string" ? `<p style="margin-top:6px">${esc(s.detail || s.checklist)}</p>` : ""}${Array.isArray(s.checklist) && s.checklist.length && !s.detail ? `<ul class="cl">${s.checklist.map(c => `<li>${esc(c)}</li>`).join("")}</ul>` : ""}</div>
       ${facts}
       ${crewOf(s).length > 1 ? `<div class="crew">${s.mode === "split" ? "Bölüşüldü:" : "Birlikte:"} ${crewOf(s).map(id => `<span>${avatar(id, 22)} ${id === me ? "Sen" : esc(first(id))}${s.split?.[id] ? ` · ${s.split[id].n} ${esc(unitOf(j))}${s.split[id].done ? ` <span class="dn">✓</span>` : ""}` : ""}</span>`).join("")}</div>` : ""}
       ${s.final ? `<div class="note info"><b>Tamamlanma onayı</b><span>Bütün aşamalar bitti. Ürün ya da hizmet eksiksizse onayla; eksik varsa istediğin aşamaya geri gönder.</span></div>` : ""}
+      ${itemsHtml(j, s, k)}${paperHtml(j)}
       ${s.file ? `<button class="file" data-file="${esc(s.file)}">${ico("file")}${esc(s.file)}<span class="sm" style="margin-left:auto">Aç</span></button>` : ""}
       ${s.notes.filter(n => n.text.startsWith("Geri gönderildi") || n.text.startsWith("Stok")).map(n => `<div class="note"><b>Not</b><span>${esc(n.text)}</span></div>`).join("")}
       ${body}${attach}
@@ -2689,7 +2812,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       ${visible.map(j => { const PUB = pubsOf(j), si = stageIdx(j), del = j.steps.find(s => s.type === "delivery") || { status: "locked" };
         const eta = j.done ? `Teslim edildi · ${when(j.doneAt)}` : del.status === "working" ? `Yolda · tahmini varış ${hm(Date.now() + 40 * MIN)}` : `Tahmini teslim: ${when(j.due)}`;
         return `<div class="track"><div class="task-top"><span class="wo">SİPARİŞ #${j.id}</span>${j.done ? `<span class="pill ok">Teslim edildi</span>` : del.status === "working" ? `<span class="pill acc">Yolda</span>` : `<span class="pill info">${esc(PUB[Math.min(si, PUB.length - 1)])}</span>`}</div>
-          <div><h2>${esc(j.title)}</h2><div class="sm">${esc(j.qty)}</div></div>
+          <div><h2>${esc(j.title)}</h2><div class="sm">${j.items && j.items.length ? `${j.items.length} kalem · ${fmtQ(itemSum(j))} adet` : esc(j.qty)}</div></div>
           <div class="eta">${esc(eta)}</div>
           <div class="tsteps" style="grid-template-columns:repeat(${PUB.length},minmax(0,1fr))">${PUB.map((n, i) => `<div class="ts ${i < si ? "on" : i === si ? "cur" : ""}"><i></i>${esc(n)}</div>`).join("")}</div>
           <div class="sm">${j.done ? "Bütün adımlar tamamlandı" : `Şu an: <b style="color:var(--ink)">${esc(PUB[Math.min(si, PUB.length - 1)])}</b> · adım ${Math.min(si + 1, PUB.length)} / ${PUB.length}`}</div>
@@ -2812,7 +2935,14 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
     if (d.approve) { const { j, s } = parseK(d.approve); const r = completeStep(j, s, me, "approved"); if (layer.innerHTML) { save(); render(); openJob(j.id, true); toast("✅", "Onaylandı", r.next ? `Sıradaki: ${r.next.map(x => x.name).join(", ")}` : ""); } else afterComplete(j, s, r); return; }
     if (d.back) { openBack(d.back); return; }
     if (d.start) { const { j, s } = parseK(d.start); s.status = "working"; s.startedAt = Date.now(); notify(`${first(me)} #${j.id} ${s.name} işine başladı`, "▶️"); save(); render(); return; }
+    if (d.item) { const [a, b2, ix] = d.item.split(":"), { j, s } = parseK(a + ":" + b2); s.itemsDone = s.itemsDone || {}; s.itemsDone[ix] = !s.itemsDone[ix]; save();
+      el.classList.toggle("on", s.itemsDone[ix]); el.setAttribute("aria-pressed", s.itemsDone[ix]);
+      const n = j.items.filter((_, i) => s.itemsDone[i]).length, c = document.querySelector(`[data-icount="${a}:${b2}"]`); if (c) c.textContent = `${n} / ${j.items.length} hazır`;
+      if (n === j.items.length) toast("✓", "Bütün kalemler hazır", "Şimdi işi tamamlayabilirsin"); return; }
+    if (d.paper) { const j = jobById(+d.paper); sheet(`<div class="stack"><div><div class="eyebrow">#${j.id} · ${esc(j.customer)}</div><h2>Sipariş kağıdı</h2></div><div class="paperbig"><img src="${j.paper}" alt="Sipariş kağıdı"></div></div>`); return; }
     if (d.done) { const { j, s } = parseK(d.done);
+      if (j.items && j.items.length && !["pack", "delivery"].includes(s.type)) { const miss = j.items.length - j.items.filter((_, i) => (s.itemsDone || {})[i]).length;
+        if (miss && !s.missOk) { s.missOk = true; toast("✋", `${miss} kalem işaretlenmedi`, "Hepsi hazırsa işaretle; yine de bitirmek için tekrar dokun"); return; } delete s.missOk; }
       if (s.mode === "split" && s.split && s.split[me] && Object.keys(s.split).length > 1) { s.split[me].done = true; s.split[me].at = Date.now();
         const left = Object.entries(s.split).filter(([, v]) => !v.done);
         if (left.length) { notify(`${first(me)} #${j.id} ${s.name} işinde payını bitirdi (${s.split[me].n} ${unitOf(j)}) · ${left.map(([id]) => first(id)).join(", ")} bekleniyor`, "✅", [PAT(), ...left.map(([id]) => id)]);
