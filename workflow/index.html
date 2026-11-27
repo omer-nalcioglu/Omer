@@ -98,7 +98,8 @@ h3 { margin: 0; }
 main { display: flex; flex-direction: column; gap: 24px; padding-block: 16px 32px; }
 section { display: flex; flex-direction: column; gap: 12px; }
 .sec-h { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 28px; }
-.link { color: var(--accent); font-weight: 600; font-size: var(--t-sm); min-height: 44px; padding: 0 4px; }
+.link { color: var(--accent); font-weight: 600; font-size: var(--t-sm); min-height: 44px; padding: 0 4px; display: inline-flex; align-items: center; gap: 4px; }
+.link svg { width: 16px; height: 16px; }
 .sec-h .pill::before { display: none; }
 .sec-h .pill { padding-left: 10px; }
 .track .ts { font-size: 0; gap: 0; }
@@ -690,6 +691,23 @@ table.pd { width: 100%; border-collapse: collapse; font-size: .8rem; }
 .pdterms { font-size: .76rem; color: #3f4854; display: grid; gap: 2px; } .pdterms b { color: #15181d; }
 .qsum { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .qmsg { display: grid; gap: 8px; }
+/* iş geçmişi */
+details.hist { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); }
+details.hist > summary { list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 52px; padding: 0 16px; cursor: pointer; }
+details.hist > summary::-webkit-details-marker { display: none; }
+details.hist .feed { border: 0; border-top: 1px solid var(--line); border-radius: 0 0 var(--r-lg) var(--r-lg); box-shadow: none; }
+/* müşteri kartı, işletme profili, tahsilat */
+.cav2 { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-2); font-weight: 700; font-size: var(--t-sm); }
+.pay { display: grid; gap: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px 16px; }
+.pay .row { display: flex; justify-content: space-between; gap: 10px; font-size: var(--t-sm); } .pay .row b { font-variant-numeric: tabular-nums; }
+.pay .prog { height: 8px; } .pay .left { font-size: var(--t-lg); font-weight: 700; }
+.bizlogo { display: grid; grid-template-columns: 72px minmax(0, 1fr); gap: 12px; align-items: center; }
+.bizlogo .lg { width: 72px; height: 72px; border-radius: var(--r); border: 1px solid var(--line); background: var(--surface-2); display: grid; place-items: center; overflow: hidden; color: var(--ink-3); }
+.bizlogo .lg img { width: 100%; height: 100%; object-fit: contain; }
+.pdlogo img { height: 34px; width: auto; display: block; margin-bottom: 4px; }
+.pdco { font-size: .66rem; color: #5a616b; line-height: 1.4; margin-top: 3px; font-weight: 400; letter-spacing: 0; }
+.pdto { font-size: .72rem; color: #3f4854; line-height: 1.45; text-transform: none; font-weight: 400; margin-top: 2px; }
+.recv { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
 /* v2 düzeltmeleri: sonradan eklenen bileşenler yeni ölçüye */
 .kdrag { width: 36px; height: 40px; margin: -6px 0 -6px -6px; }
 .kcard { padding: 12px; } .kopen { font-size: var(--t-md); }
@@ -3155,7 +3173,7 @@ var qrcode = function() {
     skip: { t: "Şu aşamayı atla", stage: true, ev: ["create"] }, reassign_idle: { t: "Boştaki çalışana aktar", ev: ["event"] },
     notify_patron: { t: "Patrona bildir", ev: ["create", "event"] }, notify_foreman: { t: "Ustabaşına bildir", ev: ["create", "event"] },
     notify_customer: { t: "Müşteriye mesaj gönder", ev: ["create", "event"] } };
-  const TYPES = { task: "İş", approval: "Onay", pack: "Sevkiyat (barkod)", delivery: "Teslimat (imza)" };
+  const TYPES = { task: "İş", approval: "Onay", wait: "Dışarıyı bekle", pack: "Sevkiyat (barkod)", delivery: "Teslimat (imza)" };
   const DEFAULT_PREFS = { sendBack: true, signReq: true, custNotify: true, custVisible: true, slaWarn: true };
   const PREF_TEXT = [
     ["sendBack", "Hatalı işi geri gönderme", "Onay aşaması işi notla önceki aşamaya döndürebilir."],
@@ -3221,7 +3239,7 @@ var qrcode = function() {
       stages: [T("Araç kabul", "Müşteri hizmetleri", "task", { sla: 30 * MN, photo: true, pub: "Kabul edildi", cl: ["Kilometre yazıldı", "Hasar fotoğrafları", "Şikâyet not edildi"] }),
         T("Arıza tespiti", "Usta / teknisyen", "task", { sla: 2, pub: "İnceleniyor", cl: ["Arıza kodu okundu", "Parça ve işçilik listesi"] }),
         T("Fiyat onayı", "Müşteri hizmetleri", "approval", { sla: 4, pub: "Onayınız bekleniyor", cl: ["Müşteri fiyatı onayladı"], cust: true }),
-        T("Parça tedarik", "Satın alma", "task", { sla: 24, pub: "Parça bekleniyor" }),
+        T("Parça tedarik", "Satın alma", "wait", { sla: 24, pub: "Parça bekleniyor" }),
         T("Onarım", "Usta / teknisyen", "task", { sla: 6, photo: true, pub: "Onarımda", cl: ["Parça değişti", "Eski parça müşteriye ayrıldı"] }),
         T("Test ve kontrol", "Kalite kontrol", "approval", { sla: 1, pub: "Kontrolde", cl: ["Test sürüşü", "Arıza kodu temiz"] }),
         T("Yıkama", "Yıkama", "task", { sla: 1, pub: "Hazırlanıyor" }),
@@ -3230,7 +3248,7 @@ var qrcode = function() {
       stages: [T("Keşif", "Teknik / ölçüm", "task", { sla: 24, photo: true, cl: ["Ölçü ve fotoğraf", "Müşteri istekleri"] }),
         T("Proje ve bütçe", "Teknik / ölçüm", "task", { sla: 48, pub: "Planlama" }),
         T("Bütçe onayı", "Patron", "approval", { sla: 24, pub: "Onay" }),
-        T("Malzeme siparişi", "Satın alma", "task", { sla: 48, pub: "Malzeme" }),
+        T("Malzeme siparişi", "Satın alma", "wait", { sla: 48, pub: "Malzeme" }),
         T("Kaba iş", "Şantiye ekibi", "task", { sla: 3 * DY, photo: true, pub: "Uygulama" }),
         T("Elektrik ve tesisat", "Elektrik-tesisat", "task", { sla: 2 * DY, photo: true, pub: "Uygulama" }),
         T("İnce iş", "Şantiye ekibi", "task", { par: true, sla: 3 * DY, photo: true, pub: "Uygulama" }),
@@ -3395,32 +3413,32 @@ var qrcode = function() {
 
   // ---------- ürün kataloğu: bir kez tanımlanır, siparişte saniyeler içinde seçilir ----------
   const PRODUCTS_SEED = (() => {
-    const P = [], add = (code, name, cat, opts = {}, unit = "ad") => P.push({ id: "p" + (P.length + 1), code, name, cat, opts, unit });
-    const K = ["3000K", "4000K", "6500K"], KASA = ["Siyah", "Beyaz"];
-    [["1570", "Magnet ray spot 10W"], ["1576", "Magnet ray spot 20W"], ["1580", "Magnet ray spot 30W"], ["1574", "Magnet zoom spot 15W"], ["1575", "Magnet sarkıt spot"], ["1577", "Magnet grill spot 2'li"],
-     ["1578", "Magnet grill spot 3'lü"], ["1579", "Magnet katlanır spot"], ["1581", "Magnet petek armatür"], ["1584", "Magnet mini spot 6W"], ["1585", "Magnet duvar yıkayıcı"], ["1586", "Magnet ray spot 40W"]]
-      .forEach(([c, n]) => add("MRY " + c, n, "Magnet spot", { Kasa: [...KASA, "Beyaz kasa gold ekleme"], "Renk sıcaklığı": K }));
-    [["1571", "Opak difüzörlü magnet armatür"], ["1572", "Magnet lineer armatür"], ["1573", "Magnet lineer armatür optikli"], ["1582", "Magnet panel"], ["1583", "Magnet sarkıt lineer"], ["1587", "Magnet asimetrik armatür"]]
-      .forEach(([c, n]) => add("MRY " + c, n, "Magnet armatür", { Boy: ["30 cm", "60 cm", "90 cm", "120 cm"], Kasa: KASA, "Renk sıcaklığı": K }));
-    [["151", "48 W sıva üstü magnet", "Sıva üstü ray"], ["152", "48 W sıva altı magnet", "Sıva altı ray"], ["153", "48 W trimless magnet", "Trimless ray"], ["154", "48 W sarkıt magnet", "Sarkıt ray"]]
-      .forEach(([c, n, cat]) => [["0", "1 metre"], ["1", "2 metre"], ["2", "3 metre"]].forEach(([d, m]) => add(`MRY ${c}${d}`, `${n} ${m}`, cat, { Kasa: KASA })));
-    [["1505", "Esnek dönüş"], ["1506", "Düz bağlantı"], ["1507", "T dönüş aparatı"], ["1508", "X dönüş aparatı"], ["1509", "Dikey L dönüş"], ["1513", "Sıva üstü L dönüş aparatı"], ["1523", "Sıva altı L dönüş aparatı"],
-     ["1533", "Trimless L dönüş aparatı"], ["1515", "Uç kapak"], ["1516", "Besleme ucu"], ["1517", "Askı seti 1,5 m"], ["1518", "Tavan montaj klipsi"], ["1519", "Ara besleme"], ["1606", "Trimless arabağlantı"],
-     ["1607", "Sıva altı arabağlantı"], ["1609", "Ray kör tapa"]].forEach(([c, n]) => add("MRY " + c, n, "Aparat", { Kasa: KASA }));
-    [[20, 1601], [30, 1602], [40, 1603], [60, 1604], [75, 1605], [100, 1608], [150, 1610], [200, 1611], [250, 1612], [300, 1613]].forEach(([w, c]) => add(`MRY ${c}`, `Magnet driver ${w}W`, "Driver", { Gerilim: ["48V", "24V"] }));
-    [["350mA", 12], ["500mA", 20], ["700mA", 40], ["1050mA", 50]].forEach(([a, w]) => add("", `Sabit akım driver ${w}W ${a}`, "Driver", { Marka: ["Eaglerise", "Mean Well"] }));
-    [12, 24].forEach(v => [60, 100, 150, 200].forEach(w => add("", `${v}V adaptör ${w}W`, "Driver")));
-    ["Samsung LED", "Osram LED", "Şerit LED 12V 120 led/m", "Şerit LED 24V 120 led/m", "COB şerit LED 24V", "Neon flex LED 24V"].forEach((n, i) =>
-      add("", n, "LED", { "Renk sıcaklığı": ["2700K", "3000K", "4000K", "6500K"] }, i > 1 ? "m" : "ad"));
-    ["Alüminyum profil sıva üstü", "Alüminyum profil sıva altı", "Alüminyum profil köşe", "Alüminyum profil sarkıt"].forEach(n => [["1 m"], ["2 m"], ["3 m"]].forEach(([m]) =>
-      add("", `${n} ${m}`, "Profil", { Renk: ["Gri", "Siyah", "Beyaz"] })));
-    ["Opak difüzör", "Şeffaf difüzör", "Profil uç kapağı", "Profil montaj klipsi", "Kablo 2x0,75", "Kablo 2x1,5", "Klemens 3'lü", "Dimmer modülü", "Hareket sensörü", "Uzaktan kumanda", "Montaj vidası seti", "Dübel 6 mm", "Etiket seti", "Ambalaj kutusu", "Koruyucu köpük", "Ray kesme hizmeti"].forEach(n => add("", n, "Sarf malzeme"));
-    const W = n => +((String(n).match(/(\d+)\s*W\b/) || [0, 0])[1]), M = n => +((String(n).match(/(\d+)\s*(metre|m)\b/) || [0, 1])[1]);
-    P.forEach(p => p.price = p.cat === "Magnet spot" ? 600 + W(p.name) * 12 : p.cat === "Magnet armatür" ? 1150 : /ray/i.test(p.cat) ? 520 * M(p.name) : p.cat === "Aparat" ? 140
-      : p.cat === "Driver" ? Math.max(180, W(p.name) * 5) : p.cat === "LED" ? (p.unit === "m" ? 160 : 45) : p.cat === "Profil" ? 210 * M(p.name) : 40);
+    const P = [], add = (code, name, cat, opts = {}, unit = "ad", price = 0) => P.push({ id: "p" + (P.length + 1), code, name, cat, opts, unit, price });
+    const RAL = ["Antrasit RAL 7016", "Siyah RAL 9005", "Beyaz RAL 9016", "Galvaniz"];
+    [["KP 101", "Çelik kapı · daire tipi", 14500], ["KP 102", "Çelik kapı · villa tipi", 26500], ["KP 103", "Çelik kapı · bina giriş", 32000], ["KP 104", "Yangın kapısı · 60 dk", 18900],
+     ["KP 105", "Teknik hacim kapısı", 9800], ["KP 106", "Çift kanat bina giriş kapısı", 48500]].forEach(([c, n, pr]) => add(c, n, "Çelik kapı", { Ölçü: ["90×210", "100×210", "120×220"], Renk: RAL.slice(0, 3) }, "ad", pr));
+    [["BK 201", "Bahçe kapısı · tek kanat", 12500], ["BK 202", "Bahçe kapısı · çift kanat", 21500], ["BK 203", "Sürgülü bahçe kapısı", 34000], ["BK 204", "Yaya kapısı", 8900]]
+      .forEach(([c, n, pr]) => add(c, n, "Bahçe kapısı", { Model: ["Lamalı", "Ferforje", "Panel"], Renk: RAL }, "ad", pr));
+    [["KR 301", "Merdiven korkuluğu · lama", 2400], ["KR 302", "Balkon korkuluğu · camlı", 3900], ["KR 303", "Paslanmaz korkuluk", 4600], ["KR 304", "Ferforje korkuluk", 3200],
+     ["KR 305", "Teras korkuluğu", 2900], ["KR 306", "Rampa korkuluğu", 2100]].forEach(([c, n, pr]) => add(c, n, "Korkuluk", { Renk: RAL }, "m", pr));
+    [["KN 401", "Otomatik kepenk", 2100], ["KN 402", "Manuel kepenk", 1400], ["KN 403", "Delikli vitrin kepengi", 2600]].forEach(([c, n, pr]) => add(c, n, "Kepenk", { Renk: RAL.slice(0, 3) }, "m²", pr));
+    [[20, 20], [30, 30], [40, 40], [40, 60], [50, 50], [60, 60], [80, 80], [100, 100], [40, 80], [60, 120], [30, 50], [20, 40], [100, 50], [120, 120]]
+      .forEach(([w, h]) => add(`PRF ${w}${h}`, `Kutu profil ${w}×${h}`, "Profil", { "Et kalınlığı": ["2 mm", "3 mm", "4 mm"] }, "boy", Math.round((w + h) * 5.2)));
+    [1, 1.5, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20].forEach(t => add(`SAC ${String(t).replace(".", "")}`, `Sac levha ${String(t).replace(".", ",")} mm`, "Sac", { Ebat: ["1000×2000", "1250×2500", "1500×3000"], Tür: ["DKP", "Siyah", "Galvaniz"] }, "plaka", Math.round(t * 1150)));
+    [21, 27, 33, 42, 48, 60, 76, 89, 114].forEach(d => add(`BRU ${d}`, `Çelik boru Ø${d}`, "Boru", { "Et kalınlığı": ["2 mm", "3 mm"] }, "boy", d * 14));
+    [[20, 3], [30, 4], [40, 5], [50, 5], [60, 6], [80, 8]].forEach(([w, t]) => add(`LMA ${w}${t}`, `Lama ${w}×${t}`, "Lama ve köşebent", {}, "boy", w * t * 3));
+    [[30, 3], [40, 4], [50, 5], [60, 6], [70, 7], [80, 8]].forEach(([w, t]) => add(`KSB ${w}${t}`, `Köşebent ${w}×${w}×${t}`, "Lama ve köşebent", {}, "boy", w * t * 5));
+    ["NPU 80", "NPU 100", "NPI 120", "HEA 140"].forEach(n => add(n.replace(" ", ""), `${n} demir`, "Lama ve köşebent", {}, "boy", 1800 + parseInt(n.slice(4)) * 18));
+    [["AKS 101", "Kilit takımı", 950], ["AKS 102", "Menteşe", 85], ["AKS 103", "Kapı kolu", 420], ["AKS 104", "Barel", 260], ["AKS 105", "Kapı dürbünü", 140], ["AKS 106", "Kapı yayı", 380],
+     ["AKS 107", "Kapı stoperi", 90], ["AKS 108", "Sürgü", 110], ["AKS 109", "Kilit karşılığı", 65], ["AKS 110", "Bağlantı plakası", 45], ["AKS 111", "Ankraj dübel", 18], ["AKS 112", "Cıvata seti", 35],
+     ["AKS 113", "Kepenk motoru", 6400], ["AKS 114", "Uzaktan kumanda", 450], ["AKS 115", "Fotosel", 1250], ["AKS 116", "Sürgülü kapı rayı", 520]].forEach(([c, n, pr]) => add(c, n, "Aksesuar", {}, /rayı/.test(n) ? "m" : "ad", pr));
+    add("BOY 01", "Elektrostatik toz boya", "Boya", { Renk: RAL.slice(0, 3) }, "kg", 210); add("BOY 02", "Antipas astar", "Boya", {}, "kg", 160); add("BOY 03", "Galvaniz sprey", "Boya", {}, "ad", 190); add("BOY 04", "Selülozik tiner", "Boya", {}, "lt", 95);
+    [["HZM 01", "Lazer kesim", "m", 85], ["HZM 02", "CNC büküm", "ad", 40], ["HZM 03", "Sıcak daldırma galvaniz", "kg", 22], ["HZM 04", "Elektrostatik boya hizmeti", "m²", 180], ["HZM 05", "Montaj işçiliği", "saat", 650],
+     ["HZM 06", "Keşif ve ölçü", "ad", 1500], ["HZM 07", "Nakliye", "sefer", 2500], ["HZM 08", "Kaynak işçiliği", "saat", 700], ["HZM 09", "Teknik çizim", "ad", 2000], ["HZM 10", "Söküm", "saat", 550],
+     ["HZM 11", "Kumlama", "m²", 240], ["HZM 12", "CNC delme", "ad", 25]].forEach(([c, n, u, pr]) => add(c, n, "Hizmet", {}, u, pr));
     return P;
   })();
-  const catIcon = c => { const l = String(c || "").toLocaleLowerCase("tr-TR"); return /spot|armatür|panel|lamba/.test(l) ? "bulb" : /ray|profil/.test(l) ? "rail" : /aparat|bağlantı|dönüş/.test(l) ? "link" : /driver|adaptör|trafo/.test(l) ? "plug" : /led|şerit/.test(l) ? "strip" : "box"; };
+  const catIcon = c => { const l = String(c || "").toLocaleLowerCase("tr-TR"); return /kapı|kepenk/.test(l) ? "door" : /korkuluk/.test(l) ? "rail" : /profil|boru|lama|köşebent|sac/.test(l) ? "beam" : /aksesuar|aparat|bağlantı/.test(l) ? "link" : /boya/.test(l) ? "drop" : /hizmet/.test(l) ? "tool" : /spot|armatür|lamba/.test(l) ? "bulb" : /driver|adaptör/.test(l) ? "plug" : /led|şerit/.test(l) ? "strip" : "box"; };
   const catHue = c => { let h = 0; for (const ch of String(c || "")) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h % 8; };
   const prodOf = it => D.products.find(x => (it.pid && x.id === it.pid) || (it.code && trn(x.code) === trn(it.code))) || null;
   function thumb(p, size, cls) { const src = p || {}, num = (String(src.code || "").match(/\d{2,}/) || [""])[0];
@@ -3483,7 +3501,7 @@ var qrcode = function() {
         <div class="sm">Panoya asılan kağıdın aynısı. Üretimde işaretlenen kalemler burada ✓ olarak görünür.</div></div>
       <div class="chips">${FORM_TITLES.map(t => `<button class="chip" data-ftitle="${t}" aria-pressed="${t === ttl}">${t}</button>`).join("")}</div>
       <article class="paperdoc" aria-label="${esc(ttl)} formu">
-        <div class="pdhead"><div class="pdlogo">${esc(BIZ())}<small>${esc((D.biz && D.biz.what) || "")}</small></div><div class="pdno">No: ${j.id}</div></div>
+        ${docHead(`No: ${j.id}`)}
         <div class="pdtitle">${esc(ttl)}</div>
         <div class="pdmeta"><div class="pdcust">${esc(j.customer)} ${esc(j.title)}</div><div class="pddates"><b>Tarih:</b> ${d(j.createdAt)}<br><b>Termin:</b> ${d(j.due)}</div></div>
         ${(j.warn || []).length ? `<div style="display:grid;gap:4px">${j.warn.map(w => `<div class="pdwarn">${esc(w)}</div>`).join("")}</div>` : ""}
@@ -3587,10 +3605,14 @@ var qrcode = function() {
     Object.assign(S(1042, "kaynak"), { detail: "24 adet çelik profilin teknik çizime uygun şekilde kaynatılması.", place: "Atölye 2", deadline: at(0, 16, 30), file: "Teknik çizim.pdf" });
     Object.assign(S(1042, "kaynak"), { mode: "split", crew: ["huseyin", "okan"], split: { huseyin: { n: 14, done: false }, okan: { n: 10, done: false } } });
     Object.assign(S(1049, "kaynak"), { detail: "3 adet kepenk kasasının kaynağı, ray yuvaları dahil.", place: "Atölye 1", deadline: at(1, 12), file: "Kepenk ölçüleri.pdf" });
+    const PI = code => { const x = PRODUCTS_SEED.find(p => p.code === code); return { pid: x.id, code: x.code, name: x.name, unit: x.unit }; };
     Object.assign(J(1042), { warn: ["Kaynak dikişlerini taşlayın, boyadan önce pas bırakmayın"], items: [
-      { code: "PRF 4040", name: "Taşıyıcı profil", variant: "40×40×2 · 2400 mm", qty: 12, unit: "ad" }, { code: "PRF 4040", name: "Ara profil", variant: "40×40×2 · 1200 mm", qty: 8, unit: "ad" },
-      { code: "BGL 05", name: "Bağlantı plakası", variant: "5 mm · delikli", qty: 4, unit: "ad" }], qty: "24 profil" });
-    Object.assign(J(1040), { items: [{ code: "KP 90", name: "Çelik kapı kanadı", variant: "Antrasit · 90×210", qty: 6, unit: "ad" }, { code: "KS 90", name: "Kasa takımı", variant: "Antrasit", qty: 6, unit: "ad" }] });
+      { ...PI("PRF 4040"), variant: "2 mm · 2400 mm kesim", qty: 12, unit: "ad" }, { ...PI("PRF 4040"), variant: "2 mm · 1200 mm kesim", qty: 8, unit: "ad" },
+      { ...PI("AKS 110"), variant: "5 mm · delikli", qty: 4 }], qty: "24 profil" });
+    Object.assign(J(1040), { items: [{ ...PI("KP 101"), variant: "90×210 · Antrasit RAL 7016", qty: 6 }, { ...PI("AKS 101"), qty: 6 }] });
+    Object.assign(J(1043), { items: [{ ...PI("KP 103"), variant: "100×210 · Antrasit RAL 7016", qty: 12 }] });
+    Object.assign(J(1045), { items: [{ ...PI("KR 301"), variant: "Antrasit RAL 7016", qty: 14 }] });
+    Object.assign(J(1046), { items: [{ ...PI("BK 201"), variant: "Lamalı · Antrasit RAL 7016", qty: 1 }] });
     // 1044 blocked by material
     Object.assign(S(1044, "kesim"), { status: "blocked", issue: { type: "Malzeme eksik", note: "20 mm sac levha stokta yok, tedarikçi cumartesi diyor.", at: now - 29 * HOUR, by: "emre" } });
     // 1045 parallel: paint working, accessories done
@@ -3609,18 +3631,27 @@ var qrcode = function() {
       { at: now - 2 * HOUR, ic: "🚚", text: "#1047 sevkiyata hazır, Mehmet'e teslimat görevi düştü", to: ["mehmet"] },
       { at: now - 1 * HOUR, ic: "📦", text: "Yusuf #1043 paketlemeye başladı" },
     ];
-    const stock = [
-      { name: "Profil 40×40 mm", qty: 38, min: 60, unit: "boy" }, { name: "Sac levha 20 mm", qty: 0, min: 10, unit: "plaka" },
-      { name: "Kilit takımı", qty: 30, min: 20, unit: "adet" }, { name: "Elektrostatik boya · RAL 7016", qty: 42, min: 25, unit: "kg" },
-      { name: "Menteşe", qty: 220, min: 80, unit: "adet" } ];
+    const SP = (code, qty, min) => { const x = PRODUCTS_SEED.find(p => p.code === code); return { pid: x.id, name: x.name, qty, min, unit: x.unit }; };
+    const stock = [SP("PRF 4040", 38, 60), SP("SAC 20", 0, 10), SP("AKS 101", 30, 20), SP("BOY 01", 42, 25), SP("AKS 102", 220, 80), SP("KP 103", 4, 2), SP("KR 301", 40, 20)];
     const out = { people: JSON.parse(JSON.stringify(PEOPLE_SEED)), depts: { ...DEPTS_SEED }, flows, defaultFlow: "metal", jobs, feed, stock, nextId: 1050, mods: { chat: true, planning: true, rules: true, fleet: true, stock: true, scan: true, finance: true, customers: true, reports: true },
       privacy: { loc: true, perf: true, quiet: true }, groups: JSON.parse(JSON.stringify(GROUPS_SEED)), products: JSON.parse(JSON.stringify(PRODUCTS_SEED)) };
     const PP = code => { const x = PRODUCTS_SEED.find(p => p.code === code); return { pid: x.id, code: x.code, name: x.name, unit: x.unit, price: x.price }; };
+    out.biz = { demo: true, name: "Demirtaş Metal", what: "Çelik kapı, korkuluk ve konstrüksiyon", address: "İkitelli OSB Metal İş Sanayi Sitesi 4. Blok No: 12, Başakşehir / İstanbul",
+      phone: "0212 555 01 23", email: "info@demirtasmetal.example", taxOffice: "İkitelli", taxNo: "3210987654", iban: "TR12 0006 4000 0011 2345 6789 01", vat: 20, validDays: 15, pay: "%50 peşin, kalan teslimde", ws: 8, we: 17, sat: true };
+    out.customers = [
+      { id: "c1", name: "Kaya İnşaat", contact: "Murat Kaya · satın alma", phone: "0532 410 22 31", email: "satinalma@kayainsaat.example", address: "Atatürk Mah. Ertuğrul Gazi Sk. No: 8, Ataşehir / İstanbul", taxOffice: "Kozyatağı", taxNo: "4870012345" },
+      { id: "c2", name: "Yıldız Sitesi", contact: "Ayşe Demir · site yöneticisi", phone: "0533 288 14 07", email: "", address: "Yıldız Sitesi A Blok, Bahçelievler / İstanbul", taxOffice: "", taxNo: "" },
+      { id: "c3", name: "Öztürk Makine", contact: "Serkan Öztürk", phone: "0544 302 55 90", email: "", address: "İkitelli OSB 2. Cad. No: 44, Başakşehir / İstanbul", taxOffice: "İkitelli", taxNo: "6650033221" },
+      { id: "c4", name: "Defne Hanım · Kadıköy", contact: "", phone: "0535 711 40 62", email: "", address: "Moda Cad. No: 112 D: 5, Kadıköy / İstanbul", taxOffice: "", taxNo: "" },
+      { id: "c5", name: "Can Bey · Beykoz", contact: "", phone: "0532 909 12 34", email: "", address: "Kanlıca Mah. İskele Cad. No: 3, Beykoz / İstanbul", taxOffice: "", taxNo: "" },
+      { id: "c6", name: "Ekin Lojistik", contact: "Elif Ekin · depo müdürü", phone: "0216 444 35 46", email: "depo@ekinlojistik.example", address: "Aydınlı Mah. Organize Sanayi Cd. No: 14, Tuzla / İstanbul", taxOffice: "Tuzla", taxNo: "1122334455" } ];
+    out.jobs.find(j => j.id === 1042).payments = [{ at: now - 4 * DAY, amount: 93000, method: "Havale" }];
+    out.jobs.find(j => j.id === 1043).payments = [{ at: now - 7 * DAY, amount: 114000, method: "Havale" }, { at: now - 1 * DAY, amount: 50000, method: "Çek" }];
     out.quotes = [
-      { id: "q1", no: 2001, customer: "Kaya İnşaat", title: "Ofis katı aydınlatma", status: "sent", via: "WhatsApp", createdAt: now - 2 * DAY, sentAt: now - 2 * DAY + HOUR, valid: sod() + 12 * DAY, lead: 10, disc: 5, vat: 20,
-        pay: "%50 peşin, kalan teslimde", note: "Fiyatlara montaj dahil değildir.", items: [{ ...PP("MRY 1576"), variant: "Siyah · 4000K", qty: 30 }, { ...PP("MRY 1512"), variant: "Siyah", qty: 12 }, { ...PP("MRY 1513"), variant: "Siyah", qty: 6 }, { ...PP("MRY 1608"), variant: "48V", qty: 4 }] },
-      { id: "q2", no: 2002, customer: "Yıldız Sitesi", title: "Giriş holü ve koridorlar", status: "draft", createdAt: now - 3 * HOUR, valid: sod() + 15 * DAY, lead: 12, disc: 0, vat: 20, pay: "%50 peşin, kalan teslimde", note: "",
-        items: [{ ...PP("MRY 1571"), variant: "60 cm · Beyaz · 3000K", qty: 18 }, { ...PP("MRY 1511"), variant: "Beyaz", qty: 9 }] },
+      { id: "q1", no: 2001, customer: "Kaya İnşaat", title: "Site korkulukları ve yaya kapıları", status: "sent", via: "WhatsApp", createdAt: now - 2 * DAY, sentAt: now - 2 * DAY + HOUR, valid: sod() + 12 * DAY, lead: 10, disc: 5, vat: 20,
+        pay: "%50 peşin, kalan teslimde", note: "Fiyatlara montaj dahildir. Cam ayrıca tedarik edilir.", flowId: "montaj", items: [{ ...PP("KR 302"), variant: "Antrasit RAL 7016", qty: 64 }, { ...PP("KR 301"), variant: "Antrasit RAL 7016", qty: 36 }, { ...PP("BK 204"), variant: "Lamalı · Antrasit RAL 7016", qty: 2 }, { ...PP("HZM 05"), qty: 24 }] },
+      { id: "q2", no: 2002, customer: "Yıldız Sitesi", title: "Blok giriş ve yangın kapıları", status: "draft", createdAt: now - 3 * HOUR, valid: sod() + 15 * DAY, lead: 12, disc: 0, vat: 20, pay: "%50 peşin, kalan teslimde", note: "",
+        flowId: "metal", items: [{ ...PP("KP 103"), variant: "100×210 · Antrasit RAL 7016", qty: 4 }, { ...PP("KP 104"), variant: "90×210 · Beyaz RAL 9016", qty: 8 }, { ...PP("AKS 106"), qty: 12 }] },
       { id: "q0", no: 2000, customer: "Ekin Lojistik", title: "Depo rafı sistemi", status: "accepted", createdAt: now - 10 * DAY, sentAt: now - 10 * DAY, decidedAt: now - 9 * DAY, jobId: 1047, valid: now - 2 * DAY, lead: 8, disc: 0, vat: 20, pay: "Peşin", note: "",
         items: [{ code: "", name: "Raf ünitesi", variant: "2,5 m · galvaniz", qty: 8, unit: "ad", price: 13750 }] } ];
     out.nextQuote = 2003;
@@ -3628,18 +3659,19 @@ var qrcode = function() {
   }
 
   let D;
-  try { D = JSON.parse(localStorage.getItem("wf-proto-4")); } catch (e) {}
+  try { D = JSON.parse(localStorage.getItem("wf-proto-5")); } catch (e) {}
   let firstRun = false;
   if (!D || !D.jobs || !D.flows || !D.people) { D = seed(); firstRun = true; }
   D.mods = { chat: true, planning: true, rules: true, scan: true, reports: true, ...D.mods };
   if (D.formsV) { delete D.formsV; D.mods.forms = false; }
   if (!D.groups) D.groups = JSON.parse(JSON.stringify(GROUPS_SEED));
   if (!D.quotes) D.quotes = [];
+  if (!D.customers) D.customers = [...new Set(D.jobs.map(j => j.customer))].map((n, i) => ({ id: "c" + i, name: n }));
   if (!D.products) D.products = D.biz ? [] : JSON.parse(JSON.stringify(PRODUCTS_SEED));   // forms are opt-in: earlier preview turned them on with sample data
   if (!D.chat) D.chat = seedChat();
   const syncPeople = () => { PEOPLE.length = 0; PEOPLE.push(...D.people); D.people = PEOPLE; };
   syncPeople();
-  const save = () => { try { localStorage.setItem("wf-proto-4", JSON.stringify(D)); } catch (e) {} };
+  const save = () => { try { localStorage.setItem("wf-proto-5", JSON.stringify(D)); } catch (e) {} };
 
   const BIZ = () => (D.biz && D.biz.name) || "Demirtaş Metal";
   const PAT = () => (PEOPLE.find(p => p.role === "patron") || PEOPLE[0]).id;
@@ -3656,11 +3688,13 @@ var qrcode = function() {
   const pct = j => j.done ? 100 : Math.round(j.steps.reduce((a, s) => a + (s.status === "done" ? 1 : s.status === "working" ? .5 : 0), 0) / j.steps.length * 100);
   const isLate = j => !j.done && j.due < Date.now();
   function jobState(j) {
+    if (j.cancelled) return { label: "İptal edildi", cls: "bad" };
     if (j.done) return { label: "Tamamlandı", cls: "ok" };
     const act = activeSteps(j), blk = act.find(s => s.status === "blocked");
     if (blk) return { label: blk.issue?.type === "Malzeme eksik" ? "Malzeme bekliyor" : `Sorun: ${blk.issue?.type || "bildirildi"}`, cls: "bad" };
     if (act.some(s => s.final && s.status === "ready")) return { label: act.find(s => s.final).cust ? "Müşteriden tamamlanma onayı bekliyor" : `Tamamlanma onayı bekliyor · ${first(act.find(s => s.final).owner)}`, cls: "warn" };
     if (act.some(s => s.type === "approval" && s.status === "ready" && s.cust)) return { label: "Müşteri onayı bekliyor", cls: "warn" };
+    if (act.some(s => s.type === "wait")) return { label: `${act.find(s => s.type === "wait").name} · dışarıdan bekleniyor`, cls: "info" };
     if (act.some(s => isPool(s.owner) && s.status === "ready")) return { label: `${act.find(s => isPool(s.owner)).name} · panoda bekliyor`, cls: "warn" };
     if (act.some(s => s.type === "approval" && s.status === "ready")) return { label: "Onay bekliyor", cls: "warn" };
     if (act.some(s => s.type === "pack")) return { label: "Sevkiyata hazırlanıyor", cls: "info" };
@@ -3679,7 +3713,7 @@ var qrcode = function() {
     const gs = j.steps.filter(s => s.g === g);
     gs.forEach(s => { s.status = "ready"; s.readyAt = Date.now(); delete s.issue; });
     gs.forEach(s => notify(isPool(s.owner) ? `#${j.id} ${s.name} panoya düştü · ${deptName(s.owner.slice(5))} ekibi bilgilendirildi, ilk alan yapacak` : `#${j.id} ${s.name} aşamasına geçti · ${crewOf(s).map(first).join(" ve ")} bilgilendirildi`, isPool(s.owner) ? "📋" : "➡️", crewOf(s)));
-    const pr = flowOf(j).prefs; if (pr.custNotify && D.mods.customers) notify(`Müşteriye mesaj gitti: “${j.title} siparişiniz ${gs[0].pub || gs[0].name} aşamasında”`, "📲");
+    const pr = flowOf(j).prefs; if (pr.custNotify && D.mods.customers && !gs.every(x => x.hide)) notify(`Müşteriye mesaj gitti: “${j.title} siparişiniz ${gs[0].pub || gs[0].name} aşamasında”`, "📲");
     return gs;
   }
   function completeStep(j, s, by, how = "done") {
@@ -3696,7 +3730,7 @@ var qrcode = function() {
     const nextG = curGroup(j);
     if (nextG == null) {
       j.done = true; j.doneAt = Date.now();
-      notify(`#${j.id} ${j.title} tamamlandı · rapor hazır`, "🏁", ["selim"]);
+      notify(`#${j.id} ${j.title} tamamlandı · rapor hazır`, "🏁", [PAT()]);
       if (flowOf(j).prefs.custNotify && D.mods.customers) notify(`Müşteriye mesaj gitti: “${j.title} siparişiniz tamamlandı”`, "📲");
       return { finished: true };
     }
@@ -3728,7 +3762,7 @@ var qrcode = function() {
   }
   function logRule(j, r, extra) { const t = ruleText(r, flowOf(j)) + (extra ? ` (${extra})` : ""); (j.rules = j.rules || []).push({ text: t, at: Date.now() }); return t; }
   function doNotify(j, act, what) {
-    if (act === "notify_patron") notify(`Kural: #${j.id} ${what} · patrona bildirildi`, "⚙️", ["selim"]);
+    if (act === "notify_patron") notify(`Kural: #${j.id} ${what} · patrona bildirildi`, "⚙️", [PAT()]);
     if (act === "notify_foreman") notify(`Kural: #${j.id} ${what} · ustabaşına bildirildi`, "⚙️", FORE());
     if (act === "notify_customer") notify(`Kural: müşteriye mesaj gitti · #${j.id} ${what}`, "📲");
   }
@@ -3743,7 +3777,7 @@ var qrcode = function() {
     (flowOf(j).rules || []).filter(r => r.on && CONDS[r.cond].ev === "create" && condMatch(r, j)).forEach(r => {
       if (r.act === "add_approval" && !j.steps.some(s => s.key === "r-onay")) {
         j.steps.forEach(s => s.g += 1);
-        j.steps.unshift({ key: "r-onay", name: "Patron onayı", skill: "patron", owner: "selim", g: 0, type: "approval", pub: "Onay", checklist: ["Tutar ve termin uygun"], sla: 4, photos: [], notes: [], log: [], status: "ready" });
+        j.steps.unshift({ key: "r-onay", name: "Patron onayı", skill: "patron", owner: PAT(), g: 0, type: "approval", pub: "Onay", checklist: ["Tutar ve termin uygun"], sla: 4, photos: [], notes: [], log: [], status: "ready" });
         normalize(j);
       } else if (r.act === "front") j.front = true;
       else if (r.act === "skip" && j.steps.some(s => s.key === r.stage) && j.steps.length > 1) { j.steps = j.steps.filter(s => s.key !== r.stage); normalize(j); }
@@ -3802,11 +3836,12 @@ var qrcode = function() {
     </button>`;
   }
   // ---------- scheduler: forecasts every step on working hours (Mon–Sat 08:00–17:00) ----------
-  const WD_S = 8, WD_E = 17, WD_H = WD_E - WD_S;
+  let WD_S = 8, WD_E = 17, WD_H = 9, WD_SAT = true;
+  const applyHours = () => { const b = (D && D.biz) || {}; WD_S = b.ws ?? 8; WD_E = b.we ?? 17; WD_H = Math.max(1, WD_E - WD_S); WD_SAT = b.sat !== false; };
   function addWork(t, h) {
     let ms = Math.max(0, h) * HOUR, d = new Date(t), guard = 0;
     const toWork = () => { for (let k = 0; k < 15; k++) { const s0 = new Date(d); s0.setHours(WD_S, 0, 0, 0); const e0 = new Date(d); e0.setHours(WD_E, 0, 0, 0);
-      if (d.getDay() === 0 || d >= e0) { d = new Date(s0.getTime() + DAY); continue; } if (d < s0) d = s0; return e0; } return new Date(d.getTime() + HOUR); };
+      if (d.getDay() === 0 || (!WD_SAT && d.getDay() === 6) || d >= e0) { d = new Date(s0.getTime() + DAY); continue; } if (d < s0) d = s0; return e0; } return new Date(d.getTime() + HOUR); };
     let e = toWork();
     while (ms > 0 && guard++ < 500) { const use = Math.min(e - d, ms); d = new Date(d.getTime() + use); ms -= use; if (ms > 0) e = toWork(); }
     if (h === 0) toWork();
@@ -3814,7 +3849,7 @@ var qrcode = function() {
   }
   // order of service: jobs marked "front" by a rule first, then first-come-first-served
   const prio = j => (j.front ? 0 : 1) * 1e14 + (j.createdAt || 0);
-  const effort = s => (s.sla || 8) * (s.type === "approval" ? .25 : .5);   // target time vs. hands-on work
+  const effort = s => s.type === "wait" ? 0 : (s.sla || 8) * (s.type === "approval" ? .25 : .5);   // target time vs. hands-on work
   function slot(busy, from, h) {
     // earliest start >= from where [start, addWork(start,h)] fits between this person's booked intervals
     let t = addWork(from, 0);
@@ -3837,8 +3872,8 @@ var qrcode = function() {
           const h = s.status === "working" ? Math.max(effort(s) * .25, effort(s) - (now - (s.startedAt || now)) / HOUR) : effort(s);
           const from = s.status === "blocked" ? Math.max(gStart, addWork(now, 8)) : gStart;
           const busy = cal[s.owner] = cal[s.owner] || [];
-          const [start, end] = s.status === "working" ? [now, addWork(now, h)] : slot(busy, from, h);
-          busy.push({ start, end }); avail[s.owner] = Math.max(avail[s.owner] || 0, end);
+          const [start, end] = s.type === "wait" ? [from, Math.max(from, (s.readyAt || from) + (s.sla || 24) * HOUR)] : s.status === "working" ? [now, addWork(now, h)] : slot(busy, from, h);
+          if (s.type !== "wait") { busy.push({ start, end }); avail[s.owner] = Math.max(avail[s.owner] || 0, end); }
           st[s.key] = { start, end, wait: Math.max(0, start - from) }; book.push({ skill: s.skill, owner: s.owner, start, end, job: j.id });
           gEnd = Math.max(gEnd, end); });
         gStart = gEnd; });
@@ -3855,7 +3890,7 @@ var qrcode = function() {
     const c = PEOPLE.filter(p => (p.skills || []).includes(skill)); if (!c.length) return (PEOPLE.find(p => p.role === "ustabasi") || PEOPLE[0]).id;
     return c.sort((a, b) => (avail[a.id] || 0) - (avail[b.id] || 0))[0].id;
   }
-  const loadOf = id => D.jobs.reduce((a, j) => a + (j.done ? 0 : j.steps.filter(s => onStep(s, id) && ["ready", "working", "blocked"].includes(s.status)).length), 0);
+  const loadOf = id => D.jobs.reduce((a, j) => a + (j.done ? 0 : j.steps.filter(s => s.type !== "wait" && onStep(s, id) && ["ready", "working", "blocked"].includes(s.status)).length), 0);
   const queuedOf = id => D.jobs.reduce((a, j) => a + (j.done ? 0 : j.steps.filter(s => onStep(s, id) && s.status === "locked").length), 0);
   function personStatus(id) {
     const my = D.jobs.flatMap(j => j.done ? [] : j.steps.filter(s => onStep(s, id) && s.status !== "done" && s.status !== "locked").map(s => ({ j, s })));
@@ -3880,7 +3915,7 @@ var qrcode = function() {
     for (const [id, re] of CORE) if (re.test(l)) return id;
     return "gorev";
   }
-  const obStages = id => TEMPLATES.find(t => t.id === id).stages.map(x => ({ name: x.name, type: x.type === "approval" ? "approval" : "task", par: !!x.par, sla: x.sla, photo: x.photo, pub: x.pub, checklist: [...(x.checklist || [])], cust: !!x.cust }));
+  const obStages = id => TEMPLATES.find(t => t.id === id).stages.map(x => ({ name: x.name, type: ["approval", "wait"].includes(x.type) ? x.type : "task", par: !!x.par, sla: x.sla, photo: x.photo, pub: x.pub, checklist: [...(x.checklist || [])], cust: !!x.cust }));
   const obWho = (o, i) => o.who[i] == null ? null : o.who[i] === "me" ? o.name.split(" ")[0] + " (sen)" : o.team[o.who[i]].name;
   function renderOb() {
     const o = OB; setNav(null); document.body.classList.add("ob");
@@ -3985,7 +4020,7 @@ var qrcode = function() {
     const flow = { id: "f1", ico: tp ? tp.ico : "⭐", name: w.length <= 32 ? w.charAt(0).toLocaleUpperCase("tr-TR") + w.slice(1) : tp.name, from: tp && tp.name, prefs: { ...DEFAULT_PREFS, signReq: false },
       rules: [{ id: "r1", cond: "urgent", act: "front", on: true }, { id: "r2", cond: "sla_over", act: "notify_foreman", on: true }], stages,
       finalBy: o.finalBy === "none" ? null : o.finalBy === "me" ? "selim" : o.finalBy === "cust" ? "cust" : "u" + (o.finalBy + 1) };
-    D = { quotes: [], nextQuote: 2001, products: [], groups: JSON.parse(JSON.stringify(GROUPS_SEED)), biz: { name: o.biz.trim(), what: w }, people, depts, flows: [flow], defaultFlow: "f1", jobs: [], feed: [], stock: [], nextId: 1001,
+    D = { customers: [{ id: "c1", name: o.cust.trim() }], quotes: [], nextQuote: 2001, products: [], groups: JSON.parse(JSON.stringify(GROUPS_SEED)), biz: { name: o.biz.trim(), what: w, phone: o.phone, vat: 20, validDays: 15, pay: "%50 peşin, kalan teslimde", ws: 8, we: 17, sat: true }, people, depts, flows: [flow], defaultFlow: "f1", jobs: [], feed: [], stock: [], nextId: 1001,
       mods: { chat: true, planning: true, rules: true, fleet: false, stock: false, scan: false, finance: false, customers: true, forms: false, reports: true },
       privacy: { loc: true, perf: true, quiet: true }, chat: { nextId: 1, threads: [{ id: "t-duyuru", kind: "announce", title: "Duyurular", msgs: [], read: {} }] } };
     syncPeople();
@@ -4018,6 +4053,7 @@ var qrcode = function() {
 
   // ---------------- render ----------------
   function render() {
+    applyHours();
     if (OB) return renderOb();
     document.body.classList.remove("ob");
     runEventRules(); SIM = simulate();
@@ -4083,6 +4119,10 @@ var qrcode = function() {
     pen: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
     tool: '<path d="M14.5 6.5a4 4 0 0 0-5.2 5.2L4 17l3 3 5.3-5.3a4 4 0 0 0 5.2-5.2l-2.6 2.6-2.6-.6-.6-2.6z"/>',
     dot: '<circle cx="12" cy="12" r="3.5"/>',
+    search: '<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/>',
+    door: '<path d="M6 21V4.5A1.5 1.5 0 0 1 7.5 3h9A1.5 1.5 0 0 1 18 4.5V21M4 21h16"/><path d="M14.5 12h.01"/>',
+    beam: '<path d="M4 6h16M4 18h16M12 6v12"/>',
+    drop: '<path d="M12 3.5s-6 6.6-6 10.5a6 6 0 0 0 12 0c0-3.9-6-10.5-6-10.5z"/>',
     bulb: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.2 1.1 2V16h5v-.2c0-.8.4-1.5 1.1-2A6 6 0 0 0 12 3z"/>',
     rail: '<path d="M3 9h18M3 15h18M6.5 9v6M17.5 9v6"/>',
     plug: '<path d="M9 3v5M15 3v5M7 8h10v3a5 5 0 0 1-10 0z"/><path d="M12 16v5"/>',
@@ -4270,7 +4310,7 @@ var qrcode = function() {
   }
   function weekHtml() {
     const wk = Date.now() - 7 * DAY, hand = D.jobs.reduce((a, j) => a + j.steps.filter(s => s.doneAt && s.doneAt > wk && s.doneAt <= Date.now()).length, 0);
-    const doneJ = D.jobs.filter(j => j.done && j.doneAt > wk), cust = D.feed.filter(f => f.at > wk && /^Müşteriye mesaj/.test(f.text)).length;
+    const doneJ = D.jobs.filter(j => j.done && !j.cancelled && j.doneAt > wk), cust = D.feed.filter(f => f.at > wk && /^Müşteriye mesaj/.test(f.text)).length;
     if (!hand && !doneJ.length) return "";
     return `<section><div class="sec-h"><h2>Son 7 gün</h2><span class="sm">Senin yerine yapılanlar</span></div><div class="wk">
       ${hand ? `<div><b>${hand}</b><span>aşama devri kendiliğinden yapıldı; sıradaki kişiye kimse aramadan bildirim gitti</span></div>` : ""}
@@ -4337,6 +4377,7 @@ var qrcode = function() {
     D.jobs.filter(atRisk).forEach(j => add("warn", "calendar", `<b>#${j.id} ${esc(j.title)}</b><span>Termin riski · tahmini ${esc(when(etaOf(j)))}, termin ${esc(dayLabel(j.due))}</span>`, j.id));
     D.jobs.forEach(j => { if (j.done) return; j.steps.filter(s => isPool(s.owner) && s.status === "ready").forEach(s => add("warn", "grid", `<b>#${j.id} ${esc(s.name)}</b><span>Panoda · ${since(s.readyAt)} kimse almadı</span>`, j.id)); });
     D.jobs.forEach(j => { if (j.done || !flowOf(j).prefs.slaWarn) return; j.steps.filter(s => overSla(s) && !isPool(s.owner)).forEach(s => add("warn", "clock", `<b>#${j.id} ${esc(s.name)}</b><span>Hedef süre aşıldı · ${fmtH((Date.now() - s.readyAt) / HOUR)} / ${fmtH(s.sla)} · ${esc(first(s.owner))}</span>`, j.id)); });
+    if (D.mods.finance && can(me, "money")) D.jobs.filter(j => j.done && !j.cancelled && j.price && leftOf(j) > 0).forEach(j => add("warn", "money", `<b>#${j.id} ${esc(j.customer)}</b><span>İş bitti, tahsilat bekliyor · kalan ${tl(leftOf(j))}</span>`, j.id));
     const low = D.mods.stock ? D.stock.filter(s => s.qty < s.min) : [];
     if (low.length) add("warn", "box", `<b>Stok azaldı</b><span>${low.map(s => `${esc(s.name)} ${s.qty}/${s.min} ${esc(s.unit)}`).join(" · ")}</span>`);
     const wk = PEOPLE.filter(p => homeOf(p.id) === "worker"), idle = wk.filter(p => loadOf(p.id) === 0 && queuedOf(p.id) === 0), busy = wk.slice().sort((a, b) => loadOf(b.id) - loadOf(a.id))[0];
@@ -4351,18 +4392,47 @@ var qrcode = function() {
     const F = [["aktif", "Aktif"], ["geciken", "Geciken"], ["sorun", "Sorunlu"], ["onay", "Onay bekleyen"], ["biten", "Biten"]];
     const match = j => jobFilter === "aktif" ? !j.done : jobFilter === "geciken" ? isLate(j) : jobFilter === "sorun" ? !j.done && j.steps.some(s => s.status === "blocked")
       : jobFilter === "onay" ? !j.done && j.steps.some(s => s.type === "approval" && s.status === "ready") : j.done;
-    const list = D.jobs.filter(match).sort((a, b) => a.due - b.due);
+    const hay = j => trn(`${j.id} ${j.title} ${j.customer} ${(j.items || []).map(i => `${i.code} ${i.name} ${i.variant || ""}`).join(" ")}`);
+    const qm = j => !jobQ || trn(jobQ).split(" ").filter(Boolean).every(t => hay(j).includes(t));
+    const list = D.jobs.filter(j => match(j) && qm(j)).sort((a, b) => a.due - b.due);
     if (jobView === "quotes" && can(me, "money")) return head("Teklif ve iş emirleri", "İşler") + `<main class="gut">${viewSeg()}${quotesHtml()}</main>`;
+    if (jobView === "cust") return head("Müşteri kartları", "İşler") + `<main class="gut">${viewSeg()}${custHtml()}</main>`;
     if (jobView === "board") return head("İş emirleri", "İşler") + `<main class="gut">${viewSeg()}${boardHtml()}${can(me, "create") ? `<button class="btn block" id="newJob">${ico("plus")} Yeni iş oluştur</button>` : ""}</main>`;
     return head("İş emirleri", "İşler") + `<main class="gut">${viewSeg()}
-      <div class="chips">${F.map(([k, l]) => `<button class="chip" data-filter="${k}" aria-pressed="${jobFilter === k}">${l} · ${D.jobs.filter(j => { const o = jobFilter; jobFilter = k; const r = match(j); jobFilter = o; return r; }).length}</button>`).join("")}</div>
-      ${list.length ? `<div class="list">${list.map(jobRow).join("")}</div>` : `<div class="empty">Bu filtrede iş yok.</div>`}
+      <div class="psearch" style="margin-top:0">${ico("search")}<input class="in" id="jq" value="${esc(jobQ)}" placeholder="İş no, müşteri ya da ürün ara" autocomplete="off" aria-label="İşlerde ara"></div>
+      <div class="chips">${F.map(([k, l]) => `<button class="chip" data-filter="${k}" aria-pressed="${jobFilter === k}">${l} · ${D.jobs.filter(j => { const o = jobFilter; jobFilter = k; const r = match(j) && qm(j); jobFilter = o; return r; }).length}</button>`).join("")}</div>
+      ${list.length ? `<div class="list">${list.map(jobRow).join("")}</div>` : `<div class="empty">${jobQ ? `“${esc(jobQ)}” için iş bulunamadı.` : "Bu filtrede iş yok."}</div>`}
       ${can(me, "create") ? `<button class="btn block" id="newJob">${ico("plus")} Yeni iş oluştur</button>` : ""}
     </main>`;
   }
-  let jobView = "list", kbFlow = null;
+  let jobView = "list", kbFlow = null, jobQ = "", custQ = "";
   const viewSeg = () => { const qok = can(me, "money"); if (!qok && jobView === "quotes") jobView = "list";
-    return `<div class="seg ${qok ? "seg3" : ""}" role="group" aria-label="Görünüm"><button data-jv="list" aria-pressed="${jobView === "list"}">Liste</button><button data-jv="board" aria-pressed="${jobView === "board"}">Pano</button>${qok ? `<button data-jv="quotes" aria-pressed="${jobView === "quotes"}">Teklifler${(D.quotes || []).filter(q => q.status === "talk").length ? " •" : ""}</button>` : ""}</div>`; };
+    return `<div class="seg ${qok ? "seg4" : "seg3"}" role="group" aria-label="Görünüm"><button data-jv="list" aria-pressed="${jobView === "list"}">Liste</button><button data-jv="board" aria-pressed="${jobView === "board"}">Pano</button>${qok ? `<button data-jv="quotes" aria-pressed="${jobView === "quotes"}">Teklifler${(D.quotes || []).filter(q => q.status === "talk").length ? " •" : ""}</button>` : ""}<button data-jv="cust" aria-pressed="${jobView === "cust"}">Müşteriler</button></div>`; };
+  const custRows = () => { const L = (D.customers || []).filter(c => !custQ || trn(`${c.name} ${c.contact || ""} ${c.phone || ""}`).includes(trn(custQ))).sort((a, b) => a.name.localeCompare(b.name, "tr"));
+    return L.length ? `<div class="list">${L.map(c => { const js = D.jobs.filter(j => trn(j.customer) === trn(c.name)), act = js.filter(j => !j.done).length, qs = (D.quotes || []).filter(q => trn(q.customer) === trn(c.name) && ["sent", "talk", "draft"].includes(q.status)).length;
+      return `<button class="pr" data-cust="${c.id}"><span class="cav2">${esc(c.name.split(" ").map(w => w[0]).slice(0, 2).join(""))}</span><div><b>${esc(c.name)}</b><div class="sm">${esc([c.contact, c.phone].filter(Boolean).join(" · ") || "İletişim bilgisi yok")}</div><div class="sm">${act} açık iş · ${js.length - act} biten${qs ? ` · ${qs} teklif` : ""}${can(me, "money") && js.length ? ` · ${tl(js.filter(j => !j.cancelled).reduce((a, j) => a + (j.price || 0), 0))}` : ""}</div></div><span class="chev">${ico("chev")}</span></button>`; }).join("")}</div>`
+      : `<div class="empty">${custQ ? "Bu aramaya uyan müşteri yok." : "Henüz müşteri yok. İş ya da teklif açınca müşteri kendiliğinden eklenir."}</div>`; };
+  function custHtml() {
+    return `<div class="psearch" style="margin-top:0">${ico("search")}<input class="in" id="cq" value="${esc(custQ)}" placeholder="Müşteri, yetkili ya da telefon ara" autocomplete="off" aria-label="Müşterilerde ara"></div>
+      ${can(me, "create") ? `<button class="btn block" id="newCust">${ico("plus")} Müşteri ekle</button>` : ""}<div id="cl">${custRows()}</div>`;
+  }
+  function openCust(id) {
+    const c = id ? D.customers.find(x => x.id === id) : { name: "" }, js = id ? D.jobs.filter(j => trn(j.customer) === trn(c.name)).sort((a, b) => b.createdAt - a.createdAt) : [], qs = id ? (D.quotes || []).filter(q => trn(q.customer) === trn(c.name)) : [];
+    const F = [["name", "Firma ya da kişi adı", "text"], ["contact", "Yetkili", "text"], ["phone", "Telefon", "tel"], ["email", "E-posta", "email"], ["address", "Adres", "text"], ["taxOffice", "Vergi dairesi", "text"], ["taxNo", "Vergi / TC no", "text"]];
+    sheet(`<div class="stack"><div><div class="eyebrow">${id ? "Müşteri" : "Yeni müşteri"}</div><h2>${id ? esc(c.name) : "Müşteri ekle"}</h2></div>
+      ${F.map(([k, l, t]) => `<div><label class="sm" for="cu_${k}"><b>${l}</b></label><input class="in" id="cu_${k}" type="${t === "tel" ? "text" : t}" ${t === "tel" ? 'inputmode="tel"' : ""} value="${esc(c[k] || "")}" autocomplete="off"></div>`).join("")}
+      <div class="sm err" id="cuMsg" role="alert"></div><button class="btn ok xl block" id="cuSave">${id ? "Kaydet" : "Müşteriyi ekle"}</button>
+      ${id ? `<div class="grid2">${can(me, "create") ? `<button class="btn line" data-newjobfor="${c.id}">${ico("plus")} Yeni iş</button>` : ""}${can(me, "money") ? `<button class="btn line" data-newquotefor="${c.id}">${ico("plus")} Yeni teklif</button>` : ""}</div>
+        ${qs.length && can(me, "money") ? `<section><h2>Teklifler</h2><div class="list">${qs.map(q => `<button class="jr" data-quote="${q.id}"><div class="jr-h"><span class="t">${esc(q.title || "Teklif")}</span><span class="mono">${qno(q)}</span></div><div class="st"><span class="pill ${qState(q)[1]}">${qState(q)[0]}</span><span class="pct" style="color:var(--ink)">${tl(quoteTotals(q).all)}</span></div></button>`).join("")}</div></section>` : ""}
+        ${js.length ? `<section><h2>İşler</h2><div class="list">${js.map(jobRow).join("")}</div></section>` : ""}` : ""}</div>`, () => {
+      $("#cuSave").onclick = () => { const nm = $("#cu_name").value.trim(); if (!nm) { $("#cuMsg").textContent = "Ad gerekli."; return; }
+        if ((D.customers || []).some(x => x !== c && trn(x.name) === trn(nm))) { $("#cuMsg").textContent = "Bu adla bir müşteri zaten var."; return; }
+        const old = c.name; F.forEach(([k]) => c[k] = $("#cu_" + k).value.trim());
+        if (!id) { c.id = "c" + Date.now().toString(36); (D.customers = D.customers || []).push(c); }
+        else if (old && old !== c.name) { D.jobs.forEach(j => { if (j.customer === old) j.customer = c.name; }); (D.quotes || []).forEach(q => { if (q.customer === old) q.customer = c.name; }); }
+        save(); closeSheet(); render(); toast("✓", id ? "Müşteri güncellendi" : "Müşteri eklendi", c.name); };
+    });
+  }
   function kbCols(f) {
     const gs = [...new Set(f.stages.map(s => s.g))].sort((a, b) => a - b);
     const cols = gs.map(g => { const st = f.stages.filter(s => s.g === g); return { keys: st.map(s => s.key), name: st.map(s => s.name).join(" ∥ ") }; });
@@ -4384,14 +4454,27 @@ var qrcode = function() {
         return `<div class="kcol" data-col="${i}"><div class="kh"><b>${esc(c.name)}</b><span class="pill mute">${cj.length}</span></div>${cj.map(j => kcard(j, mv)).join("") || `<div class="sm kempty">Boş</div>`}</div>`; }).join("")}</div>
       <p class="sm" style="margin:0">${mv ? "Kartı ⠿ tutamağından tutup başka sütuna bırakınca iş o aşamaya geçer ve ilgili kişilere bildirim gider. Karta dokununca ayrıntı açılır." : "Karta dokununca ayrıntı açılır."}</p>`;
   }
-  function moveJobTo(j, col) {
+  function moveJobTo(j, col, ok) {
     const cols = kbCols(flowOf(j)), c = cols[col]; if (!c || j.done) return render();
     const tgt = j.steps.filter(s => c.keys.includes(s.key)); if (!tgt.length) { toast("✕", "Bu işte o aşama yok", c.name); return render(); }
     const tg = Math.min(...tgt.map(s => s.g)), cur = curGroup(j); if (tg === cur) return render();
-    if (tg > cur) { j.steps.filter(s => s.g < tg && s.status !== "done").forEach(s => { s.status = "done"; s.doneAt = Date.now(); s.startedAt = s.startedAt || s.readyAt || Date.now(); delete s.issue; s.log.push({ at: Date.now(), by: me, act: "moved" }); });
+    if (!ok) {
+      const fwd = tg > cur, skip = fwd ? j.steps.filter(s => s.g < tg && s.status !== "done") : [], appr = skip.filter(s => s.type === "approval"), boss = grpOf(me).locked;
+      render();
+      sheet(`<div class="stack"><div><div class="eyebrow">#${j.id} · ${esc(j.title)}</div><h2>${fwd ? "Aşamaları atlayıp ileri taşı" : "Geri taşı"}</h2>
+          <div class="sm">${fwd ? `İş “${esc(c.name)}” aşamasına geçecek. Aşağıdaki aşamalar yapılmadan <b>atlandı</b> olarak kaydedilir ve iş geçmişinde görünür.` : `İş “${esc(c.name)}” aşamasına döner; bu aşamadan sonraki işler yeniden yapılır.`}</div></div>
+        ${fwd ? `<div class="list">${skip.map(s => `<div class="set"><div><b>${esc(s.name)}</b><div class="sm">${esc(isPool(s.owner) ? "Panoda" : crewOf(s).map(first).join(", "))}${s.photo && !s.photos.length ? " · fotoğraf yok" : ""}${j.items && j.items.length && !["pack", "delivery"].includes(s.type) ? ` · ${j.items.filter((_, i) => (s.itemsDone || {})[i]).length}/${j.items.length} kalem` : ""}</div></div><span class="pill ${s.type === "approval" ? "bad" : "warn"}">${s.type === "approval" ? "Onay atlanır" : "Atlanır"}</span></div>`).join("")}</div>` : ""}
+        ${appr.length && !boss ? `<div class="note"><b>Onay aşaması atlanamaz</b><span>${esc(appr.map(s => s.name).join(", "))} yalnızca patron tarafından atlanabilir. Onay verilmesini bekle ya da patrona sor.</span></div>` : ""}
+        <div><label class="sm" for="mvNote"><b>Neden?</b></label><textarea class="in" id="mvNote" rows="2" placeholder="${fwd ? "Ör: Kesim dışarıda yaptırıldı" : "Ör: Ölçüde hata çıktı"}"></textarea></div>
+        <button class="btn ${fwd ? "bad" : ""} xl block" id="mvGo"${appr.length && !boss ? " disabled" : ""}>${fwd ? `${skip.length} aşamayı atla ve taşı` : "Geri taşı"}</button><button class="btn ghost block" id="closeS">Vazgeç</button></div>`, () => {
+        $("#closeS").onclick = closeSheet; $("#mvGo").onclick = () => { const note = $("#mvNote").value.trim(); closeSheet(); moveJobTo(j, col, note || true); }; });
+      return;
+    }
+    const note = typeof ok === "string" ? ok : "";
+    if (tg > cur) { j.steps.filter(s => s.g < tg && s.status !== "done").forEach(s => { s.status = "done"; s.skipped = true; s.doneAt = Date.now(); s.startedAt = s.startedAt || s.readyAt || Date.now(); delete s.issue; s.log.push({ at: Date.now(), by: me, act: "skipped", note }); });
       activateGroup(j, tg); }
-    else { j.steps.filter(s => s.g >= tg).forEach(s => { resetStep(s); delete s.issue; }); tgt.forEach(s => { s.status = "ready"; s.readyAt = Date.now(); }); }
-    notify(`${first(me)} #${j.id} işini “${c.name}” aşamasına taşıdı`, "↔️", tgt.flatMap(crewOf).concat(PAT()));
+    else { j.steps.filter(s => s.g >= tg).forEach(s => { resetStep(s); delete s.issue; delete s.skipped; }); tgt.forEach(s => { s.status = "ready"; s.readyAt = Date.now(); s.log.push({ at: Date.now(), by: me, act: "moved", note }); }); }
+    notify(`${first(me)} #${j.id} işini “${c.name}” aşamasına taşıdı${note ? ` · ${note}` : ""}`, "↔️", tgt.flatMap(crewOf).concat(PAT()));
     save(); render(); toast("↔️", `#${j.id} taşındı`, `${c.name} · ${tgt.map(s => isPool(s.owner) ? "panoya düştü" : crewOf(s).map(first).join(" ve ")).join(", ")}`);
   }
   // ----- görev panosu (iş havuzu) -----
@@ -4516,11 +4599,12 @@ var qrcode = function() {
     });
   }
   function bossReports() {
-    const done = D.jobs.filter(j => j.done);
+    const done = D.jobs.filter(j => j.done && !j.cancelled);
     const onTime = done.filter(j => j.doneAt <= j.due + DAY).length;
     const avgDays = done.length ? done.reduce((a, j) => a + (j.doneAt - j.createdAt), 0) / done.length / DAY : 0;
-    const rev = done.reduce((a, j) => a + j.price, 0), cost = done.reduce((a, j) => a + j.cost, 0);
-    const stageAvg = flowById("metal").stages.map(st => { const ds = done.map(j => j.steps.find(s => s.key === st.key)).filter(s => s && s.doneAt && s.readyAt);
+    const rev = done.reduce((a, j) => a + j.price, 0), wc = done.filter(j => j.cost > 0), mRev = wc.reduce((a, j) => a + j.price, 0), mCost = wc.reduce((a, j) => a + j.cost, 0);
+    const repFlow = D.flows.slice().sort((a, b) => done.filter(j => j.flowId === b.id).length - done.filter(j => j.flowId === a.id).length)[0];
+    const stageAvg = repFlow.stages.map(st => { const ds = done.map(j => j.steps.find(s => s.key === st.key)).filter(s => s && s.doneAt && s.readyAt);
       return { name: st.name, h: ds.length ? ds.reduce((a, s) => a + (s.doneAt - s.readyAt), 0) / ds.length / HOUR : 0 }; });
     const max = Math.max(...stageAvg.map(s => s.h), 1), top = stageAvg.reduce((a, b) => b.h > a.h ? b : a, stageAvg[0]);
     return head("Performans", "Raporlar") + `<main class="gut">
@@ -4529,11 +4613,12 @@ var qrcode = function() {
         <div class="kpi ok"><div class="v">%${done.length ? Math.round(onTime / done.length * 100) : 0}</div><div class="l">Zamanında teslim</div></div>
         <div class="kpi"><div class="v">${avgDays.toFixed(1).replace(".", ",")}</div><div class="l">Ortalama iş süresi (gün)</div></div>
         ${D.mods.finance && can(me, "money") ? `<div class="kpi"><div class="v" style="font-size:1.45rem">${tl(rev)}</div><div class="l">Ciro</div></div>
-        <div class="kpi ok"><div class="v">%${rev ? Math.round((rev - cost) / rev * 100) : 0}</div><div class="l">Ortalama kâr marjı</div></div>` : ""}
+        <div class="kpi"><div class="v" style="font-size:1.45rem">${tl(D.jobs.filter(j => !j.cancelled && j.price).reduce((a, j) => a + leftOf(j), 0))}</div><div class="l">Bekleyen tahsilat (KDV dahil)</div></div>
+        <div class="kpi ok"><div class="v">${mRev ? "%" + Math.round((mRev - mCost) / mRev * 100) : "—"}</div><div class="l">Kâr marjı${wc.length < done.length ? ` · maliyeti girilen ${wc.length} iş` : ""}</div></div>` : ""}
       </div>
       ${radarHtml(false)}
       ${heatHtml()}
-      <section><h2>Aşamalarda ortalama süre</h2><div class="sm" style="margin-top:-6px">Metal imalat akışı</div><div class="bars">
+      <section><h2>Aşamalarda ortalama süre</h2><div class="sm" style="margin-top:-6px">${esc(repFlow.name)} akışı</div><div class="bars">
         ${stageAvg.map(s => `<div class="bar"><span>${esc(s.name)}</span><span class="tr"><i class="${s === top ? "hi" : ""}" style="width:${s.h / max * 100}%"></i></span><span class="v">${s.h.toFixed(0)} sa</span></div>`).join("")}
         <div class="sm">En uzun süren aşama: <b>${esc(top.name)}</b>. Kapasite artırmak en çok burada kazandırır.</div>
       </div></section>
@@ -4541,7 +4626,7 @@ var qrcode = function() {
       <section><h2>Tamamlanan işler</h2><div class="tbl-wrap"><table>
         <thead><tr><th>İş</th><th class="r">Süre</th>${D.mods.finance && can(me, "money") ? `<th class="r">Tutar</th><th class="r">Maliyet</th><th class="r">Kâr</th>` : ""}<th>Termin</th></tr></thead>
         <tbody>${done.map(j => `<tr><td><span class="mono">#${j.id}</span> ${esc(j.title)}</td><td class="r">${((j.doneAt - j.createdAt) / DAY).toFixed(1).replace(".", ",")} gün</td>
-          ${D.mods.finance && can(me, "money") ? `<td class="r">${tl(j.price)}</td><td class="r">${tl(j.cost)}</td><td class="r">${tl(j.price - j.cost)}</td>` : ""}
+          ${D.mods.finance && can(me, "money") ? `<td class="r">${tl(j.price)}</td><td class="r">${j.cost ? tl(j.cost) : "—"}</td><td class="r">${j.cost ? tl(j.price - j.cost) : "—"}</td>` : ""}
           <td>${j.doneAt <= j.due + DAY ? `<span class="pill ok">Zamanında</span>` : `<span class="pill bad">Gecikti</span>`}</td></tr>`).join("")}</tbody></table></div></section>
     </main>`;
   }
@@ -4560,6 +4645,20 @@ var qrcode = function() {
     </section>`;
   }
   let sysTab = "akis", prodQ = "";
+  function bizHtml() {
+    const b = D.biz || (D.biz = {}), F = (k, l, ph, t = "text") => `<div><label class="sm" for="bz_${k}"><b>${l}</b></label><input class="in" id="bz_${k}" type="${t}" value="${esc(b[k] ?? "")}" placeholder="${esc(ph)}" autocomplete="off"></div>`;
+    return `<section><div class="sec-h"><h2>İşletme bilgileri</h2></div><p class="sm" style="margin:0">Teklif ve sipariş formlarının üstünde, müşteriye giden mesajlarda kullanılır.</p>
+      <div class="bizlogo"><span class="lg">${b.logo ? `<img src="${b.logo}" alt="Logo">` : ico("core")}</span><label class="btn line" style="position:relative">${ico("camera")} ${b.logo ? "Logoyu değiştir" : "Logo ekle"}<input type="file" accept="image/*" id="bz_logo" style="position:absolute;inset:0;opacity:0"></label></div>
+      ${F("name", "İşletme adı", "Ör: Yılmaz Klima")}${F("what", "Ne iş yapıyorsunuz", "Ör: Klima satış ve montaj")}${F("address", "Adres", "Mahalle, cadde, no, ilçe / il")}
+      <div class="grid2">${F("phone", "Telefon", "0212 …")}${F("email", "E-posta", "info@…", "email")}</div>
+      <div class="grid2">${F("taxOffice", "Vergi dairesi", "")}${F("taxNo", "Vergi no", "")}</div>${F("iban", "IBAN", "TR…")}</section>
+    <section><h2>Teklif varsayılanları</h2><div class="grid2"><div><label class="sm" for="bz_vat"><b>KDV</b></label><select class="in" id="bz_vat">${[20, 10, 1, 0].map(v => `<option value="${v}"${vatRate() === v ? " selected" : ""}>%${v}</option>`).join("")}</select></div>${F("validDays", "Geçerlilik (gün)", "15", "number")}</div>${F("pay", "Ödeme koşulu", "%50 peşin, kalan teslimde")}</section>
+    <section><h2>Mesai</h2><p class="sm" style="margin:0">Termin ve tahmini bitiş bu saatlere göre hesaplanır.</p>
+      <div class="grid2"><div><label class="sm" for="bz_ws"><b>Başlangıç</b></label><select class="in" id="bz_ws">${[6, 7, 8, 9, 10].map(h => `<option value="${h}"${WD_S === h ? " selected" : ""}>${pad(h)}:00</option>`).join("")}</select></div>
+        <div><label class="sm" for="bz_we"><b>Bitiş</b></label><select class="in" id="bz_we">${[16, 17, 18, 19, 20, 22].map(h => `<option value="${h}"${WD_E === h ? " selected" : ""}>${pad(h)}:00</option>`).join("")}</select></div></div>
+      <div class="list"><div class="set"><div><b>Cumartesi çalışılıyor</b><div class="sm">Kapalıysa cumartesi iş günü sayılmaz.</div></div><button class="sw" role="switch" aria-checked="${WD_SAT}" id="bz_sat" aria-label="Cumartesi çalışılıyor"></button></div></div></section>
+    <button class="btn ok xl block" id="bzSave">Kaydet</button>`;
+  }
   const prodRows = () => { const L = prodQ ? prodSearch(prodQ) : D.products;
     return L.length ? `<div class="list">${L.slice(0, 80).map(p => `<button class="pr" data-prod="${p.id}" style="grid-template-columns:52px minmax(0,1fr) auto">${thumb(p, 52)}<div><b>${p.code ? `<span class="mono" style="color:var(--ink-3)">${esc(p.code)}</span> ` : ""}${esc(p.name)}</b>
       <div class="sm">${esc(p.cat || "Kategorisiz")}${Object.keys(p.opts || {}).length ? ` · ${Object.entries(p.opts).map(([k, v]) => `${esc(k)}: ${v.length}`).join(" · ")}` : ""}</div></div><span class="chev">${ico("chev")}</span></button>`).join("")}</div>${L.length > 80 ? `<div class="sm" style="text-align:center">${L.length - 80} ürün daha · aramayı daralt</div>` : ""}`
@@ -4610,7 +4709,8 @@ var qrcode = function() {
     });
   }
   function bossSettings() {
-    const seg = `<div class="seg seg4" role="group" aria-label="Sistem bölümleri">${[["akis", "Akışlar"], ["urun", "Ürünler"], ["sablon", "Şablonlar"], ["modul", "Modüller"]].map(([k, l]) => `<button data-syst="${k}" aria-pressed="${sysTab === k}">${l}</button>`).join("")}</div>`;
+    if (sysTab === "sablon") sysTab = "akis";
+    const seg = `<div class="seg seg4" role="group" aria-label="Sistem bölümleri">${[["akis", "Akışlar"], ["urun", "Ürünler"], ["isletme", "İşletme"], ["modul", "Modüller"]].map(([k, l]) => `<button data-syst="${k}" aria-pressed="${sysTab === k}">${l}</button>`).join("")}</div>`;
     const flows = `      <section><div class="sec-h"><h2>İş akışların</h2></div>
         <p class="sm" style="margin:0">Uygulama sektöre göre değil, senin çalışma düzenine göre şekillenir. Aşamaları, sorumluları, onayları ve tercihleri sen belirlersin.</p>
         <button class="btn block xl" id="newFlow">${ico("plus")} Kendi akışını kur</button>
@@ -4626,7 +4726,7 @@ var qrcode = function() {
         <div class="tgrid">${TEMPLATES.filter(t => !t.core).map(t => tplCard(t)).join("")}</div></section>
 `;
     const mods = `${systemMap()}${depotHtml()}<button class="btn line block" id="rebuild">Sistemi baştan kur</button>`;
-    return head(BIZ(), "Sistem") + `<main class="gut">${seg}${sysTab === "urun" ? productsHtml() : sysTab === "sablon" ? tpls : sysTab === "modul" ? mods : flows}</main>`;
+    return head(BIZ(), "Sistem") + `<main class="gut">${seg}${sysTab === "urun" ? productsHtml() : sysTab === "isletme" ? bizHtml() : sysTab === "modul" ? mods : flows + tpls}</main>`;
   }
   // ---------- Modül Deposu ----------
   function recsFor(flows, jobs) {
@@ -4751,12 +4851,12 @@ var qrcode = function() {
       <div class="lane" aria-hidden="true">${t.stages.map(x => `<span class="seg t-${x.type}${x.par ? " par" : ""}"></span>`).join("")}</div>
       <div class="tmeta"><span>${S.n} aşama</span>${S.par ? `<span>∥ ${S.par} paralel</span>` : ""}${S.appr ? `<span>✓ ${S.appr} onay</span>` : ""}<span>⏱ ~${fmtH(S.total)}</span></div></button>`;
   }
-  const TYPE_ICON = { task: "●", approval: "✓", pack: "▣", delivery: "🚚" };
+  const TYPE_ICON = { task: "●", approval: "✓", wait: "◷", pack: "▣", delivery: "🚚" };
   function stageGraph(stages, deptOf) {
     const groups = []; stages.forEach((x, i) => { if (!x.par || !groups.length) groups.push([x]); else groups[groups.length - 1].push(x); });
     return `<div class="graph">${groups.map((gs, gi) => `<div class="gstep"><span class="dotn">${gi + 1}</span><div class="par">${gs.length > 1 ? `<span class="ptag">∥ Aynı anda · ${gs.length} aşama</span>` : ""}
       ${gs.map(x => `<div class="pcard"><div class="h"><span>${esc(x.name)}</span><span class="pill ${x.type === "approval" ? "warn" : x.type === "task" ? "mute" : "info"}">${TYPE_ICON[x.type]} ${TYPES[x.type]}</span></div>
-        <div class="sm">${esc(deptOf(x))} · hedef ${fmtH(x.sla)}${x.photo ? " · 📷 fotoğraf zorunlu" : ""}${x.pub && x.pub !== x.name ? ` · müşteri görür: “${esc(x.pub)}”` : ""}</div>
+        <div class="sm">${esc(deptOf(x))} · hedef ${fmtH(x.sla)}${x.photo ? " · 📷 fotoğraf zorunlu" : ""}${x.hide ? " · müşteriye gösterilmez" : x.pub && x.pub !== x.name ? ` · müşteri görür: “${esc(x.pub)}”` : ""}</div>
         ${x.checklist && x.checklist.length && Array.isArray(x.checklist) ? `<div class="sm">☑ ${x.checklist.map(esc).join(" · ")}</div>` : ""}</div>`).join("")}</div></div>`).join("")}</div>`;
   }
   function openTemplate(id) {
@@ -4782,7 +4882,7 @@ var qrcode = function() {
       <button class="btn ghost block" id="closeS">Vazgeç</button></div>`, () => {
       $("#closeS").onclick = closeSheet;
       $("#fromBlank").onclick = () => openFlowEditor({ blank: true });
-      $("#fromTpl").onclick = () => { closeSheet(); tab = "ayar"; sysTab = "sablon"; render(); document.querySelector(".tgrid")?.scrollIntoView({ behavior: "smooth", block: "start" }); };
+      $("#fromTpl").onclick = () => { closeSheet(); tab = "ayar"; sysTab = "akis"; render(); document.querySelector(".tgrid")?.scrollIntoView({ behavior: "smooth", block: "start" }); };
     });
   }
 
@@ -4857,7 +4957,8 @@ var qrcode = function() {
         <label class="sm">Kaç kişi<select data-i="${i}" data-f="mode">${[["solo", "Tek kişi"], ["together", "Birlikte çalışırlar"], ["split", "İşi bölüşürler"]].map(([k, v]) => `<option value="${k}"${(st.mode || "solo") === k ? " selected" : ""}>${v}</option>`).join("")}</select></label></div>`}
       <label class="sm" style="display:grid;gap:3px;font-weight:600">Kontrol listesi · her satıra bir madde<textarea data-i="${i}" data-f="checklist" rows="${Math.max(2, st.checklist.length)}" placeholder="Ör: Ölçüler kontrol edildi">${esc(st.checklist.join("\n"))}</textarea></label>
       <div class="ed-checks">${i ? `<label><input type="checkbox" data-i="${i}" data-f="par"${st.par ? " checked" : ""}> Öncekiyle aynı anda yürüsün</label>` : ""}
-        <label><input type="checkbox" data-i="${i}" data-f="photo"${st.photo ? " checked" : ""}> Bitirmek için fotoğraf şart</label></div>
+        <label><input type="checkbox" data-i="${i}" data-f="photo"${st.photo ? " checked" : ""}> Bitirmek için fotoğraf şart</label>
+        ${D.mods.customers ? `<label><input type="checkbox" data-i="${i}" data-f="hide"${st.hide ? " checked" : ""}> Müşteriye gösterme</label>` : ""}</div>
       ${D.mods.forms && ["task", "approval"].includes(st.type) ? formEd(st, i) : ""}
       </div></details>
     </div>`; }).join("");
@@ -4912,7 +5013,7 @@ var qrcode = function() {
         if (f === "owner") {
           if (el.value === "new") { layer.querySelector(`[data-nd="${i}"]`).hidden = false; layer.querySelector(`[data-nd="${i}"] input`).focus(); return; }
           const [kind, v] = el.value.split(":"); if (kind === "p") { st.fixed = v; st.skill = (person(v).skills || ["yonetim"])[0]; } else { delete st.fixed; st.skill = v; } redraw();
-        } else if (f === "par" || f === "photo") { st[f] = el.checked; redraw(); }
+        } else if (f === "par" || f === "photo" || f === "hide") { st[f] = el.checked; redraw(); }
         else if (f === "slav" || f === "slau") { const v = +layer.querySelector(`[data-i="${i}"][data-f="slav"]`).value, u = layer.querySelector(`[data-i="${i}"][data-f="slau"]`).value;
           st.sla = v > 0 ? (u === "dk" ? v / 60 : u === "gün" ? v * 24 : v) : null; refresh(); }
         else if (f === "checklist") { st.checklist = el.value.split("\n").map(x => x.trim()).filter(Boolean); refresh(); }
@@ -4988,23 +5089,103 @@ var qrcode = function() {
     sheet(`<div class="stack">
       <div><div class="eyebrow">İş emri #${j.id} · ${esc(flowOf(j).ico)} ${esc(flowOf(j).name)}</div><h2>${esc(j.title)}</h2>
         <div class="sm">${esc(j.customer)} · ${esc(j.qty)} · Termin ${esc(when(j.due))}</div>
-        <div class="chips" style="margin-top:8px"><span class="pill ${jobState(j).cls}">${esc(jobState(j).label)}</span>${isLate(j) ? `<span class="pill bad">Gecikme mevcut</span>` : ""}<span class="pill mute">%${pct(j)}</span></div></div>
+        <div class="chips" style="margin-top:8px"><span class="pill ${jobState(j).cls}">${esc(jobState(j).label)}</span>${isLate(j) ? `<span class="pill bad">Gecikme mevcut</span>` : ""}<span class="pill mute">%${pct(j)}</span></div>
+        ${!j.done && (can(me, "create") || can(me, "assign")) ? `<button class="btn line block" data-jedit="${j.id}" style="margin-top:12px">${ico("pen")} Düzenle ya da iptal et</button>` : ""}</div>
       ${!j.done && etaOf(j) ? `<div class="note ${SIM.res[j.id].risk ? "" : "info"}"><b>Tahmini bitiş: ${esc(when(etaOf(j)))}</b><span>${SIM.res[j.id].risk ? `Termin ${esc(when(j.due))}. Mevcut kuyruğa göre yaklaşık ${fmtH((etaOf(j) - j.due) / HOUR)} geç kalıyor.` : `Termine ${fmtH((j.due - etaOf(j)) / HOUR)} pay var.`} Hesap, ekiplerin şu anki iş sırasına ve hedef sürelere göre yapılır.</span></div>` : ""}
       ${(j.rules || []).length && (can(me, "money") || !j.rules.some(r => /₺/.test(r.text))) ? `<div class="note info"><b>Bu işte çalışan kurallar</b>${j.rules.map(r => `<span>${esc(r.text)}</span>`).join("")}</div>` : ""}
-      ${D.mods.finance && can(me, "money") ? `<div class="grid3"><div class="kpi"><div class="l">Tutar</div><div class="num" style="font-weight:700">${tl(j.price)}</div></div><div class="kpi"><div class="l">Tahmini maliyet</div><div class="num" style="font-weight:700">${tl(j.cost)}</div></div><div class="kpi"><div class="l">Kâr</div><div class="num" style="font-weight:700;color:var(--ok)">${tl(j.price - j.cost)}</div></div></div>` : ""}
+      ${D.mods.finance && can(me, "money") ? `<div class="grid3"><div class="kpi"><div class="l">Tutar</div><div class="num" style="font-weight:700">${tl(j.price)}</div></div><div class="kpi"><div class="l">Maliyet</div><div class="num" style="font-weight:700">${j.cost ? tl(j.cost) : `<span style="color:var(--ink-3)">Girilmedi</span>`}</div></div><div class="kpi"><div class="l">Kâr</div><div class="num" style="font-weight:700;color:var(--ok)">${j.cost ? tl(j.price - j.cost) : "—"}</div></div></div>` : ""}
       ${warnHtml(j)}
+      ${D.mods.finance && can(me, "money") && j.price && !j.cancelled ? (() => { const g = grossOf(j), pd = paidOf(j), lf = leftOf(j);
+        return `<section><div class="sec-h"><h2>Tahsilat</h2><button class="link" data-pay="${j.id}">${ico("plus")} Tahsilat ekle</button></div><div class="pay">
+          <div class="row"><span>Toplam (KDV dahil %${vatRate()})</span><b>${tl(g)}</b></div><div class="prog ${lf ? "" : "ok"}"><i style="width:${g ? Math.min(100, pd / g * 100) : 0}%"></i></div>
+          <div class="row"><span>Tahsil edilen</span><b>${tl(pd)}</b></div><div class="row"><span>Kalan</span><b class="left" style="color:var(${lf ? "--ink" : "--ok"})">${lf ? tl(lf) : "Tamamı alındı"}</b></div>
+          ${(j.payments || []).length ? `<div class="sm">${j.payments.map(x => `${new Date(x.at).toLocaleDateString("tr-TR")} · ${esc(x.method)} · ${tl(x.amount)}`).join("<br>")}</div>` : ""}</div></section>`; })() : ""}
       ${j.items && j.items.length ? `<section><div class="sec-h"><h2>Kalemler</h2><span class="sm">${j.items.length} kalem · ${fmtQ(itemSum(j))} adet</span></div><div class="items">${j.items.map((it, i) => { const by = j.steps.filter(x => x.itemsDone && x.itemsDone[i]).map(x => x.name);
         return `<div class="it${by.length ? " on" : ""}"><span class="bx">${ico("check")}</span>${thumb(prodOf(it) || it, 40)}<span class="itx"><b>${it.code ? `<span class="mono">${esc(it.code)}</span> ` : ""}${esc(it.name)}</b>${it.variant ? `<span>${esc(it.variant)}</span>` : ""}${by.length ? `<span style="color:var(--ok)">Hazır: ${esc(by.join(", "))}</span>` : ""}</span><span class="iq">${fmtQ(it.qty)} ${esc(it.unit || "ad")}</span></div>`; }).join("")}</div></section>` : ""}
       ${paperHtml(j)}
       <button class="btn line block" data-oform="${j.id}">${ico("file")} Sipariş formunu göster</button>
       <div class="graph">${graph}</div>
+      ${histHtml(j)}
       ${!j.done && can(me, "assign") ? `<label class="sm" style="display:grid;gap:4px;font-weight:600">İşi başka aşamaya taşı<select class="in" data-moveto="${j.id}">${kbCols(flowOf(j)).map((c, i) => `<option value="${i}"${i === colOf(j) ? " selected" : ""}>${esc(c.name)}</option>`).join("")}</select></label>` : ""}
-      ${j.done ? `<div class="note info"><b>İş tamamlandı</b><span>Toplam süre ${((j.doneAt - j.createdAt) / DAY).toFixed(1).replace(".", ",")} gün · ${j.doneAt <= j.due + DAY ? "zamanında teslim" : "gecikmeli teslim"}${D.mods.finance && can(me, "money") ? ` · kâr ${tl(j.price - j.cost)}` : ""}</span></div>` : ""}
+      ${j.done ? `<div class="note info"><b>İş tamamlandı</b><span>Toplam süre ${((j.doneAt - j.createdAt) / DAY).toFixed(1).replace(".", ",")} gün · ${j.doneAt <= j.due + DAY ? "zamanında teslim" : "gecikmeli teslim"}${D.mods.finance && can(me, "money") && j.cost ? ` · kâr ${tl(j.price - j.cost)}` : ""}</span></div>` : ""}
       <button class="btn ghost block" id="closeS">Kapat</button>
     </div>`, () => { $("#closeS").onclick = closeSheet; }, still);
   }
+  const ACT_TXT = { done: "bitirdi", approved: "onayladı", back: "geri gönderdi", moved: "geri taşıdı", skipped: "atladı", claimed: "panodan aldı", resolved: "sorunu çözdü", started: "başladı", issue: "sorun bildirdi" };
+  function histHtml(j) {
+    const E = [{ at: j.createdAt, t: `İş açıldı${j.quoteId ? ` · ${qno((D.quotes || []).find(q => q.id === j.quoteId) || { no: "?" })} teklifinden` : ""}` }];
+    j.steps.forEach(s => { const L = s.log || [];
+      L.forEach(l => E.push({ at: l.at, t: `${l.by ? whoName(l.by) + " · " : ""}${s.name} · ${ACT_TXT[l.act] || l.act}${l.note ? ` · “${l.note}”` : ""}` }));
+      if (s.status === "done" && !L.some(l => ["done", "approved", "skipped"].includes(l.act)) && s.doneAt) E.push({ at: s.doneAt, t: `${first(s.owner)} · ${s.name} · bitirdi` }); });
+    (j.edits || []).forEach(e => E.push({ at: e.at, t: `${whoName(e.by)} işi düzenledi${e.what ? ` · ${e.what}` : ""}` }));
+    if (can(me, "money")) (j.payments || []).forEach(p => E.push({ at: p.at, t: `Tahsilat · ${tl(p.amount)} · ${p.method}` }));
+    if (j.cancelled) E.push({ at: j.cancelled.at, t: `${whoName(j.cancelled.by)} işi iptal etti · ${j.cancelled.reason}${j.cancelled.note ? ` · “${j.cancelled.note}”` : ""}` });
+    E.sort((a, b) => b.at - a.at);
+    return `<details class="hist"><summary><b>İş geçmişi</b><span class="sm">${E.length} kayıt</span></summary><div class="feed">${E.map(e => `<div class="fi" style="grid-template-columns:minmax(0,1fr) auto"><span>${esc(e.t)}</span><time>${esc(when(e.at))}</time></div>`).join("")}</div></details>`;
+  }
+  function openPay(jid) {
+    const j = jobById(jid); let m = "Havale";
+    sheet(`<div class="stack"><div><div class="eyebrow">#${j.id} · ${esc(j.customer)}</div><h2>Tahsilat ekle</h2><div class="sm">Kalan ${tl(leftOf(j))}</div></div>
+      <div><label class="sm" for="pyAmt"><b>Tutar (₺)</b></label><input class="in" id="pyAmt" type="number" min="1" inputmode="decimal" value="${leftOf(j) || ""}"></div>
+      <div class="chips">${["Nakit", "Havale", "Kredi kartı", "Çek"].map(x => `<button class="chip" data-pm="${x}" aria-pressed="${x === m}">${x}</button>`).join("")}</div>
+      <div class="sm err" id="pyMsg" role="alert"></div><button class="btn ok xl block" id="pyGo">Tahsilatı kaydet</button></div>`, () => {
+      layer.querySelectorAll("[data-pm]").forEach(b => b.onclick = () => { m = b.dataset.pm; layer.querySelectorAll("[data-pm]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
+      $("#pyGo").onclick = () => { const a = parseFloat($("#pyAmt").value); if (!(a > 0)) { $("#pyMsg").textContent = "Tutarı yaz."; return; }
+        (j.payments = j.payments || []).push({ at: Date.now(), amount: Math.round(a), method: m, by: me }); notify(`#${j.id} ${j.customer} · ${tl(a)} tahsilat (${m})`, "✅", [PAT()]);
+        save(); render(); openJob(j.id, true); toast("✓", "Tahsilat kaydedildi", leftOf(j) ? `Kalan ${tl(leftOf(j))}` : "Tamamı alındı"); };
+    });
+  }
+  function openJobEdit(jid) {
+    const j = jobById(jid), dd = new Date(j.due), dv = `${dd.getFullYear()}-${pad(dd.getMonth() + 1)}-${pad(dd.getDate())}`, mn = D.mods.finance && can(me, "money");
+    sheet(`<div class="stack"><div><div class="eyebrow">#${j.id}</div><h2>İşi düzenle</h2><div class="sm">Değişiklik ilgili kişilere bildirilir ve iş geçmişine yazılır. Hazır işaretlenen kalemler korunur.</div></div>
+      <div><label class="sm" for="nCust"><b>Müşteri</b></label><input class="in" id="nCust" value="${esc(j.customer)}" list="custList" autocomplete="off"><datalist id="custList">${custNames().map(c => `<option value="${esc(c)}">`).join("")}</datalist></div>
+      <div><label class="sm" for="nTitle"><b>Sipariş adı</b></label><input class="in" id="nTitle" value="${esc(j.title)}" autocomplete="off"></div>
+      <div class="grid2"><div><label class="sm" for="eDue"><b>Termin</b></label><input class="in" id="eDue" type="date" value="${dv}"></div><label class="ed-checks" style="align-self:end"><label><input type="checkbox" id="eUrg"${j.urgent ? " checked" : ""}> Acil iş</label></label></div>
+      ${mn ? `<div class="grid2"><div><label class="sm" for="ePrice"><b>Tutar (₺, KDV hariç)</b></label><input class="in" id="ePrice" type="number" min="0" value="${j.price || 0}"></div><div><label class="sm" for="eCost"><b>Maliyet (₺)</b></label><input class="in" id="eCost" type="number" min="0" value="${j.cost || ""}" placeholder="Girilmedi"></div></div>` : ""}
+      ${D.mods.fleet ? `<div><label class="sm" for="eAddr"><b>Teslimat adresi</b></label><input class="in" id="eAddr" value="${esc(j.address || (custOf(j.customer) || {}).address || "")}" autocomplete="off"></div>` : ""}
+      <section class="kal"><div class="sec-h"><h2>Kalemler</h2><span class="sm" id="nSum"></span></div><div id="nItems"></div>
+        <div class="seg seg3" role="group" aria-label="Kalem girişi" style="margin-top:12px"><button data-nim="cat" aria-pressed="true">Katalog</button><button data-nim="paste" aria-pressed="false">Yapıştır</button><button data-nim="photo" aria-pressed="false">Fotoğraf</button></div><div id="nIm"></div></section>
+      <div><label class="sm" for="nNote"><b>Dikkat notları</b></label><textarea class="in" id="nNote" rows="2">${esc((j.warn || []).join("\n"))}</textarea></div>
+      <div class="sm err" id="nMsg" role="alert"></div>
+      <button class="btn ok xl block" id="eSave">Kaydet</button>
+      <button class="btn ghost block" id="eCancel" style="color:var(--bad)">İşi iptal et</button></div>`, () => {
+      const ni = { mode: "cat", items: (j.items || []).map(x => ({ ...x })), paper: j.paper || null }; mountItems(ni).refresh();
+      $("#eCancel").onclick = () => openCancel(j.id);
+      $("#eSave").onclick = () => { const cust = $("#nCust").value.trim(), title = $("#nTitle").value.trim(); if (!cust || !title) { $("#nMsg").textContent = "Müşteri ve sipariş adı gerekli."; return; }
+        const ch = [], [y, m2, d2] = $("#eDue").value.split("-").map(Number), due = new Date(y, m2 - 1, d2, 17).getTime();
+        if (cust !== j.customer) ch.push("müşteri"); if (title !== j.title) ch.push("ad"); if (Math.abs(due - j.due) > HOUR) ch.push("termin");
+        const key = it => trn(`${it.code}|${it.name}|${it.variant}`), oldK = (j.items || []).map(key), newK = ni.items.map(key), used = new Set(), map = {};
+        oldK.forEach((k0, i) => { const ni2 = newK.findIndex((k1, n) => k1 === k0 && !used.has(n)); if (ni2 >= 0) { used.add(ni2); map[i] = ni2; } });
+        if (JSON.stringify(oldK) !== JSON.stringify(newK) || (j.items || []).some((it, i) => map[i] != null && +ni.items[map[i]].qty !== +it.qty)) ch.push("kalemler");
+        j.steps.forEach(s => { if (!s.itemsDone) return; const nd = {}; Object.entries(s.itemsDone).forEach(([i, v]) => { if (v && map[i] != null) nd[map[i]] = true; }); s.itemsDone = nd; });
+        Object.assign(j, { customer: cust, title, due, urgent: $("#eUrg").checked });
+        if (ni.items.length) { j.items = ni.items.map(x => ({ ...x })); j.qty = `${fmtQ(itemSum(j))} adet`; } else delete j.items;
+        const wn = $("#nNote").value.split("\n").map(x => x.trim()).filter(Boolean); if (wn.join("|") !== (j.warn || []).join("|")) ch.push("dikkat notları"); if (wn.length) j.warn = wn; else delete j.warn;
+        if (ni.paper) j.paper = ni.paper;
+        if ($("#ePrice")) { const pr = Math.max(0, +$("#ePrice").value || 0), co = Math.max(0, +$("#eCost").value || 0); if (pr !== j.price || co !== (j.cost || 0)) ch.push("tutar"); j.price = pr; j.cost = co; }
+        if ($("#eAddr")) j.address = $("#eAddr").value.trim();
+        ensureCust(cust); (j.edits = j.edits || []).push({ at: Date.now(), by: me, what: ch.join(", ") || "küçük değişiklik" });
+        notify(`${first(me)} #${j.id} işini düzenledi · ${ch.join(", ") || "küçük değişiklik"}`, "✍️", activeSteps(j).flatMap(crewOf).concat(PAT()));
+        save(); render(); openJob(j.id); toast("✓", "İş güncellendi", ch.join(", ") || "Kaydedildi"); };
+    });
+  }
+  function openCancel(jid) {
+    const j = jobById(jid), R = ["Müşteri vazgeçti", "Fiyatta anlaşılamadı", "Termin tutmadı", "Diğer"]; let r = R[0];
+    sheet(`<div class="stack"><div><div class="eyebrow">#${j.id} · ${esc(j.customer)}</div><h2>İşi iptal et</h2><div class="sm">Açık görevler herkesin listesinden kalkar, ilgililere bildirim gider. İş silinmez; geçmişte “İptal edildi” olarak kalır.</div></div>
+      <div class="chips">${R.map(x => `<button class="chip" data-cr="${x}" aria-pressed="${x === r}">${x}</button>`).join("")}</div>
+      <textarea class="in" id="cnNote" rows="2" placeholder="Not (isteğe bağlı)"></textarea>
+      <button class="btn xl block" id="cnGo" style="background:var(--bad);color:#fff">İptal et</button><button class="btn ghost block" id="closeS">Vazgeç</button></div>`, () => {
+      $("#closeS").onclick = () => openJobEdit(jid);
+      layer.querySelectorAll("[data-cr]").forEach(b => b.onclick = () => { r = b.dataset.cr; layer.querySelectorAll("[data-cr]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
+      $("#cnGo").onclick = () => { const crew = activeSteps(j).flatMap(crewOf);
+        Object.assign(j, { cancelled: { at: Date.now(), by: me, reason: r, note: $("#cnNote").value.trim() }, done: true, doneAt: Date.now() });
+        notify(`#${j.id} ${j.title} iptal edildi · ${r}`, "✕", crew.concat(PAT()));
+        if (flowOf(j).prefs.custNotify && D.mods.customers) notify(`Müşteriye mesaj gitti: “${j.title} siparişiniz iptal edildi”`, "📲");
+        save(); closeSheet(); render(); toast("✕", `#${j.id} iptal edildi`, r); };
+    });
+  }
   function stepPill(s) {
-    return s.status === "done" ? `<span class="pill ok">Bitti</span>` : s.status === "working" ? `<span class="pill acc">${s.type === "delivery" ? "Yolda" : "Çalışıyor"}</span>`
+    return s.status === "done" ? (s.skipped ? `<span class="pill mute">Atlandı</span>` : `<span class="pill ok">Bitti</span>`) : s.status === "working" ? `<span class="pill acc">${s.type === "delivery" ? "Yolda" : "Çalışıyor"}</span>`
       : s.status === "blocked" ? `<span class="pill bad">Sorun</span>` : s.status === "ready" ? `<span class="pill warn">${s.type === "approval" ? "Onay bekliyor" : "Sırada"}</span>` : `<span class="pill mute">Bekliyor</span>`;
   }
   function openReassign(jid, key) {
@@ -5035,7 +5216,16 @@ var qrcode = function() {
     return c[0]?.id || (PEOPLE.find(p => p.role === "ustabasi") || PEOPLE[0]).id;
   }
   // ---------- teklif: hazırla → gönder → müşteri kabul eder → iş emrine dönüşür ----------
-  const qno = q => `TKL-${q.no}`;
+  const qno = q => `TKL-${q.no}${q.rev ? ` · Rev.${q.rev}` : ""}`;
+  const custOf = name => (D.customers || []).find(c => trn(c.name) === trn(name));
+  const ensureCust = name => { if (!name) return null; let c = custOf(name); if (!c) { c = { id: "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), name }; (D.customers = D.customers || []).push(c); } return c; };
+  const custNames = () => [...new Set([...(D.customers || []).map(c => c.name), ...D.jobs.map(j => j.customer), ...(D.quotes || []).map(q => q.customer)])];
+  const vatRate = () => (D.biz && D.biz.vat != null ? +D.biz.vat : 20);
+  const grossOf = j => Math.round((j.price || 0) * (1 + vatRate() / 100));
+  const paidOf = j => (j.payments || []).reduce((a, x) => a + (+x.amount || 0), 0);
+  const leftOf = j => Math.max(0, grossOf(j) - paidOf(j));
+  const coLine = () => { const b = D.biz || {}; return [b.address, b.phone, b.email, b.taxNo ? `${b.taxOffice ? b.taxOffice + " V.D. " : "VKN "}${b.taxNo}` : ""].filter(Boolean).map(esc).join(" · "); };
+  const docHead = no => `<div class="pdhead"><div class="pdlogo">${D.biz && D.biz.logo ? `<img src="${D.biz.logo}" alt="">` : ""}${esc(BIZ())}<small>${esc((D.biz && D.biz.what) || "")}</small>${coLine() ? `<div class="pdco">${coLine()}</div>` : ""}</div><div class="pdno">${no}</div></div>`;
   function quoteTotals(q) { const sub = (q.items || []).reduce((a, it) => a + (+it.qty || 0) * (+it.price || 0), 0), disc = sub * (+q.disc || 0) / 100, net = sub - disc, vat = net * (+q.vat || 0) / 100;
     return { sub, disc, net, vat, all: net + vat }; }
   const Q_ST = { draft: ["Taslak", "mute"], sent: ["Gönderildi · yanıt bekleniyor", "warn"], accepted: ["Kabul edildi", "ok"], rejected: ["Reddedildi", "bad"], talk: ["Müşteri görüşmek istiyor", "warn"] };
@@ -5047,38 +5237,43 @@ var qrcode = function() {
       <button class="btn block" id="newQuote">${ico("plus")} Yeni teklif</button>
       ${Qs.length ? `<div class="list">${Qs.map(q => { const st = qState(q), T = quoteTotals(q);
         return `<button class="jr" data-quote="${q.id}"><div class="jr-h"><span class="t">${esc(q.customer)}${q.title ? ` · ${esc(q.title)}` : ""}</span><span class="mono">${qno(q)}</span></div>
-          <div class="jr-m">${q.items.length} kalem · Geçerlilik ${new Date(q.valid).toLocaleDateString("tr-TR")}${q.jobId ? ` · İş emri #${q.jobId}` : ""}</div>
+          <div class="jr-m">${q.items.length} kalem · Geçerlilik ${new Date(q.valid).toLocaleDateString("tr-TR")}${q.jobId ? ` · İş emri #${q.jobId}` : ""}${q.revs && q.revs.length ? ` · önceki: ${q.revs.map(r => `Rev.${r.rev} ${tl(r.total)}`).join(", ")}` : ""}</div>
           <div class="st"><span class="pill ${st[1]}">${st[0]}</span><span class="pct" style="color:var(--ink);font-size:var(--t-md)">${tl(T.all)}</span></div></button>`; }).join("")}</div>`
         : `<div class="empty">Henüz teklif yok. Katalogdan kalem seçip fiyatlı teklif hazırla; müşteri kabul edince iş emrine dönüşür.</div>`}`;
   }
-  function openQuoteForm(src) {
-    const q0 = src ? (D.quotes || []).find(x => x.id === src) : null, vd = new Date(sod() + 15 * DAY), dv = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  function openQuoteForm(src, preCust) {
+    const q0 = src ? (D.quotes || []).find(x => x.id === src) : null, vd = new Date(sod() + ((D.biz && D.biz.validDays) || 15) * DAY), dv = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
     sheet(`<div class="stack"><div><div class="eyebrow">${q0 ? `Teklifi düzenle · ${qno(q0)}` : `Yeni teklif · TKL-${D.nextQuote || 2001}`}</div><h2>${q0 ? esc(q0.customer) : "Teklif hazırla"}</h2>
         <div class="sm">Kalemleri katalogdan seç, fiyatlar katalogdan gelir. Müşteri kabul edince teklif tek dokunuşla iş emrine dönüşür.</div></div>
-      <div><label class="sm" for="nCust"><b>Müşteri</b></label><input class="in" id="nCust" value="${esc(q0 ? q0.customer : "")}" placeholder="Ör: Ahmet Bey" autocomplete="off" list="custList"><datalist id="custList">${[...new Set([...D.jobs.map(j => j.customer), ...(D.quotes || []).map(q => q.customer)])].map(c => `<option value="${esc(c)}">`).join("")}</datalist></div>
+      <div><label class="sm" for="nCust"><b>Müşteri</b></label><input class="in" id="nCust" value="${esc(q0 ? q0.customer : "")}" placeholder="Ör: Ahmet Bey" autocomplete="off" list="custList"><datalist id="custList">${custNames().map(c => `<option value="${esc(c)}">`).join("")}</datalist></div>
+      ${q0 && q0.status !== "draft" ? `<div class="note"><b>Gönderilmiş teklifi düzenliyorsun</b><span>Kaydedince Rev.${(q0.rev || 0) + 1} olur ve taslağa döner; müşteriye yeniden göndermen gerekir. Önceki sürüm geçmişte kalır.</span></div>` : ""}
       <div><label class="sm" for="nTitle"><b>Teklif konusu</b></label><input class="in" id="nTitle" value="${esc(q0 ? q0.title : "")}" placeholder="Ör: 28 Elek projesi aydınlatma" autocomplete="off"></div>
       <section class="kal"><div class="sec-h"><h2>Kalemler</h2><span class="sm" id="nSum">En az bir kalem</span></div><div id="nItems"></div>
         <div class="seg seg3" role="group" aria-label="Kalem girişi" style="margin-top:12px"><button data-nim="cat" aria-pressed="true">Katalog</button><button data-nim="paste" aria-pressed="false">Yapıştır</button><button data-nim="photo" aria-pressed="false">Fotoğraf</button></div><div id="nIm"></div></section>
       <div class="qtot"><div><span>Ara toplam</span><b id="tSub"></b></div><div><span>İskonto<input id="qDisc" type="number" min="0" max="100" step="any" inputmode="decimal" value="${q0 ? q0.disc : 0}" aria-label="İskonto yüzdesi">%</span><b id="tDisc"></b></div>
-        <div><span>KDV<select id="qVat" aria-label="KDV oranı">${[20, 10, 1, 0].map(v => `<option value="${v}"${(q0 ? q0.vat : 20) === v ? " selected" : ""}>%${v}</option>`).join("")}</select></span><b id="tVat"></b></div><div class="g"><span>Genel toplam</span><b id="tAll"></b></div></div>
+        <div><span>KDV<select id="qVat" aria-label="KDV oranı">${[20, 10, 1, 0].map(v => `<option value="${v}"${(q0 ? q0.vat : vatRate()) === v ? " selected" : ""}>%${v}</option>`).join("")}</select></span><b id="tVat"></b></div><div class="g"><span>Genel toplam</span><b id="tAll"></b></div></div>
       <div class="grid2"><div><label class="sm" for="qValid"><b>Geçerlilik</b></label><input class="in" id="qValid" type="date" value="${dv(q0 ? new Date(q0.valid) : vd)}"></div>
-        <div><label class="sm" for="qLead"><b>Teslim süresi (gün)</b></label><input class="in" id="qLead" type="number" min="1" inputmode="numeric" value="${q0 ? q0.lead : 10}"></div></div>
-      <div><label class="sm" for="qPay"><b>Ödeme koşulu</b></label><input class="in" id="qPay" value="${esc(q0 ? q0.pay : "%50 peşin, kalan teslimde")}" autocomplete="off"></div>
+        <div><label class="sm" for="qLead"><b>Teslim süresi (iş günü)</b></label><input class="in" id="qLead" type="number" min="1" inputmode="numeric" value="${q0 ? q0.lead : 10}"></div></div>
+      <div><label class="sm" for="qFlow"><b>Kabul edilince hangi akışla üretilsin?</b></label><select class="in" id="qFlow">${D.flows.map(f => `<option value="${f.id}"${(q0 ? q0.flowId || D.defaultFlow : D.defaultFlow) === f.id ? " selected" : ""}>${f.ico} ${esc(f.name)}</option>`).join("")}</select></div>
+      <div><label class="sm" for="qPay"><b>Ödeme koşulu</b></label><input class="in" id="qPay" value="${esc(q0 ? q0.pay : (D.biz && D.biz.pay) || "%50 peşin, kalan teslimde")}" autocomplete="off"></div>
       <div><label class="sm" for="nNote"><b>Teklif notu</b></label><textarea class="in" id="nNote" rows="2" placeholder="Ör: Fiyatlara montaj dahil değildir">${esc(q0 ? q0.note || "" : "")}</textarea></div>
       <div class="sm err" id="nMsg" role="alert"></div>
       <div class="grid2"><button class="btn line" id="qSave">Taslak kaydet</button><button class="btn" id="qSend">${ico("send")} Kaydet ve gönder</button></div></div>`, () => {
       const ni = { mode: "cat", items: q0 ? q0.items.map(x => ({ ...x })) : [], paper: q0 ? q0.paper || null : null };
       const tot = () => { const T = quoteTotals({ items: ni.items, disc: $("#qDisc").value, vat: $("#qVat").value }); $("#tSub").textContent = tl(T.sub); $("#tDisc").textContent = T.disc ? "−" + tl(T.disc) : tl(0); $("#tVat").textContent = tl(T.vat); $("#tAll").textContent = tl(T.all); };
       const pk = mountItems(ni, { price: true, onChange: tot }); pk.refresh(); $("#qDisc").oninput = tot; $("#qVat").onchange = tot; tot();
-      setTimeout(() => (q0 ? $("#pq") : $("#nCust"))?.focus(), 60);
+      if (preCust && !q0) $("#nCust").value = preCust;
+      setTimeout(() => (q0 || preCust ? $("#pq") : $("#nCust"))?.focus(), 60);
       const store = () => { const customer = $("#nCust").value.trim(), [y, m, d] = ($("#qValid").value || dv(vd)).split("-").map(Number);
         if (!customer) { $("#nMsg").textContent = "Müşteri gerekli."; $("#nCust").focus(); return null; }
         if (!ni.items.length) { $("#nMsg").textContent = "En az bir kalem ekle."; return null; }
         if (ni.items.some(it => !(+it.price > 0))) { $("#nMsg").textContent = "Fiyatı girilmemiş kalem var. Sepette her kalemin birim fiyatını yaz."; return null; }
         const q = q0 || { id: "q" + Date.now().toString(36), no: D.nextQuote = (D.nextQuote || 2001) + 0, createdAt: Date.now(), status: "draft" };
         if (!q0) { D.nextQuote = q.no + 1; (D.quotes = D.quotes || []).push(q); }
+        if (q0 && q0.status !== "draft") { (q0.revs = q0.revs || []).push({ at: Date.now(), rev: q0.rev || 0, total: quoteTotals(q0).all, status: q0.status }); q0.rev = (q0.rev || 0) + 1; q0.status = "draft"; }
+        ensureCust(customer);
         Object.assign(q, { customer, title: $("#nTitle").value.trim(), items: ni.items.map(x => ({ ...x })), disc: Math.min(100, Math.max(0, parseFloat($("#qDisc").value) || 0)), vat: +$("#qVat").value,
-          valid: new Date(y, m - 1, d, 23, 59).getTime(), lead: Math.max(1, parseInt($("#qLead").value) || 10), pay: $("#qPay").value.trim(), note: $("#nNote").value.trim(), ...(ni.paper ? { paper: ni.paper } : {}) });
+          valid: new Date(y, m - 1, d, 23, 59).getTime(), flowId: $("#qFlow").value, lead: Math.max(1, parseInt($("#qLead").value) || 10), pay: $("#qPay").value.trim(), note: $("#nNote").value.trim(), ...(ni.paper ? { paper: ni.paper } : {}) });
         save(); return q; };
       $("#qSave").onclick = () => { const q = store(); if (!q) return; closeSheet(); tab = "isler"; jobView = "quotes"; render(); toast("✓", `${qno(q)} kaydedildi`, `${q.customer} · ${tl(quoteTotals(q).all)}`); };
       $("#qSend").onclick = () => { const q = store(); if (!q) return; render(); openSendQuote(q.id); };
@@ -5087,12 +5282,12 @@ var qrcode = function() {
   function quoteDoc(q) {
     const T = quoteTotals(q), d = t => new Date(t).toLocaleDateString("tr-TR"), url = `https://workflow.app/teklif/${q.id}`;
     return `<article class="paperdoc" aria-label="Teklif formu ${qno(q)}">
-      <div class="pdhead"><div class="pdlogo">${esc(BIZ())}<small>${esc((D.biz && D.biz.what) || "")}</small></div><div class="pdno">${qno(q)}</div></div>
+      ${docHead(qno(q))}
       <div class="pdtitle">Fiyat teklifi</div>
-      <div class="pdmeta"><div class="pdcust">${esc(q.customer)}${q.title ? `<span style="display:block;font-weight:600;font-size:.82rem;text-transform:none">${esc(q.title)}</span>` : ""}</div><div class="pddates"><b>Tarih:</b> ${d(q.createdAt)}<br><b>Geçerlilik:</b> ${d(q.valid)}</div></div>
+      <div class="pdmeta"><div class="pdcust">${esc(q.customer)}${q.title ? `<span style="display:block;font-weight:600;font-size:.82rem;text-transform:none">${esc(q.title)}</span>` : ""}${(c => c ? `<div class="pdto">${[c.contact, c.address, c.taxNo ? `${c.taxOffice ? c.taxOffice + " V.D. " : "VKN "}${c.taxNo}` : "", c.phone].filter(Boolean).map(esc).join("<br>")}</div>` : "")(custOf(q.customer))}</div><div class="pddates"><b>Tarih:</b> ${d(q.createdAt)}<br><b>Geçerlilik:</b> ${d(q.valid)}</div></div>
       <div class="pdtbl"><table class="pd"><thead><tr><th></th><th>Açıklama</th><th class="q">Tutar</th></tr></thead><tbody>${q.items.map((it, i) => `<tr><td class="n">${i + 1}</td><td><span class="code">${esc([it.code, it.name].filter(Boolean).join(" "))}</span>${it.variant ? `<span class="var">(${esc(it.variant)})</span>` : ""}<span class="qp">${fmtQ(it.qty)} ${esc(it.unit || "ad")} × ${tl(it.price || 0)}</span></td><td class="q">${tl((+it.qty || 0) * (+it.price || 0))}</td></tr>`).join("")}</tbody></table></div>
       <div class="pdtot"><div><span>Ara toplam</span><span>${tl(T.sub)}</span></div>${T.disc ? `<div><span>İskonto %${fmtQ(q.disc)}</span><span>−${tl(T.disc)}</span></div>` : ""}<div><span>KDV %${q.vat}</span><span>${tl(T.vat)}</span></div><div class="g"><span>Genel toplam</span><span>${tl(T.all)}</span></div></div>
-      <div class="pdterms"><span><b>Teslim süresi:</b> sipariş onayından sonra ${q.lead} gün</span>${q.pay ? `<span><b>Ödeme:</b> ${esc(q.pay)}</span>` : ""}${q.note ? `<span><b>Not:</b> ${esc(q.note)}</span>` : ""}</div>
+      <div class="pdterms"><span><b>Teslim süresi:</b> sipariş onayından sonra ${q.lead} iş günü</span>${D.biz && D.biz.iban ? `<span><b>IBAN:</b> ${esc(D.biz.iban)}</span>` : ""}${q.pay ? `<span><b>Ödeme:</b> ${esc(q.pay)}</span>` : ""}${q.note ? `<span><b>Not:</b> ${esc(q.note)}</span>` : ""}</div>
       <div class="pdfoot"><div class="pdsig"><span>Teklifi veren: ${esc(person(PAT()).name)}</span><span>Müşteri onayı / imza</span></div><div class="pdqr"><div class="q" data-qr="${esc(url)}"></div>Okut, teklifi görüntüle ve onayla</div></div>
     </article>`;
   }
@@ -5113,21 +5308,29 @@ var qrcode = function() {
     const msg = () => `Merhaba ${q.customer}, ${q.title ? `${q.title} için ` : ""}fiyat teklifimiz hazır: ${tl(T.all)} (KDV dahil). Teklifi görüntüleyip tek dokunuşla onaylayabilirsiniz: ${url} · Geçerlilik ${new Date(q.valid).toLocaleDateString("tr-TR")}. ${BIZ()}`;
     sheet(`<div class="stack"><div><div class="eyebrow">${qno(q)} · ${tl(T.all)}</div><h2>Teklifi gönder</h2><div class="sm">Müşteri bağlantıyı açınca teklifi görür, “Kabul ediyorum” der; teklif iş emrine dönüşür ve sana bildirim gelir.</div></div>
       <div class="chips">${["WhatsApp", "E-posta", "SMS"].map(v => `<button class="chip" data-via="${v}" aria-pressed="${v === via}">${v}</button>`).join("")}</div>
+      <div id="sqTo"></div>
       <div class="qmsg"><span class="sm">Gidecek mesaj</span><div class="bubble">${esc(msg())}</div></div>
       <div class="note info"><b>Prototipte</b><span>Mesaj gerçekten gönderilmez. Müşterinin gördüğünü denemek için üstteki menüden “${esc(q.customer)} · Müşteri” görünümüne geç.</span></div>
       <button class="btn xl block" id="qGo">${ico("send")} ${via} ile gönder</button></div>`, () => {
-      layer.querySelectorAll("[data-via]").forEach(b => b.onclick = () => { via = b.dataset.via; layer.querySelectorAll("[data-via]").forEach(x => x.setAttribute("aria-pressed", x === b)); $("#qGo").lastChild.textContent = ` ${via} ile gönder`; });
-      $("#qGo").onclick = () => { const again = q.status !== "draft"; q.status = "sent"; q.sentAt = Date.now(); q.via = via;
-        notify(`${qno(q)} ${again ? "hatırlatması" : "teklifi"} ${q.customer} müşterisine ${via} ile gönderildi · ${tl(T.all)}`, "📲"); save(); closeSheet(); tab = "isler"; jobView = "quotes"; render();
+      const cu = ensureCust(q.customer);
+      const drawTo = () => { const key = via === "E-posta" ? "email" : "phone", val = cu[key];
+        $("#sqTo").innerHTML = val ? `<div class="recv"><span class="cav2">${esc(cu.name.split(" ").map(w => w[0]).slice(0, 2).join(""))}</span><div><b>${esc(cu.contact || cu.name)}</b><div class="sm">${esc(val)}</div></div></div>`
+          : `<div class="note"><b>${via === "E-posta" ? "E-posta adresi" : "Telefon numarası"} yok</b><span>Müşteri kartına kaydedilir; bir dahaki sefere sorulmaz.</span></div><input class="in" id="sqVal" ${via === "E-posta" ? 'type="email" placeholder="ornek@firma.com"' : 'inputmode="tel" placeholder="0532 123 45 67"'} autocomplete="off" aria-label="Alıcı">`; };
+      drawTo();
+      layer.querySelectorAll("[data-via]").forEach(b => b.onclick = () => { via = b.dataset.via; drawTo(); layer.querySelectorAll("[data-via]").forEach(x => x.setAttribute("aria-pressed", x === b)); $("#qGo").lastChild.textContent = ` ${via} ile gönder`; });
+      $("#qGo").onclick = () => { const key = via === "E-posta" ? "email" : "phone", iv = $("#sqVal");
+        if (!cu[key]) { const v = iv ? iv.value.trim() : ""; if (!v) { iv?.focus(); toast("✋", via === "E-posta" ? "E-posta adresi gerekli" : "Telefon numarası gerekli", "Teklif kime gidecek?"); return; } cu[key] = v; }
+        const again = q.status !== "draft"; q.status = "sent"; q.sentAt = Date.now(); q.via = via;
+        notify(`${qno(q)} ${again ? "hatırlatması" : "teklifi"} ${q.customer} müşterisine ${via} ile gönderildi (${cu[via === "E-posta" ? "email" : "phone"]}) · ${tl(T.all)}`, "📲"); save(); closeSheet(); tab = "isler"; jobView = "quotes"; render();
         toast("📲", again ? "Hatırlatma gönderildi" : "Teklif gönderildi", `${q.customer} · ${via}`); };
     });
   }
   function convertQuote(q, by) {
-    const flow = flowById(D.defaultFlow), T = quoteTotals(q);
+    const flow = flowById(q.flowId || D.defaultFlow), T = quoteTotals(q);
     const j = mkJob({ flow, id: D.nextId++, title: q.title || `${q.customer} siparişi`, customer: q.customer, qty: `${fmtQ(q.items.reduce((a, it) => a + (+it.qty || 0), 0))} adet`,
-      due: sod() + (q.lead || 10) * DAY + 17 * HOUR, at: 0, waiting: 0, price: Math.round(T.net), cost: Math.round(T.net * .65), createdAt: Date.now() });
+      due: (t => { t.setHours(WD_E, 0, 0, 0); return t.getTime(); })(new Date(addWork(Date.now(), Math.max(1, (q.lead || 10) * WD_H - .5)))), at: 0, waiting: 0, price: Math.round(T.net), cost: 0, createdAt: Date.now() });
     if (!D.mods.fleet) { j.steps = j.steps.filter(s => s.type !== "delivery"); normalize(j); }
-    j.items = q.items.map(({ price, ...x }) => x); j.quoteId = q.id; if (q.paper) j.paper = q.paper;
+    j.items = q.items.map(({ price, ...x }) => x); j.quoteId = q.id; if (q.paper) j.paper = q.paper; const cc = custOf(q.customer); if (cc && cc.address) j.address = cc.address;
     applyCreateRules(j, false); j.steps.filter(s => s.status === "ready").forEach(s => s.readyAt = Date.now()); D.jobs.push(j);
     Object.assign(q, { status: "accepted", decidedAt: Date.now(), jobId: j.id, by });
     const g0 = j.steps.filter(s => s.g === 0);
@@ -5233,14 +5436,14 @@ var qrcode = function() {
       drawMode();
     return { refresh: () => drawItems() };
   }
-  function openNewJob() {
+  function openNewJob(preCust) {
     const dueDef = new Date(sod() + 7 * DAY);
     const dv = `${dueDef.getFullYear()}-${pad(dueDef.getMonth() + 1)}-${pad(dueDef.getDate())}`;
     sheet(`<div class="stack">
       <div><div class="eyebrow">Yeni iş emri #${D.nextId}</div><h2>Yeni iş oluştur</h2><div class="sm">İş, aşamalara bölünüp sorumlulara dağıtılır. İlk aşama bitince sıradakine otomatik bildirim gider.</div></div>
       <div><label class="sm" for="nFlow"><b>İş akışı</b></label><select class="in" id="nFlow">${D.flows.map(f => `<option value="${f.id}"${f.id === D.defaultFlow ? " selected" : ""}>${f.ico} ${esc(f.name)} · ${f.stages.length} aşama</option>`).join("")}</select></div>
       <div><label class="sm" for="nCust"><b>Müşteri</b></label><input class="in" id="nCust" placeholder="Ör: Ahmet Bey" autocomplete="off" list="custList">
-        <datalist id="custList">${[...new Set(D.jobs.map(j => j.customer))].map(c => `<option value="${esc(c)}">`).join("")}</datalist></div>
+        <datalist id="custList">${custNames().map(c => `<option value="${esc(c)}">`).join("")}</datalist></div>
       <div><label class="sm" for="nTitle"><b>Sipariş adı</b></label><input class="in" id="nTitle" placeholder="Ör: 28 Elek projesi ya da Demir kapı" autocomplete="off"></div>
       <section class="kal"><div class="sec-h"><h2>Kalemler</h2><span class="sm" id="nSum">İsteğe bağlı</span></div>
         <div id="nItems"></div>
@@ -5251,7 +5454,7 @@ var qrcode = function() {
         <div class="chips" style="margin-top:8px">${["Renge dikkat", "Sokete dikkat", "Ambalaj ve etikete dikkat", "Ölçüleri kontrol et"].map(x => `<button class="chip" data-nnote="${x}">＋ ${x}</button>`).join("")}</div></div>
       <div class="grid2">
         <div><label class="sm" for="nDue"><b>Termin</b></label><input class="in" id="nDue" type="date" value="${dv}"></div>
-        ${D.mods.finance && can(me, "money") ? `<div><label class="sm" for="nPrice"><b>Tutar (₺)</b></label><input class="in" id="nPrice" inputmode="numeric" placeholder="0"></div>` : "<div></div>"}
+        ${D.mods.finance && can(me, "money") ? `<div><label class="sm" for="nPrice"><b>Tutar (₺, KDV hariç)</b></label><input class="in" id="nPrice" inputmode="numeric" placeholder="Kalemlerden hesaplanır"></div>` : "<div></div>"}
       </div>
       ${D.mods.fleet ? `<div><label class="sm" for="nAddr"><b>Teslimat adresi</b></label><input class="in" id="nAddr" placeholder="Mahalle, cadde, ilçe" autocomplete="off"></div>` : ""}
       <label class="ck" style="display:flex;gap:10px;align-items:center;font-weight:600"><input type="checkbox" id="nUrgent" style="width:20px;height:20px;accent-color:var(--accent)"> Acil iş</label>
@@ -5266,7 +5469,9 @@ var qrcode = function() {
     </div>`, () => {
       $("#closeS").onclick = closeSheet;
       setTimeout(() => $("#nCust").focus(), 60);
-      const ni = { mode: "cat", items: [], paper: null }; mountItems(ni);
+      const ni = { mode: "cat", items: [], paper: null }; mountItems(ni, { onChange: () => { try { warn(); } catch (e) {} } });
+      if (preCust) $("#nCust").value = preCust;
+      $("#nCust").addEventListener("change", () => { const c = custOf($("#nCust").value); if (c && c.address && $("#nAddr") && !$("#nAddr").value) $("#nAddr").value = c.address; });
       const drawStages = () => { const f = flowById($("#nFlow").value);
         $("#nStages").innerHTML = f.stages.map(s => `<div class="pl"><span class="n">${s.g + 1}</span><div style="min-width:0"><b style="font-size:.9rem">${esc(s.name)}</b>${f.stages.filter(x => x.g === s.g).length > 1 ? ` <span class="ptag">∥ paralel</span>` : ""}${s.type === "approval" ? ` <span class="ptag" style="color:var(--warn)">onay</span>` : ""}${s.photo ? ` <span class="ptag" style="color:var(--ink-2)">📷</span>` : ""}</div>
           <select data-owner="${s.key}" aria-label="${esc(s.name)} sorumlusu"><option value="pool:${s.skill}"${s.assign === "pool" && !s.fixed ? " selected" : ""}>📋 Panoya bırak · ilk alan yapar</option>${PEOPLE.filter(p => ((p.skills || []).includes(s.skill) || p.role === "ustabasi" || p.id === s.fixed)).map(p => `<option value="${p.id}"${s.assign !== "pool" && p.id === (s.fixed || earliestFree(s.skill, SIM.avail)) ? " selected" : ""}>${esc(first(p.id))} · ${SIM.avail[p.id] && SIM.avail[p.id] > Date.now() ? "boşalır " + esc(when(SIM.avail[p.id])) : "şu an boş"}</option>`).join("")}</select></div>`).join(""); };
@@ -5305,8 +5510,7 @@ var qrcode = function() {
       };
       const warn = () => {
         const out = [], dvv = $("#nDue").value;
-        const n = parseInt($("#nQty").value) || 0, k = D.stock.find(s => s.name === "Kilit takımı");
-        if (D.mods.stock && /kapı/.test(lower($("#nTitle").value)) && k && n > k.qty) out.push(`Stok: ${n} kilit takımı gerekiyor, depoda ${k.qty} var.`);
+        if (D.mods.stock) ni.items.forEach(it => { const st = D.stock.find(x => (it.pid && x.pid === it.pid) || trn(x.name) === trn(it.name)); if (st && +it.qty > st.qty) out.push(`Stok: ${it.name} için ${fmtQ(it.qty)} ${it.unit || "ad"} gerekiyor, depoda ${st.qty} ${st.unit} var.`); });
         $("#nWarn").innerHTML = out.length ? `<div class="note"><b>Dikkat</b>${out.map(x => `<span>${esc(x)}</span>`).join("")}</div>` : "";
         smart();
         return out;
@@ -5317,9 +5521,10 @@ var qrcode = function() {
         if (!title || !customer || !dvv) { $("#nMsg").textContent = "Müşteri, sipariş adı ya da en az bir kalem, ve termin gerekli."; (!customer ? $("#nCust") : !title ? $("#nTitle") : $("#nDue")).focus(); return; }
         const owners = {}; layer.querySelectorAll("[data-owner]").forEach(x => owners[x.dataset.owner] = x.value);
         const [y, m, d] = dvv.split("-").map(Number);
-        const price = $("#nPrice") ? +($("#nPrice").value || "0").replace(/\D/g, "") : 0;
+        const price = $("#nPrice") && $("#nPrice").value ? +($("#nPrice").value || "0").replace(/\D/g, "") : Math.round(ni.items.reduce((a, it) => a + (+it.qty || 0) * ((prodOf(it) || {}).price || 0), 0));
+        const cc = ensureCust(customer); if (cc && $("#nAddr") && $("#nAddr").value.trim() && !cc.address) cc.address = $("#nAddr").value.trim();
         const j = mkJob({ flowId: $("#nFlow").value, id: D.nextId++, title, customer, qty: $("#nQty").value.trim() || "1 adet", due: new Date(y, m - 1, d, 17).getTime(), at: 0, waiting: 0,
-          price, cost: Math.round(price * .65), createdAt: Date.now(), owners, urgent: $("#nUrgent").checked, address: D.mods.fleet ? $("#nAddr").value.trim() : "" });
+          price, cost: 0, createdAt: Date.now(), owners, urgent: $("#nUrgent").checked, address: D.mods.fleet ? $("#nAddr").value.trim() : "" });
         if (!D.mods.fleet) { j.steps = j.steps.filter(s => s.type !== "delivery"); normalize(j); }
         if (ni.items.length) { j.items = ni.items.map(x => ({ ...x }));
           j.items.forEach(it => { if (it.pid || D.products.some(p => (it.code && trn(p.code) === trn(it.code)) || trn(p.name) === trn(it.name))) return;
@@ -5328,7 +5533,7 @@ var qrcode = function() {
         if (ni.paper) j.paper = ni.paper;
         applyCreateRules(j, false);
         const mz = j.steps.find(s => s.key === "malzeme") || j.steps[0];
-        warn().filter(x => x.startsWith("Stok")).forEach(x => mz.notes.push({ kind: "text", text: x, by: "selim", at: Date.now() }));
+        warn().filter(x => x.startsWith("Stok")).forEach(x => mz.notes.push({ kind: "text", text: x, by: PAT(), at: Date.now() }));
         j.steps.filter(s => s.status === "ready").forEach(s => s.readyAt = Date.now());
         D.jobs.push(j);
         const g0 = j.steps.filter(s => s.g === 0);
@@ -5395,6 +5600,8 @@ var qrcode = function() {
         <button class="tool" data-issue="${k}"><span class="i">${ico("alert")}</span>Sorun bildir</button></div>`;
     let body = "";
     if (s.status === "blocked") body = `<div class="issue"><b>${esc(s.issue.type)}</b> · ${esc(s.issue.note)}<div class="sm">Ustabaşı ve patron bilgilendirildi. Çözülünce bildirim gelecek.</div></div>`;
+    else if (s.type === "wait") body = `<div class="note info"><b>Dışarıdan bekleniyor</b><span>Tedarikçi, müşteri ya da başka bir kurumdan gelecek şey bekleniyor. Bu süre kimsenin iş yüküne yazılmaz. Gelince işaretle, iş sıradakine geçsin.</span></div>
+      <button class="btn ok xl block" data-done="${k}">Geldi, devam ✓</button>`;
     else if (s.type === "approval") body = `${s.cust && D.mods.customers ? `<div class="note info"><b>Müşteri onayı</b><span>${esc(j.customer)} takip ekranından kendisi onaylayabilir. Telefonda onay aldıysan sen de onaylayabilirsin.</span></div>` : ""}${formHtml(j, s, k, true)}${tools}<div class="${flowOf(j).prefs.sendBack ? "grid2" : ""}"><button class="btn ok xl${flowOf(j).prefs.sendBack ? "" : " block"}" data-approve="${k}"${gate(s).block ? " disabled" : ""}>${gate(s).fails ? "Sapmayla onayla" : s.final ? "Tamamlandı ✓" : "Onayla ✓"}</button>${flowOf(j).prefs.sendBack ? `<button class="btn bad xl" data-back="${k}">Geri gönder</button>` : ""}</div><div class="sm fhint" data-fhint="${k}">${gate(s).hint}</div>`;
     else if (s.type === "pack" && D.mods.scan) {
       const items = s.items || [{ name: j.title, code: `UR-${j.id}`, n: parseInt(j.qty) || 1, scanned: false }]; s.items = items;
@@ -5444,7 +5651,7 @@ var qrcode = function() {
       layer.querySelectorAll("[data-type]").forEach(b => b.onclick = () => { pick = b.dataset.type; layer.querySelectorAll("[data-type]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
       $("#closeS").onclick = closeSheet;
       $("#issGo").onclick = () => {
-        s.status = "blocked"; s.issue = { type: pick, note: $("#issNote").value.trim() || "Ayrıntı yazılmadı", at: Date.now(), by: me };
+        s.status = "blocked"; s.issue = { type: pick, note: $("#issNote").value.trim() || "Ayrıntı yazılmadı", at: Date.now(), by: me }; s.log.push({ at: Date.now(), by: me, act: "issue", note: `${pick}: ${s.issue.note}` });
         notify(`${first(me)} sorun bildirdi: #${j.id} ${pick.toLowerCase()}`, "⚠️", [...FORE(), PAT()]); eventRules(j, "issue", s); save(); closeSheet(); render();
         toast("⚠️", "Sorun bildirildi", "Ustabaşı ve patron bilgilendirildi");
       };
@@ -5522,19 +5729,20 @@ var qrcode = function() {
   function renderCustomer(name) {
     setNav(roleNav("Siparişlerim"));
     const jobs = D.jobs.filter(j => j.customer === name).sort((a, b) => a.done - b.done || a.due - b.due);
-    const pubsOf = j => { const P = [...new Set(j.steps.slice().sort((a, b) => a.g - b.g).map(x => x.pub || x.name))]; return /alındı/i.test(P[0] || "") ? P : ["Sipariş alındı", ...P]; };
-    const stageIdx = j => { const P = pubsOf(j); if (j.done) return P.length; const act = activeSteps(j)[0]; return act ? P.indexOf(act.pub || act.name) : 0; };
+    const pubsOf = j => { const P = [...new Set(j.steps.filter(x => !x.hide).sort((a, b) => a.g - b.g).map(x => x.pub || x.name))]; return /alındı/i.test(P[0] || "") ? P : ["Sipariş alındı", ...P]; };
+    const stageIdx = j => { const P = pubsOf(j); if (j.done) return P.length; const act = activeSteps(j)[0]; if (!act) return 0;
+      const v = act.hide ? j.steps.filter(x => !x.hide && x.g < act.g).sort((a, b) => b.g - a.g)[0] : act; return v ? Math.max(0, P.indexOf(v.pub || v.name)) : 0; };
     const visible = jobs.filter(j => flowOf(j).prefs.custVisible);
     $("#app").innerHTML = head("Müşteri takip ekranı", esc(name)) + `<main class="gut">
       <p class="sm" style="margin:0">${esc(BIZ())} sizinle paylaştığı sipariş durumları. İç notlar, maliyetler ve çalışan bilgileri gösterilmez.</p>
       ${(D.quotes || []).filter(q => q.customer === name && ["sent", "talk"].includes(q.status) && q.valid >= Date.now()).map(q => { const T = quoteTotals(q);
         return `<div class="track" style="border-color:color-mix(in srgb, var(--accent) 40%, var(--line))"><div class="task-top"><span class="wo">FİYAT TEKLİFİ · ${qno(q)}</span><span class="pill warn">Onayınızı bekliyor</span></div>
-          <div><h2>${esc(q.title || "Fiyat teklifi")}</h2><div class="sm">${q.items.length} kalem · geçerlilik ${new Date(q.valid).toLocaleDateString("tr-TR")} · teslim ${q.lead} gün</div></div>
+          <div><h2>${esc(q.title || "Fiyat teklifi")}</h2><div class="sm">${q.items.length} kalem · geçerlilik ${new Date(q.valid).toLocaleDateString("tr-TR")} · teslim ${q.lead} iş günü</div></div>
           <div class="eta">${tl(T.all)}<span class="sm" style="display:block;font-family:var(--text);font-weight:500;letter-spacing:0">KDV dahil</span></div>
           <div class="grid2"><button class="btn line" data-quote="${q.id}">Teklifi incele</button><button class="btn ok" data-qacc="${q.id}">Kabul ediyorum</button></div></div>`; }).join("")}
       ${visible.map(j => { const PUB = pubsOf(j), si = stageIdx(j), del = j.steps.find(s => s.type === "delivery") || { status: "locked" };
-        const eta = j.done ? `Teslim edildi · ${when(j.doneAt)}` : del.status === "working" ? `Yolda · tahmini varış ${hm(Date.now() + 40 * MIN)}` : `Tahmini teslim: ${when(j.due)}`;
-        return `<div class="track"><div class="task-top"><span class="wo">SİPARİŞ #${j.id}</span>${j.done ? `<span class="pill ok">Teslim edildi</span>` : del.status === "working" ? `<span class="pill acc">Yolda</span>` : `<span class="pill info">${esc(PUB[Math.min(si, PUB.length - 1)])}</span>`}</div>
+        const eta = j.cancelled ? "Sipariş iptal edildi" : j.done ? `Teslim edildi · ${when(j.doneAt)}` : del.status === "working" ? `Yolda · tahmini varış ${hm(Date.now() + 40 * MIN)}` : `Tahmini teslim: ${when(j.due)}`;
+        return `<div class="track"><div class="task-top"><span class="wo">SİPARİŞ #${j.id}</span>${j.cancelled ? `<span class="pill bad">İptal edildi</span>` : j.done ? `<span class="pill ok">Teslim edildi</span>` : del.status === "working" ? `<span class="pill acc">Yolda</span>` : `<span class="pill info">${esc(PUB[Math.min(si, PUB.length - 1)])}</span>`}</div>
           <div><h2>${esc(j.title)}</h2><div class="sm">${j.items && j.items.length ? `${j.items.length} kalem · ${fmtQ(itemSum(j))} adet` : esc(j.qty)}</div></div>
           <div class="eta">${esc(eta)}</div>
           <div class="tsteps" style="grid-template-columns:repeat(${PUB.length},minmax(0,1fr))">${PUB.map((n, i) => `<div class="ts ${i < si ? "on" : i === si ? "cur" : ""}"><i></i>${esc(n)}</div>`).join("")}</div>
@@ -5560,6 +5768,7 @@ var qrcode = function() {
     const el = e.target;
     if (el.id === "who") { me = el.value; tab = "panel"; closeSheet(); render(); window.scrollTo(0, 0); return; }
     if (el.dataset.photo && el.files[0]) { const { j, s } = parseK(el.dataset.photo); readPhoto(el.files[0], url => { s.photos.push(url); notify(`${first(me)} #${j.id} için fotoğraf ekledi`, "📷"); save(); render(); toast("📷", "Fotoğraf eklendi", `#${j.id} ${s.name}`); }); }
+    if (el.id === "bz_logo" && el.files[0]) { readPhoto(el.files[0], url => { (D.biz = D.biz || {}).logo = url; save(); render(); toast("✓", "Logo eklendi", "Formların üstünde görünür"); }); return; }
     if (el.dataset.moveto) { const j = jobById(+el.dataset.moveto); closeSheet(); moveJobTo(j, +el.value); return; }
     if (el.dataset.vehicle != null) { const { s } = parseK(el.dataset.vehicle); s.vehicle = el.value; if (el.value) { const { j } = parseK(el.dataset.vehicle); j.steps.find(x => x.type === "delivery").owner = el.value; } save(); render(); }
   });
@@ -5582,7 +5791,10 @@ var qrcode = function() {
     document.querySelectorAll(".kcol.over").forEach(x => x.classList.remove("over")); if (c) moveJobTo(jobById(id), +c.dataset.col); else render(); };
   document.addEventListener("pointerup", endDrag); document.addEventListener("pointercancel", endDrag);
   document.addEventListener("input", e => {
-    const el = e.target; if (el.id === "prq") { prodQ = el.value; const l = $("#prl"); if (l) l.innerHTML = prodRows(); return; }
+    const el = e.target;
+    if (el.id === "jq") { jobQ = el.value; render(); const i = $("#jq"); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } return; }
+    if (el.id === "cq") { custQ = el.value; const l = $("#cl"); if (l) l.innerHTML = custRows(); return; }
+    if (el.id === "prq") { prodQ = el.value; const l = $("#prl"); if (l) l.innerHTML = prodRows(); return; }
     if (!el.dataset || !el.dataset.fin) return;
     const [k, fid] = el.dataset.fin.split("|"), { s } = parseK(k); (s.vals = s.vals || {})[fid] = el.value; save(); formSync(k);
   });
@@ -5661,13 +5873,25 @@ var qrcode = function() {
       if (formState(s).missing.length) { toast("📋", "Önce formu doldurun", g.hint.replace(/<[^>]+>/g, "")); return; } }
     if (d.approve) { const { j, s } = parseK(d.approve); const r = completeStep(j, s, me, "approved"); if (layer.innerHTML) { save(); render(); openJob(j.id, true); toast("✅", "Onaylandı", r.next ? `Sıradaki: ${r.next.map(x => x.name).join(", ")}` : ""); } else afterComplete(j, s, r); return; }
     if (d.back) { openBack(d.back); return; }
-    if (d.start) { const { j, s } = parseK(d.start); s.status = "working"; s.startedAt = Date.now(); notify(`${first(me)} #${j.id} ${s.name} işine başladı`, "▶️"); save(); render(); return; }
+    if (d.start) { const { j, s } = parseK(d.start); s.status = "working"; s.startedAt = Date.now(); s.log.push({ at: Date.now(), by: me, act: "started" }); notify(`${first(me)} #${j.id} ${s.name} işine başladı`, "▶️"); save(); render(); return; }
     if (d.item) { const [a, b2, ix] = d.item.split(":"), { j, s } = parseK(a + ":" + b2); s.itemsDone = s.itemsDone || {}; s.itemsDone[ix] = !s.itemsDone[ix]; save();
       el.classList.toggle("on", s.itemsDone[ix]); el.setAttribute("aria-pressed", s.itemsDone[ix]);
       const n = j.items.filter((_, i) => s.itemsDone[i]).length, c = document.querySelector(`[data-icount="${a}:${b2}"]`); if (c) c.textContent = `${n} / ${j.items.length} hazır`;
       if (n === j.items.length) toast("✓", "Bütün kalemler hazır", "Şimdi işi tamamlayabilirsin"); return; }
     if (d.oform) { openOrderForm(+d.oform); return; }
     if (el.id === "newQuote") { openQuoteForm(null); return; }
+    if (d.jedit) { openJobEdit(+d.jedit); return; }
+    if (d.pay) { openPay(+d.pay); return; }
+    if (d.cust) { openCust(d.cust); return; }
+    if (el.id === "newCust") { openCust(null); return; }
+    if (d.newjobfor) { const c = D.customers.find(x => x.id === d.newjobfor); closeSheet(); openNewJob(c.name); return; }
+    if (d.newquotefor) { const c = D.customers.find(x => x.id === d.newquotefor); closeSheet(); openQuoteForm(null, c.name); return; }
+    if (el.id === "bz_sat") { el.setAttribute("aria-checked", el.getAttribute("aria-checked") !== "true"); return; }
+    if (el.id === "bzSave") { const b = D.biz || (D.biz = {}); ["name", "what", "address", "phone", "email", "taxOffice", "taxNo", "iban", "pay"].forEach(k => b[k] = $("#bz_" + k).value.trim());
+      if (!b.name) { toast("✋", "İşletme adı gerekli"); return; }
+      b.vat = +$("#bz_vat").value; b.validDays = Math.max(1, parseInt($("#bz_validDays").value) || 15); b.ws = +$("#bz_ws").value; b.we = +$("#bz_we").value; b.sat = $("#bz_sat").getAttribute("aria-checked") === "true";
+      if (b.we <= b.ws) { toast("✋", "Mesai bitişi başlangıçtan sonra olmalı"); return; }
+      save(); render(); toast("✓", "İşletme bilgileri kaydedildi", "Formlar ve terminler güncellendi"); return; }
     if (d.quote) { openQuote(d.quote); return; }
     if (d.qedit) { openQuoteForm(d.qedit); return; }
     if (d.qsend) { openSendQuote(d.qsend); return; }
