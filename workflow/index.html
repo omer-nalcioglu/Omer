@@ -600,6 +600,55 @@ details.ed-more[open] > summary .more svg { transform: rotate(90deg); }
 .phint { font-size: var(--t-xs); color: var(--ink-3); margin-top: 6px; }
 .phint code { font-family: var(--mono); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 0 5px; color: var(--ink-2); }
 .seg.seg4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } .seg.seg4 button { font-size: var(--t-sm); padding: 9px 4px; }
+/* ürün görseli: fotoğraf yoksa kategori renginde kapak + ikon + kod */
+.tn { --tc: #3b6fd8; display: grid; place-items: center; align-content: center; gap: 2px; width: 100%; height: 100%; background: color-mix(in srgb, var(--tc) 13%, var(--surface)); color: var(--tc); border-radius: inherit; overflow: hidden; }
+.tn svg { width: 22px; height: 22px; }
+.pim .tn svg, .phead .tn svg, #ppPrev .tn svg { width: 40px; height: 40px; stroke-width: 1.5; }
+.pim .tn b, .phead .tn b, #ppPrev .tn b { font-size: .95rem; }
+.tn b { font-family: var(--mono); font-size: .72rem; font-weight: 500; letter-spacing: .02em; opacity: .9; }
+.tn.c1 { --tc: #0f8a6a; } .tn.c2 { --tc: #b7791f; } .tn.c3 { --tc: #7c5cd6; } .tn.c4 { --tc: #cf4a62; } .tn.c5 { --tc: #4d7c0f; } .tn.c6 { --tc: #0e7490; } .tn.c7 { --tc: #a0522d; }
+.thumb { display: block; border-radius: var(--r-sm); overflow: hidden; flex: none; background: var(--surface-2); }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb.s40 { width: 40px; height: 40px; } .thumb.s40 .tn b { display: none; } .thumb.s40 .tn svg { width: 22px; height: 22px; }
+.thumb.s52 { width: 52px; height: 52px; border-radius: var(--r); } .thumb.s52 .tn b { font-size: .6rem; }
+/* seçici: ürün kartları */
+.pgrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+.pc { position: relative; display: grid; align-content: start; text-align: left; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; min-width: 0; box-shadow: 0 1px 2px rgba(15, 20, 25, .04), 0 2px 6px rgba(15, 20, 25, .03); }
+.pc > .pim { aspect-ratio: 4 / 3; border-radius: 0; width: 100%; height: auto; }
+.pc .pb { display: grid; gap: 2px; padding: 10px 12px 12px; min-width: 0; }
+.pc .pb .mono { font-size: var(--t-xs); color: var(--ink-3); }
+.pc .pb b { font-size: var(--t-sm); font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.pc .pb .sm { font-size: var(--t-xs); }
+.pc .pplus { position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); color: var(--accent); box-shadow: 0 2px 8px rgba(15, 20, 25, .16); }
+.pc .pplus svg { width: 20px; height: 20px; }
+.pc .pcnt { position: absolute; top: 8px; left: 8px; min-height: 24px; padding: 2px 9px; border-radius: 999px; background: var(--ok); color: #fff; font-size: var(--t-xs); font-weight: 700; display: inline-flex; align-items: center; }
+.pc:active { transform: scale(.98); }
+.pc.open { grid-column: 1 / -1; border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); box-shadow: 0 0 0 3px var(--accent-soft); }
+.pc.open:active { transform: none; }
+.pc .phead { display: grid; grid-template-columns: 96px minmax(0, 1fr) 40px; gap: 12px; align-items: center; padding: 12px; text-align: left; width: 100%; }
+.pc .phead .thumb { width: 96px; height: 96px; border-radius: var(--r); }
+.pc .phead .pb { padding: 0; } .pc .phead b { font-size: var(--t-md); }
+.pc .phead .pclose { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-2); color: var(--ink-2); align-self: start; }
+.pc .phead .pclose svg { width: 18px; height: 18px; }
+.pc .ppanel { border-top: 1px solid var(--line); padding: 14px 12px 12px; }
+.pfree.card { margin-top: 10px; border: 1px dashed var(--line-2); border-radius: var(--r-lg); background: var(--surface); }
+/* sepet */
+.cart { display: grid; gap: 8px; margin-top: 10px; }
+.ci { display: grid; grid-template-columns: 52px minmax(0, 1fr) 36px; grid-template-areas: "t x d" "t q q"; gap: 8px 12px; padding: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); align-items: start; }
+.ci > .thumb { grid-area: t; } .ci .cx { grid-area: x; min-width: 0; display: grid; gap: 4px; } .ci .cdel { grid-area: d; } .ci .crow { grid-area: q; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.ci .cx b { font-size: var(--t-sm); font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; } .ci .cx .mono { color: var(--ink-3); font-weight: 500; }
+.cvs { display: flex; flex-wrap: wrap; gap: 4px; } .cvs span { font-size: var(--t-xs); font-weight: 500; padding: 2px 8px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--line); color: var(--ink-2); }
+.cdel { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; color: var(--ink-3); } .cdel svg { width: 18px; height: 18px; } .cdel:active { background: var(--bad-soft); color: var(--bad); }
+.stp { display: inline-grid; grid-template-columns: 36px 64px 36px; align-items: center; border: 1px solid var(--line-2); border-radius: 10px; overflow: hidden; height: 38px; background: var(--surface); }
+.stp button { height: 100%; font-size: 1.15rem; font-weight: 600; color: var(--ink); } .stp button:active { background: var(--surface-2); }
+.stp input { height: 100%; width: 100%; border: 0; border-left: 1px solid var(--line); border-right: 1px solid var(--line); text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; background: transparent; min-width: 0; padding: 0; }
+.stp input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.crow .unit { font-size: var(--t-xs); color: var(--ink-3); margin-left: 6px; }
+.crow .link { min-height: 36px; }
+.cedit { grid-column: 1 / -1; display: grid; gap: 6px; }
+.cedit input { min-height: 40px; padding: 0 10px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--surface); width: 100%; min-width: 0; }
+/* görev ve iş detayında kalem görseli */
+.it { grid-template-columns: 28px 40px minmax(0, 1fr) auto; }
 /* v2 düzeltmeleri: sonradan eklenen bileşenler yeni ölçüye */
 .kdrag { width: 36px; height: 40px; margin: -6px 0 -6px -6px; }
 .kcard { padding: 12px; } .kopen { font-size: var(--t-md); }
@@ -1026,6 +1075,11 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
     ["Opak difüzör", "Şeffaf difüzör", "Profil uç kapağı", "Profil montaj klipsi", "Kablo 2x0,75", "Kablo 2x1,5", "Klemens 3'lü", "Dimmer modülü", "Hareket sensörü", "Uzaktan kumanda", "Montaj vidası seti", "Dübel 6 mm", "Etiket seti", "Ambalaj kutusu", "Koruyucu köpük", "Ray kesme hizmeti"].forEach(n => add("", n, "Sarf malzeme"));
     return P;
   })();
+  const catIcon = c => { const l = String(c || "").toLocaleLowerCase("tr-TR"); return /spot|armatür|panel|lamba/.test(l) ? "bulb" : /ray|profil/.test(l) ? "rail" : /aparat|bağlantı|dönüş/.test(l) ? "link" : /driver|adaptör|trafo/.test(l) ? "plug" : /led|şerit/.test(l) ? "strip" : "box"; };
+  const catHue = c => { let h = 0; for (const ch of String(c || "")) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h % 8; };
+  const prodOf = it => D.products.find(x => (it.pid && x.id === it.pid) || (it.code && trn(x.code) === trn(it.code))) || null;
+  function thumb(p, size, cls) { const src = p || {}, num = (String(src.code || "").match(/\d{2,}/) || [""])[0];
+    return `<span class="thumb ${size ? "s" + size : ""} ${cls || ""}">${src.img ? `<img src="${src.img}" alt="">` : `<span class="tn c${catHue(src.cat)}">${ico(catIcon(src.cat || src.name))}${num ? `<b>${esc(num)}</b>` : ""}</span>`}</span>`; }
   const trn = v => String(v || "").toLocaleLowerCase("tr-TR").replace(/[^a-z0-9çğıöşü]+/g, " ").trim();
   const prodLabel = p => `${p.code ? p.code + " " : ""}${p.name}`;
   function prodUse() { const m = {}; D.jobs.forEach(j => (j.items || []).forEach(it => { const p = D.products.find(x => (it.pid && x.id === it.pid) || (it.code && trn(x.code) === trn(it.code))); if (p) m[p.id] = (m[p.id] || 0) + 1; })); return m; }
@@ -1070,7 +1124,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
     const its = j.items || []; if (!its.length || ["pack", "delivery"].includes(s.type)) return "";
     const dn = s.itemsDone || {}, n = its.filter((_, i) => dn[i]).length, ed = !ro && s.status === "working";
     return `<div class="items"><div class="ih"><b>Kalemler</b><span class="sm" data-icount="${k}">${n} / ${its.length} hazır</span></div>${its.map((it, i) => { const tag = ed ? "button" : "div";
-      return `<${tag} class="it${dn[i] ? " on" : ""}"${ed ? ` data-item="${k}:${i}" aria-pressed="${!!dn[i]}"` : ""}><span class="bx">${ico("check")}</span><span class="itx"><b>${it.code ? `<span class="mono">${esc(it.code)}</span> ` : ""}${esc(it.name)}</b>${it.variant ? `<span>${esc(it.variant)}</span>` : ""}</span><span class="iq">${fmtQ(it.qty)} ${esc(it.unit || "ad")}</span></${tag}>`; }).join("")}
+      return `<${tag} class="it${dn[i] ? " on" : ""}"${ed ? ` data-item="${k}:${i}" aria-pressed="${!!dn[i]}"` : ""}><span class="bx">${ico("check")}</span>${thumb(prodOf(it) || it, 40)}<span class="itx"><b>${it.code ? `<span class="mono">${esc(it.code)}</span> ` : ""}${esc(it.name)}</b>${it.variant ? `<span>${esc(it.variant)}</span>` : ""}</span><span class="iq">${fmtQ(it.qty)} ${esc(it.unit || "ad")}</span></${tag}>`; }).join("")}
       ${!ed && s.status !== "done" && !ro ? `<div class="sm">İşe başlayınca hazır olan kalemleri tek tek işaretlersin.</div>` : ""}</div>`;
   }
   const warnHtml = j => j.warn && j.warn.length ? `<div class="warnbox">${ico("alert")}<div>${j.warn.map(w => `<b>${esc(w)}</b>`).join("")}</div></div>` : "";
@@ -1648,6 +1702,11 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
     pen: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
     tool: '<path d="M14.5 6.5a4 4 0 0 0-5.2 5.2L4 17l3 3 5.3-5.3a4 4 0 0 0 5.2-5.2l-2.6 2.6-2.6-.6-.6-2.6z"/>',
     dot: '<circle cx="12" cy="12" r="3.5"/>',
+    bulb: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.2 1.1 2V16h5v-.2c0-.8.4-1.5 1.1-2A6 6 0 0 0 12 3z"/>',
+    rail: '<path d="M3 9h18M3 15h18M6.5 9v6M17.5 9v6"/>',
+    plug: '<path d="M9 3v5M15 3v5M7 8h10v3a5 5 0 0 1-10 0z"/><path d="M12 16v5"/>',
+    strip: '<rect x="3" y="9" width="18" height="6" rx="1.5"/><path d="M7 12h.01M11 12h.01M15 12h.01M19 12h.01"/>',
+    link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
     gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M4.2 7.5l2.1 1.2M17.7 15.3l2.1 1.2M4.2 16.5l2.1-1.2M17.7 8.7l2.1-1.2"/><circle cx="12" cy="12" r="7"/>' };
   // emoji used as event markers in data → one line icon + a tone, so every phone shows the same thing
   const EMO = { "✅": ["check", "ok"], "✓": ["check", "ok"], "🎉": ["check", "ok"], "🏁": ["flag", "ok"], "➡️": ["arrow", "info"], "🆕": ["plus", "info"], "＋": ["plus", "info"],
@@ -2119,7 +2178,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
   }
   let sysTab = "akis", prodQ = "";
   const prodRows = () => { const L = prodQ ? prodSearch(prodQ) : D.products;
-    return L.length ? `<div class="list">${L.slice(0, 80).map(p => `<button class="pr" data-prod="${p.id}" style="grid-template-columns:minmax(0,1fr) auto"><div><b>${p.code ? `<span class="mono" style="color:var(--ink-3)">${esc(p.code)}</span> ` : ""}${esc(p.name)}</b>
+    return L.length ? `<div class="list">${L.slice(0, 80).map(p => `<button class="pr" data-prod="${p.id}" style="grid-template-columns:52px minmax(0,1fr) auto">${thumb(p, 52)}<div><b>${p.code ? `<span class="mono" style="color:var(--ink-3)">${esc(p.code)}</span> ` : ""}${esc(p.name)}</b>
       <div class="sm">${esc(p.cat || "Kategorisiz")}${Object.keys(p.opts || {}).length ? ` · ${Object.entries(p.opts).map(([k, v]) => `${esc(k)}: ${v.length}`).join(" · ")}` : ""}</div></div><span class="chev">${ico("chev")}</span></button>`).join("")}</div>${L.length > 80 ? `<div class="sm" style="text-align:center">${L.length - 80} ürün daha · aramayı daralt</div>` : ""}`
       : `<div class="empty">${prodQ ? "Bu aramaya uyan ürün yok." : "Henüz ürün yok. Excel'den aktar ya da tek tek ekle; sipariş girerken yazdığın ürünler de buraya eklenir."}</div>`; };
   function productsHtml() {
@@ -2131,7 +2190,10 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
   }
   function openProduct(id) {
     const p = id ? D.products.find(x => x.id === id) : { code: "", name: "", cat: "", opts: {}, unit: "ad" };
+    let img = p.img || null;
     sheet(`<div class="stack"><div><div class="eyebrow">${id ? "Ürün" : "Yeni ürün"}</div><h2>${id ? esc(prodLabel(p)) : "Ürün ekle"}</h2></div>
+      <div style="display:grid;grid-template-columns:96px minmax(0,1fr);gap:12px;align-items:center"><span id="ppPrev">${thumb({ ...p, img }, 0)}</span>
+        <label class="btn line" style="position:relative">${ico("camera")} ${img ? "Fotoğrafı değiştir" : "Ürün fotoğrafı ekle"}<input type="file" accept="image/*" id="ppImg" style="position:absolute;inset:0;opacity:0"></label></div>
       <div class="grid2" style="grid-template-columns:minmax(0,1fr) minmax(0,2fr)"><div><label class="sm" for="ppCode"><b>Kod</b></label><input class="in mono" id="ppCode" value="${esc(p.code)}" placeholder="MRY 1576" autocomplete="off"></div>
         <div><label class="sm" for="ppName"><b>Ürün adı</b></label><input class="in" id="ppName" value="${esc(p.name)}" placeholder="Magnet ray spot 20W" autocomplete="off"></div></div>
       <div class="grid2"><div><label class="sm" for="ppCat"><b>Kategori</b></label><input class="in" id="ppCat" value="${esc(p.cat)}" list="ppCats" autocomplete="off"><datalist id="ppCats">${[...new Set(D.products.map(x => x.cat).filter(Boolean))].map(c => `<option value="${esc(c)}">`).join("")}</datalist></div>
@@ -2139,9 +2201,12 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       <div><label class="sm" for="ppOpts"><b>Seçenekler</b> · her satıra bir seçenek: ad, iki nokta, değerler virgülle</label><textarea class="in" id="ppOpts" rows="3" placeholder="Kasa: Siyah, Beyaz&#10;Renk sıcaklığı: 3000K, 4000K, 6500K">${esc(Object.entries(p.opts || {}).map(([k, v]) => `${k}: ${v.join(", ")}`).join("\n"))}</textarea></div>
       <div class="sm err" id="ppMsg" role="alert"></div>
       <button class="btn ok xl block" id="ppSave">${id ? "Kaydet" : "Kataloğa ekle"}</button>${id ? `<button class="btn ghost block" id="ppDel" style="color:var(--bad)">Ürünü sil</button>` : ""}</div>`, () => {
+      const pv = () => { const el = $("#ppPrev"); el.innerHTML = thumb({ ...p, cat: $("#ppCat").value, code: $("#ppCode").value, img }, 0); el.firstChild.style.cssText = "width:96px;height:96px;border-radius:12px"; }; pv();
+      $("#ppImg").onchange = e => e.target.files[0] && readPhoto(e.target.files[0], url => { img = url; pv(); });
+      $("#ppCat").oninput = pv; $("#ppCode").oninput = pv;
       $("#ppSave").onclick = () => { const name = $("#ppName").value.trim(); if (!name) { $("#ppMsg").textContent = "Ürün adı gerekli."; $("#ppName").focus(); return; }
         const opts = {}; $("#ppOpts").value.split("\n").forEach(l => { const [k, v] = l.split(":"); if (k && v) { const vals = v.split(",").map(x => x.trim()).filter(Boolean); if (vals.length) opts[k.trim()] = vals; } });
-        Object.assign(p, { code: $("#ppCode").value.trim(), name, cat: $("#ppCat").value.trim(), unit: $("#ppUnit").value.trim() || "ad", opts });
+        Object.assign(p, { code: $("#ppCode").value.trim(), name, cat: $("#ppCat").value.trim(), unit: $("#ppUnit").value.trim() || "ad", opts }); if (img) p.img = img;
         if (!id) { p.id = "p" + Date.now().toString(36); D.products.push(p); } save(); closeSheet(); render(); toast("✓", id ? "Ürün güncellendi" : "Kataloğa eklendi", prodLabel(p)); };
       const del = $("#ppDel"); if (del) del.onclick = () => { D.products = D.products.filter(x => x.id !== id); save(); closeSheet(); render(); toast("−", "Ürün silindi", prodLabel(p)); };
     });
@@ -2545,7 +2610,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       ${D.mods.finance && can(me, "money") ? `<div class="grid3"><div class="kpi"><div class="l">Tutar</div><div class="num" style="font-weight:700">${tl(j.price)}</div></div><div class="kpi"><div class="l">Tahmini maliyet</div><div class="num" style="font-weight:700">${tl(j.cost)}</div></div><div class="kpi"><div class="l">Kâr</div><div class="num" style="font-weight:700;color:var(--ok)">${tl(j.price - j.cost)}</div></div></div>` : ""}
       ${warnHtml(j)}
       ${j.items && j.items.length ? `<section><div class="sec-h"><h2>Kalemler</h2><span class="sm">${j.items.length} kalem · ${fmtQ(itemSum(j))} adet</span></div><div class="items">${j.items.map((it, i) => { const by = j.steps.filter(x => x.itemsDone && x.itemsDone[i]).map(x => x.name);
-        return `<div class="it${by.length ? " on" : ""}"><span class="bx">${ico("check")}</span><span class="itx"><b>${it.code ? `<span class="mono">${esc(it.code)}</span> ` : ""}${esc(it.name)}</b>${it.variant ? `<span>${esc(it.variant)}</span>` : ""}${by.length ? `<span style="color:var(--ok)">Hazır: ${esc(by.join(", "))}</span>` : ""}</span><span class="iq">${fmtQ(it.qty)} ${esc(it.unit || "ad")}</span></div>`; }).join("")}</div></section>` : ""}
+        return `<div class="it${by.length ? " on" : ""}"><span class="bx">${ico("check")}</span>${thumb(prodOf(it) || it, 40)}<span class="itx"><b>${it.code ? `<span class="mono">${esc(it.code)}</span> ` : ""}${esc(it.name)}</b>${it.variant ? `<span>${esc(it.variant)}</span>` : ""}${by.length ? `<span style="color:var(--ok)">Hazır: ${esc(by.join(", "))}</span>` : ""}</span><span class="iq">${fmtQ(it.qty)} ${esc(it.unit || "ad")}</span></div>`; }).join("")}</div></section>` : ""}
       ${paperHtml(j)}
       <div class="graph">${graph}</div>
       ${!j.done && can(me, "assign") ? `<label class="sm" style="display:grid;gap:4px;font-weight:600">İşi başka aşamaya taşı<select class="in" data-moveto="${j.id}">${kbCols(flowOf(j)).map((c, i) => `<option value="${i}"${i === colOf(j) ? " selected" : ""}>${esc(c.name)}</option>`).join("")}</select></label>` : ""}
@@ -2594,8 +2659,9 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
         <datalist id="custList">${[...new Set(D.jobs.map(j => j.customer))].map(c => `<option value="${esc(c)}">`).join("")}</datalist></div>
       <div><label class="sm" for="nTitle"><b>Sipariş adı</b></label><input class="in" id="nTitle" placeholder="Ör: 28 Elek projesi ya da Demir kapı" autocomplete="off"></div>
       <section class="kal"><div class="sec-h"><h2>Kalemler</h2><span class="sm" id="nSum">İsteğe bağlı</span></div>
-        <div class="seg seg3" role="group" aria-label="Kalem girişi"><button data-nim="cat" aria-pressed="true">Katalog</button><button data-nim="paste" aria-pressed="false">Yapıştır</button><button data-nim="photo" aria-pressed="false">Fotoğraf</button></div>
-        <div id="nIm"></div><div id="nItems"></div></section>
+        <div id="nItems"></div>
+        <div class="seg seg3" role="group" aria-label="Kalem girişi" style="margin-top:12px"><button data-nim="cat" aria-pressed="true">Katalog</button><button data-nim="paste" aria-pressed="false">Yapıştır</button><button data-nim="photo" aria-pressed="false">Fotoğraf</button></div>
+        <div id="nIm"></div></section>
       <div id="nQtyBox"><label class="sm" for="nQty"><b>Miktar</b></label><input class="in" id="nQty" placeholder="Ör: 50 adet" autocomplete="off"></div>
       <div><label class="sm" for="nNote"><b>Dikkat notları</b> · her satır ayrı not, ekibin görev kartında kırmızı görünür</label><textarea class="in" id="nNote" rows="2" placeholder="Ör: Renk ve sokete dikkat"></textarea>
         <div class="chips" style="margin-top:8px">${["Renge dikkat", "Sokete dikkat", "Ambalaj ve etikete dikkat", "Ölçüleri kontrol et"].map(x => `<button class="chip" data-nnote="${x}">＋ ${x}</button>`).join("")}</div></div>
@@ -2618,8 +2684,9 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       setTimeout(() => $("#nCust").focus(), 60);
       // kalem girişi: yapıştır, tek tek, fotoğraf
       const ni = { mode: "cat", items: [], paper: null }, pk = { q: "", cat: "", open: null, pick: {}, qty: 1 };
-      const addItem = it => { const same = ni.items.find(x => trn(x.code) === trn(it.code) && trn(x.name) === trn(it.name) && trn(x.variant) === trn(it.variant));
+      const addItem0 = it => { const same = ni.items.find(x => trn(x.code) === trn(it.code) && trn(x.name) === trn(it.name) && trn(x.variant) === trn(it.variant));
         if (same) same.qty = +same.qty + +it.qty; else ni.items.push(it); drawItems(); };
+      const addItem = it => addItem0(it);
       const inCart = p => ni.items.filter(x => x.pid === p.id).reduce((a, x) => a + +x.qty, 0);
       const pickOf = p => { const pick = {}; Object.entries(p.opts || {}).forEach(([k, v]) => { if (v.length === 1) pick[k] = v[0]; }); return pick; };
       const addFromPick = () => { const p = D.products.find(x => x.id === pk.open); if (!p) return;
@@ -2629,15 +2696,18 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
         toast("✓", `${prodLabel(p)} × ${fmtQ(pk.qty || 1)}`, variant || "Eklendi"); pk.open = null; pk.q = ""; pk.qty = 1; pk.pick = {}; drawMode(); setTimeout(() => $("#pq")?.focus(), 30); };
       const drawRes = () => { const box = $("#pres"); if (!box) return;
         const use = prodUse(), freq = D.products.filter(p => use[p.id]).sort((a, b) => use[b.id] - use[a.id]);
+        const lim = pk.q ? 40 : pk.all ? 300 : 12;
         const res = pk.q ? prodSearch(pk.q) : pk.cat === "_fav" ? freq : pk.cat ? D.products.filter(p => p.cat === pk.cat) : (freq.length ? freq : D.products);
         const row = p => { const o = pk.open === p.id, n = inCart(p);
-          return `<div class="prow${o ? " open" : ""}"><button class="ph" data-pp="${p.id}" aria-expanded="${o}"><span class="itx"><b>${p.code ? `<span class="mono">${esc(p.code)}</span> ` : ""}${esc(p.name)}</b><span>${esc(p.cat || "")}${n ? ` · <span class="incart">sepette ${fmtQ(n)}</span>` : ""}</span></span><span class="padd">${ico(o ? "x" : "plus")}</span></button>
+          if (!o) return `<button class="pc" data-pp="${p.id}" aria-expanded="false" aria-label="${esc(prodLabel(p))} seç">${thumb(p, 0, "pim")}${n ? `<span class="pcnt">${fmtQ(n)} sepette</span>` : ""}<span class="pplus">${ico("plus")}</span>
+            <span class="pb">${p.code ? `<span class="mono">${esc(p.code)}</span>` : ""}<b>${esc(p.name)}</b><span class="sm">${esc(p.cat || "")}</span></span></button>`;
+          return `<div class="pc open"><button class="phead" data-pp="${p.id}" aria-expanded="true">${thumb(p)}<span class="pb">${p.code ? `<span class="mono">${esc(p.code)}</span>` : ""}<b>${esc(p.name)}</b><span class="sm">${esc(p.cat || "")}${n ? ` · <span class="incart">sepette ${fmtQ(n)}</span>` : ""}</span></span><span class="pclose" aria-label="Kapat">${ico("x")}</span></button>
           ${o ? `<div class="ppanel">${Object.entries(p.opts || {}).map(([k, vals]) => `<div class="popt"><span>${esc(k)}</span><div class="chips">${vals.map(v => `<button class="chip" data-po="${esc(k)}|${esc(v)}" aria-pressed="${pk.pick[k] === v}">${esc(v)}</button>`).join("")}</div></div>`).join("")}
             <div class="popt"><span>Adet</span><div class="pqty"><button class="ed-b" data-pq="-1" aria-label="Azalt">−</button><input id="pqn" type="number" min="0" step="any" inputmode="decimal" value="${pk.qty}" aria-label="Adet"><button class="ed-b" data-pq="1" aria-label="Artır">+</button></div>
               <div class="chips">${[5, 10, 25, 50, 100].map(n => `<button class="chip" data-pqs="${n}">${n}</button>`).join("")}</div></div>
             <button class="btn dark block" data-padd>${ico("plus")} Ekle · ${fmtQ(pk.qty || 1)} ${esc(p.unit || "ad")}</button></div>` : ""}</div>`; };
         box.innerHTML = !D.products.length ? `<div class="empty" style="margin-top:8px">Kataloğun henüz boş. Sistem › Ürünler'den Excel'den aktarabilirsin. Burada yazdığın ürünler de kataloğa eklenir.</div>${pk.q ? `<button class="pfree" data-pfree>${ico("plus")} “${esc(pk.q)}” kalemini ekle</button>` : ""}`
-          : `<div class="plist">${res.slice(0, 40).map(row).join("") || ""}${res.length > 40 ? `<div class="pmore">${res.length - 40} ürün daha · aramayı daralt</div>` : ""}${pk.q ? `<button class="pfree" data-pfree>${ico("plus")} Katalogda yok: “${esc(pk.q)}” serbest kalem olarak ekle</button>` : ""}</div>`;
+          : `<div class="pgrid">${res.slice(0, lim).map(row).join("")}</div>${res.length > lim ? (pk.q ? `<div class="pmore">${res.length - lim} ürün daha · aramayı daralt</div>` : `<button class="btn line block" data-pall style="margin-top:10px">Tümünü göster · ${res.length} ürün</button>`) : ""}${pk.q ? `<button class="pfree card" data-pfree>${ico("plus")} Katalogda yok: “${esc(pk.q)}” serbest kalem olarak ekle</button>` : ""}`;
         const qn = $("#pqn"); if (qn) qn.oninput = () => { pk.qty = Math.max(0, parseFloat(qn.value) || 0); const b = box.querySelector("[data-padd]"); if (b) b.lastChild.textContent = ` Ekle · ${fmtQ(pk.qty || 1)} ${D.products.find(x => x.id === pk.open)?.unit || "ad"}`; };
       };
       // hızlı satır: "1576 siyah 4000 47" + Enter → kalem eklenir
@@ -2649,8 +2719,12 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
         if (qty && Object.keys(p.opts || {}).every(k => pick[k])) addFromPick(); else { pk.q = toks.join(" "); drawMode(); } };
       const cat = prodCatalog(), prev = D.jobs.filter(j => j.items && j.items.length).sort((a, b) => b.createdAt - a.createdAt).slice(0, 3);
       const drawItems = () => {
-        $("#nItems").innerHTML = ni.items.length ? `<div style="margin-top:10px">${ni.items.map((it, i) => `<div class="itr"><div class="stk"><input class="nm" data-nie="${i}:name" value="${esc((it.code ? it.code + " " : "") + it.name)}" aria-label="${i + 1}. kalem"><input data-nie="${i}:variant" value="${esc(it.variant)}" placeholder="Renk, ölçü, güç…" aria-label="${i + 1}. kalemin özelliği"></div>
-          <input type="number" min="0" step="any" inputmode="decimal" data-nie="${i}:qty" value="${it.qty}" aria-label="${i + 1}. kalemin adedi"><button class="ed-b del" data-nid="${i}" aria-label="${i + 1}. kalemi sil">✕</button></div>`).join("")}</div>` : "";
+        $("#nItems").innerHTML = ni.items.length ? `<div class="cart">${ni.items.map((it, i) => `<div class="ci">${thumb(prodOf(it) || { code: it.code, name: it.name }, 52)}
+          <div class="cx"><b>${it.code ? `<span class="mono">${esc(it.code)}</span> ` : ""}${esc(it.name)}</b>${it.variant ? `<span class="cvs">${it.variant.split(/\s*·\s*/).map(v => `<span>${esc(v)}</span>`).join("")}</span>` : ""}</div>
+          <button class="cdel" data-nid="${i}" aria-label="${i + 1}. kalemi sil">${ico("x")}</button>
+          <div class="crow"><span style="display:inline-flex;align-items:center"><span class="stp"><button data-niqd="${i}:-1" aria-label="Azalt">−</button><input type="number" min="0" step="any" inputmode="decimal" data-nie="${i}:qty" value="${it.qty}" aria-label="${i + 1}. kalemin adedi"><button data-niqd="${i}:1" aria-label="Artır">+</button></span><span class="unit">${esc(it.unit || "ad")}</span></span>
+            <button class="link" data-nied="${i}">${ni.edit === i ? "Tamam" : "Düzenle"}</button></div>
+          ${ni.edit === i ? `<div class="cedit"><input data-nie="${i}:name" value="${esc((it.code ? it.code + " " : "") + it.name)}" aria-label="Ürün"><input data-nie="${i}:variant" value="${esc(it.variant)}" placeholder="Renk, ölçü, güç… (· ile ayır)" aria-label="Özellikler"></div>` : ""}</div>`).join("")}</div>` : "";
         const sum = ni.items.reduce((a, it) => a + (+it.qty || 0), 0);
         $("#nSum").textContent = ni.items.length ? `${ni.items.length} kalem · ${fmtQ(sum)} adet` : "İsteğe bağlı";
         $("#nQtyBox").hidden = !!ni.items.length; if (ni.items.length) $("#nQty").value = `${fmtQ(sum)} adet`;
@@ -2681,14 +2755,18 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       };
       $("#nIm").parentElement.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return;
         if (b.dataset.nim) { ni.mode = b.dataset.nim; drawMode(); }
-        if (b.dataset.pcat != null) { pk.cat = b.dataset.pcat; pk.q = ""; pk.open = null; drawMode(); }
-        if (b.dataset.pp) { const p = D.products.find(x => x.id === b.dataset.pp); if (pk.open === p.id) pk.open = null; else { pk.open = p.id; pk.pick = pickOf(p); pk.qty = 1; } drawRes(); }
+        if (b.dataset.pcat != null) { pk.cat = b.dataset.pcat; pk.q = ""; pk.open = null; pk.all = false; drawMode(); }
+        if (b.dataset.pall != null) { pk.all = true; drawRes(); }
+        if (b.dataset.pp) { const p = D.products.find(x => x.id === b.dataset.pp); if (pk.open === p.id) pk.open = null; else { pk.open = p.id; pk.pick = pickOf(p); pk.qty = 1; } drawRes();
+          if (pk.open) setTimeout(() => layer.querySelector(".pc.open")?.scrollIntoView({ block: "nearest", behavior: "smooth" }), 20); }
         if (b.dataset.po) { const [k, v] = b.dataset.po.split("|"); pk.pick[k] = v; drawRes(); }
         if (b.dataset.pq) { pk.qty = Math.max(1, (+pk.qty || 0) + +b.dataset.pq); drawRes(); }
         if (b.dataset.pqs) { pk.qty = +b.dataset.pqs; drawRes(); }
         if (b.dataset.padd != null) addFromPick();
         if (b.dataset.pfree != null) { const [it] = parseItems(pk.q); if (it) { addItem(it); toast("✓", `${(it.code ? it.code + " " : "") + it.name} × ${fmtQ(it.qty)}`, "Serbest kalem; sipariş kaydedilince kataloğa eklenir"); pk.q = ""; drawMode(); setTimeout(() => $("#pq")?.focus(), 30); } }
-        if (b.dataset.nid) { ni.items.splice(+b.dataset.nid, 1); drawItems(); }
+        if (b.dataset.nid) { ni.items.splice(+b.dataset.nid, 1); ni.edit = null; drawItems(); drawRes(); }
+        if (b.dataset.niqd) { const [i, d2] = b.dataset.niqd.split(":").map(Number), it = ni.items[i]; it.qty = Math.max(1, (+it.qty || 0) + d2); drawItems(); }
+        if (b.dataset.nied) { ni.edit = ni.edit === +b.dataset.nied ? null : +b.dataset.nied; drawItems(); }
         if (b.dataset.ncopy) { const src = jobById(+b.dataset.ncopy); ni.items.push(...src.items.map(x => ({ ...x }))); if (!$("#nCust").value) $("#nCust").value = src.customer; drawItems(); toast("⧉", `${src.items.length} kalem kopyalandı`, `#${src.id} siparişinden`); } });
       $("#nItems").addEventListener("change", e => { const t = e.target.dataset.nie; if (!t) return; const [i, f] = t.split(":"), it = ni.items[+i];
         if (f === "qty") it.qty = Math.max(0, parseFloat(e.target.value) || 0);
