@@ -575,6 +575,31 @@ details.ed-more[open] > summary .more svg { transform: rotate(90deg); }
 .paper img { width: 64px; height: 64px; object-fit: cover; border-radius: var(--r-sm); }
 .paperbig img { width: 100%; border-radius: var(--r); border: 1px solid var(--line); }
 .kal { background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-lg); padding: 14px; }
+/* ürün kataloğu ve hızlı seçici */
+.psearch { position: relative; margin-top: 10px; }
+.psearch .in { padding-left: 44px; font-size: var(--t-md); }
+.psearch > svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: var(--ink-3); pointer-events: none; }
+.pcats { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 8px -14px 0; padding: 0 14px 2px; }
+.pcats .chip { flex: none; }
+.plist { margin-top: 8px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); overflow: hidden; }
+.prow { border-bottom: 1px solid var(--line); } .prow:last-child { border-bottom: 0; }
+.prow.open { background: var(--surface-2); }
+.ph { display: grid; grid-template-columns: minmax(0, 1fr) 40px; gap: 10px; align-items: center; width: 100%; text-align: left; min-height: 56px; padding: 8px 8px 8px 14px; }
+.ph .padd { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); }
+.ph .padd svg { width: 20px; height: 20px; }
+.prow.open .ph .padd { background: var(--sunk); color: var(--ink-2); }
+.incart { color: var(--ok); font-weight: 600; }
+.ppanel { display: grid; gap: 12px; padding: 4px 14px 14px; }
+.popt { display: grid; gap: 6px; } .popt > span { font-size: var(--t-xs); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-3); }
+.pqty { display: grid; grid-template-columns: 48px minmax(0, 1fr) 48px; gap: 6px; align-items: center; }
+.pqty input { min-height: 48px; text-align: center; font-size: var(--t-lg); font-weight: 700; border-radius: var(--r); border: 1px solid var(--line-2); background: var(--surface); width: 100%; min-width: 0; font-variant-numeric: tabular-nums; }
+.pqty .ed-b { height: 48px; font-size: 1.3rem; }
+.pmore { padding: 10px 14px; font-size: var(--t-sm); color: var(--ink-2); text-align: center; }
+.pfree { display: flex; gap: 10px; align-items: center; width: 100%; text-align: left; min-height: 56px; padding: 10px 14px; color: var(--accent); font-weight: 600; }
+.pfree svg { width: 20px; height: 20px; flex: none; }
+.phint { font-size: var(--t-xs); color: var(--ink-3); margin-top: 6px; }
+.phint code { font-family: var(--mono); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 0 5px; color: var(--ink-2); }
+.seg.seg4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } .seg.seg4 button { font-size: var(--t-sm); padding: 9px 4px; }
 /* v2 düzeltmeleri: sonradan eklenen bileşenler yeni ölçüye */
 .kdrag { width: 36px; height: 40px; margin: -6px 0 -6px -6px; }
 .kcard { padding: 12px; } .kopen { font-size: var(--t-md); }
@@ -977,6 +1002,42 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
     return rows.length - 1;
   }
 
+  // ---------- ürün kataloğu: bir kez tanımlanır, siparişte saniyeler içinde seçilir ----------
+  const PRODUCTS_SEED = (() => {
+    const P = [], add = (code, name, cat, opts = {}, unit = "ad") => P.push({ id: "p" + (P.length + 1), code, name, cat, opts, unit });
+    const K = ["3000K", "4000K", "6500K"], KASA = ["Siyah", "Beyaz"];
+    [["1570", "Magnet ray spot 10W"], ["1576", "Magnet ray spot 20W"], ["1580", "Magnet ray spot 30W"], ["1574", "Magnet zoom spot 15W"], ["1575", "Magnet sarkıt spot"], ["1577", "Magnet grill spot 2'li"],
+     ["1578", "Magnet grill spot 3'lü"], ["1579", "Magnet katlanır spot"], ["1581", "Magnet petek armatür"], ["1584", "Magnet mini spot 6W"], ["1585", "Magnet duvar yıkayıcı"], ["1586", "Magnet ray spot 40W"]]
+      .forEach(([c, n]) => add("MRY " + c, n, "Magnet spot", { Kasa: [...KASA, "Beyaz kasa gold ekleme"], "Renk sıcaklığı": K }));
+    [["1571", "Opak difüzörlü magnet armatür"], ["1572", "Magnet lineer armatür"], ["1573", "Magnet lineer armatür optikli"], ["1582", "Magnet panel"], ["1583", "Magnet sarkıt lineer"], ["1587", "Magnet asimetrik armatür"]]
+      .forEach(([c, n]) => add("MRY " + c, n, "Magnet armatür", { Boy: ["30 cm", "60 cm", "90 cm", "120 cm"], Kasa: KASA, "Renk sıcaklığı": K }));
+    [["151", "48 W sıva üstü magnet", "Sıva üstü ray"], ["152", "48 W sıva altı magnet", "Sıva altı ray"], ["153", "48 W trimless magnet", "Trimless ray"], ["154", "48 W sarkıt magnet", "Sarkıt ray"]]
+      .forEach(([c, n, cat]) => [["0", "1 metre"], ["1", "2 metre"], ["2", "3 metre"]].forEach(([d, m]) => add(`MRY ${c}${d}`, `${n} ${m}`, cat, { Kasa: KASA })));
+    [["1505", "Esnek dönüş"], ["1506", "Düz bağlantı"], ["1507", "T dönüş aparatı"], ["1508", "X dönüş aparatı"], ["1509", "Dikey L dönüş"], ["1513", "Sıva üstü L dönüş aparatı"], ["1523", "Sıva altı L dönüş aparatı"],
+     ["1533", "Trimless L dönüş aparatı"], ["1515", "Uç kapak"], ["1516", "Besleme ucu"], ["1517", "Askı seti 1,5 m"], ["1518", "Tavan montaj klipsi"], ["1519", "Ara besleme"], ["1606", "Trimless arabağlantı"],
+     ["1607", "Sıva altı arabağlantı"], ["1609", "Ray kör tapa"]].forEach(([c, n]) => add("MRY " + c, n, "Aparat", { Kasa: KASA }));
+    [[20, 1601], [30, 1602], [40, 1603], [60, 1604], [75, 1605], [100, 1608], [150, 1610], [200, 1611], [250, 1612], [300, 1613]].forEach(([w, c]) => add(`MRY ${c}`, `Magnet driver ${w}W`, "Driver", { Gerilim: ["48V", "24V"] }));
+    [["350mA", 12], ["500mA", 20], ["700mA", 40], ["1050mA", 50]].forEach(([a, w]) => add("", `Sabit akım driver ${w}W ${a}`, "Driver", { Marka: ["Eaglerise", "Mean Well"] }));
+    [12, 24].forEach(v => [60, 100, 150, 200].forEach(w => add("", `${v}V adaptör ${w}W`, "Driver")));
+    ["Samsung LED", "Osram LED", "Şerit LED 12V 120 led/m", "Şerit LED 24V 120 led/m", "COB şerit LED 24V", "Neon flex LED 24V"].forEach((n, i) =>
+      add("", n, "LED", { "Renk sıcaklığı": ["2700K", "3000K", "4000K", "6500K"] }, i > 1 ? "m" : "ad"));
+    ["Alüminyum profil sıva üstü", "Alüminyum profil sıva altı", "Alüminyum profil köşe", "Alüminyum profil sarkıt"].forEach(n => [["1 m"], ["2 m"], ["3 m"]].forEach(([m]) =>
+      add("", `${n} ${m}`, "Profil", { Renk: ["Gri", "Siyah", "Beyaz"] })));
+    ["Opak difüzör", "Şeffaf difüzör", "Profil uç kapağı", "Profil montaj klipsi", "Kablo 2x0,75", "Kablo 2x1,5", "Klemens 3'lü", "Dimmer modülü", "Hareket sensörü", "Uzaktan kumanda", "Montaj vidası seti", "Dübel 6 mm", "Etiket seti", "Ambalaj kutusu", "Koruyucu köpük", "Ray kesme hizmeti"].forEach(n => add("", n, "Sarf malzeme"));
+    return P;
+  })();
+  const trn = v => String(v || "").toLocaleLowerCase("tr-TR").replace(/[^a-z0-9çğıöşü]+/g, " ").trim();
+  const prodLabel = p => `${p.code ? p.code + " " : ""}${p.name}`;
+  function prodUse() { const m = {}; D.jobs.forEach(j => (j.items || []).forEach(it => { const p = D.products.find(x => (it.pid && x.id === it.pid) || (it.code && trn(x.code) === trn(it.code))); if (p) m[p.id] = (m[p.id] || 0) + 1; })); return m; }
+  function prodSearch(q) {
+    const toks = trn(q).split(" ").filter(Boolean); if (!toks.length) return [];
+    const use = prodUse();
+    return D.products.map(p => { const hay = trn(`${p.code} ${p.name} ${p.cat} ${Object.values(p.opts || {}).flat().join(" ")}`), code = trn(p.code);
+      if (!toks.every(t => hay.includes(t))) return null;
+      return { p, sc: toks.reduce((a, t) => a + (code.endsWith(t) || code === t ? 50 : code.includes(t) ? 20 : trn(p.name).startsWith(t) ? 12 : trn(p.name).includes(t) ? 6 : 1), 0) + (use[p.id] || 0) * 3 }; })
+      .filter(Boolean).sort((a, b) => b.sc - a.sc).map(x => x.p);
+  }
+
   // ---------- kalemli sipariş: tekliften/Excel'den yapıştırılan metni kalemlere ayırır ----------
   const fmtQ = q => String(+(+q).toFixed(2)).replace(".", ",");
   const itemSum = j => (j.items || []).reduce((a, it) => a + (+it.qty || 0), 0);
@@ -1128,7 +1189,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       { name: "Kilit takımı", qty: 30, min: 20, unit: "adet" }, { name: "Elektrostatik boya · RAL 7016", qty: 42, min: 25, unit: "kg" },
       { name: "Menteşe", qty: 220, min: 80, unit: "adet" } ];
     const out = { people: JSON.parse(JSON.stringify(PEOPLE_SEED)), depts: { ...DEPTS_SEED }, flows, defaultFlow: "metal", jobs, feed, stock, nextId: 1050, mods: { chat: true, planning: true, rules: true, fleet: true, stock: true, scan: true, finance: true, customers: true, reports: true },
-      privacy: { loc: true, perf: true, quiet: true }, groups: JSON.parse(JSON.stringify(GROUPS_SEED)) };
+      privacy: { loc: true, perf: true, quiet: true }, groups: JSON.parse(JSON.stringify(GROUPS_SEED)), products: JSON.parse(JSON.stringify(PRODUCTS_SEED)) };
     return out;
   }
 
@@ -1138,7 +1199,8 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
   if (!D || !D.jobs || !D.flows || !D.people) { D = seed(); firstRun = true; }
   D.mods = { chat: true, planning: true, rules: true, scan: true, reports: true, ...D.mods };
   if (D.formsV) { delete D.formsV; D.mods.forms = false; }
-  if (!D.groups) D.groups = JSON.parse(JSON.stringify(GROUPS_SEED));   // forms are opt-in: earlier preview turned them on with sample data
+  if (!D.groups) D.groups = JSON.parse(JSON.stringify(GROUPS_SEED));
+  if (!D.products) D.products = D.biz ? [] : JSON.parse(JSON.stringify(PRODUCTS_SEED));   // forms are opt-in: earlier preview turned them on with sample data
   if (!D.chat) D.chat = seedChat();
   const syncPeople = () => { PEOPLE.length = 0; PEOPLE.push(...D.people); D.people = PEOPLE; };
   syncPeople();
@@ -1488,7 +1550,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
     const flow = { id: "f1", ico: tp ? tp.ico : "⭐", name: w.length <= 32 ? w.charAt(0).toLocaleUpperCase("tr-TR") + w.slice(1) : tp.name, from: tp && tp.name, prefs: { ...DEFAULT_PREFS, signReq: false },
       rules: [{ id: "r1", cond: "urgent", act: "front", on: true }, { id: "r2", cond: "sla_over", act: "notify_foreman", on: true }], stages,
       finalBy: o.finalBy === "none" ? null : o.finalBy === "me" ? "selim" : o.finalBy === "cust" ? "cust" : "u" + (o.finalBy + 1) };
-    D = { groups: JSON.parse(JSON.stringify(GROUPS_SEED)), biz: { name: o.biz.trim(), what: w }, people, depts, flows: [flow], defaultFlow: "f1", jobs: [], feed: [], stock: [], nextId: 1001,
+    D = { products: [], groups: JSON.parse(JSON.stringify(GROUPS_SEED)), biz: { name: o.biz.trim(), what: w }, people, depts, flows: [flow], defaultFlow: "f1", jobs: [], feed: [], stock: [], nextId: 1001,
       mods: { chat: true, planning: true, rules: true, fleet: false, stock: false, scan: false, finance: false, customers: true, forms: false, reports: true },
       privacy: { loc: true, perf: true, quiet: true }, chat: { nextId: 1, threads: [{ id: "t-duyuru", kind: "announce", title: "Duyurular", msgs: [], read: {} }] } };
     syncPeople();
@@ -2055,9 +2117,51 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
         ${topF && topF[1] > 1 ? `<div class="sm">En sık sapma: <b>${esc(topF[0])}</b> (${topF[1]} kez).</div>` : ""}` : `<div class="empty">Tolerans dışı değer yok 👍</div>`}
     </section>`;
   }
-  let sysTab = "akis";
+  let sysTab = "akis", prodQ = "";
+  const prodRows = () => { const L = prodQ ? prodSearch(prodQ) : D.products;
+    return L.length ? `<div class="list">${L.slice(0, 80).map(p => `<button class="pr" data-prod="${p.id}" style="grid-template-columns:minmax(0,1fr) auto"><div><b>${p.code ? `<span class="mono" style="color:var(--ink-3)">${esc(p.code)}</span> ` : ""}${esc(p.name)}</b>
+      <div class="sm">${esc(p.cat || "Kategorisiz")}${Object.keys(p.opts || {}).length ? ` · ${Object.entries(p.opts).map(([k, v]) => `${esc(k)}: ${v.length}`).join(" · ")}` : ""}</div></div><span class="chev">${ico("chev")}</span></button>`).join("")}</div>${L.length > 80 ? `<div class="sm" style="text-align:center">${L.length - 80} ürün daha · aramayı daralt</div>` : ""}`
+      : `<div class="empty">${prodQ ? "Bu aramaya uyan ürün yok." : "Henüz ürün yok. Excel'den aktar ya da tek tek ekle; sipariş girerken yazdığın ürünler de buraya eklenir."}</div>`; };
+  function productsHtml() {
+    return `<section><div class="sec-h"><h2>Ürün kataloğu</h2><span class="sm">${D.products.length} ürün · ${new Set(D.products.map(p => p.cat).filter(Boolean)).size} kategori</span></div>
+      <p class="sm" style="margin:0">Ürünleri bir kez tanımla; siparişte kod ya da adla saniyeler içinde seç. Seçenekler (kasa rengi, renk sıcaklığı, boy…) siparişte dokunarak seçilir.</p>
+      <div class="grid2"><button class="btn" id="prodNew">${ico("plus")} Ürün ekle</button><button class="btn line" id="prodImp">Excel'den aktar</button></div>
+      <div class="psearch">${ico("scan")}<input class="in" id="prq" value="${esc(prodQ)}" placeholder="Kod ya da ürün ara" autocomplete="off" aria-label="Katalogda ara"></div>
+      <div id="prl">${prodRows()}</div></section>`;
+  }
+  function openProduct(id) {
+    const p = id ? D.products.find(x => x.id === id) : { code: "", name: "", cat: "", opts: {}, unit: "ad" };
+    sheet(`<div class="stack"><div><div class="eyebrow">${id ? "Ürün" : "Yeni ürün"}</div><h2>${id ? esc(prodLabel(p)) : "Ürün ekle"}</h2></div>
+      <div class="grid2" style="grid-template-columns:minmax(0,1fr) minmax(0,2fr)"><div><label class="sm" for="ppCode"><b>Kod</b></label><input class="in mono" id="ppCode" value="${esc(p.code)}" placeholder="MRY 1576" autocomplete="off"></div>
+        <div><label class="sm" for="ppName"><b>Ürün adı</b></label><input class="in" id="ppName" value="${esc(p.name)}" placeholder="Magnet ray spot 20W" autocomplete="off"></div></div>
+      <div class="grid2"><div><label class="sm" for="ppCat"><b>Kategori</b></label><input class="in" id="ppCat" value="${esc(p.cat)}" list="ppCats" autocomplete="off"><datalist id="ppCats">${[...new Set(D.products.map(x => x.cat).filter(Boolean))].map(c => `<option value="${esc(c)}">`).join("")}</datalist></div>
+        <div><label class="sm" for="ppUnit"><b>Birim</b></label><input class="in" id="ppUnit" value="${esc(p.unit || "ad")}" list="ppUnits" autocomplete="off"><datalist id="ppUnits"><option value="ad"><option value="m"><option value="kg"><option value="takım"></datalist></div></div>
+      <div><label class="sm" for="ppOpts"><b>Seçenekler</b> · her satıra bir seçenek: ad, iki nokta, değerler virgülle</label><textarea class="in" id="ppOpts" rows="3" placeholder="Kasa: Siyah, Beyaz&#10;Renk sıcaklığı: 3000K, 4000K, 6500K">${esc(Object.entries(p.opts || {}).map(([k, v]) => `${k}: ${v.join(", ")}`).join("\n"))}</textarea></div>
+      <div class="sm err" id="ppMsg" role="alert"></div>
+      <button class="btn ok xl block" id="ppSave">${id ? "Kaydet" : "Kataloğa ekle"}</button>${id ? `<button class="btn ghost block" id="ppDel" style="color:var(--bad)">Ürünü sil</button>` : ""}</div>`, () => {
+      $("#ppSave").onclick = () => { const name = $("#ppName").value.trim(); if (!name) { $("#ppMsg").textContent = "Ürün adı gerekli."; $("#ppName").focus(); return; }
+        const opts = {}; $("#ppOpts").value.split("\n").forEach(l => { const [k, v] = l.split(":"); if (k && v) { const vals = v.split(",").map(x => x.trim()).filter(Boolean); if (vals.length) opts[k.trim()] = vals; } });
+        Object.assign(p, { code: $("#ppCode").value.trim(), name, cat: $("#ppCat").value.trim(), unit: $("#ppUnit").value.trim() || "ad", opts });
+        if (!id) { p.id = "p" + Date.now().toString(36); D.products.push(p); } save(); closeSheet(); render(); toast("✓", id ? "Ürün güncellendi" : "Kataloğa eklendi", prodLabel(p)); };
+      const del = $("#ppDel"); if (del) del.onclick = () => { D.products = D.products.filter(x => x.id !== id); save(); closeSheet(); render(); toast("−", "Ürün silindi", prodLabel(p)); };
+    });
+  }
+  function openProdImport() {
+    sheet(`<div class="stack"><div><div class="eyebrow">Ürün kataloğu</div><h2>Excel'den aktar</h2><div class="sm">Excel'de kod, ürün adı ve kategori sütunlarını seçip kopyala, buraya yapıştır. Sütun sırası bu olmalı; kategori isteğe bağlı. Aynı kodlu ürün varsa güncellenir.</div></div>
+      <textarea class="in" id="piTxt" rows="8" placeholder="MRY 1576&#9;Magnet ray spot 20W&#9;Magnet spot&#10;MRY 1512&#9;48 W sıva üstü magnet 3 metre&#9;Sıva üstü ray"></textarea>
+      <div class="sm" id="piInfo"></div><div class="sm err" id="piMsg" role="alert"></div>
+      <button class="btn ok xl block" id="piGo">Aktar</button></div>`, () => {
+      const parse = () => $("#piTxt").value.split(/\r?\n/).map(l => l.trim()).filter(Boolean).map(l => { let c = l.split("\t"); if (c.length < 2) c = l.split(";"); if (c.length < 2) { const m = l.match(/^([A-ZÇĞİÖŞÜ]{2,4}[-\s]?\d{2,6}[A-Z]?)\s+(.+)$/); c = m ? [m[1], m[2]] : ["", l]; }
+        return { code: (c[0] || "").trim(), name: (c[1] || "").trim(), cat: (c[2] || "").trim() }; }).filter(x => x.name && !/^(kod|ürün|urun|açıklama)$/i.test(x.name));
+      $("#piTxt").oninput = () => { const L = parse(), up = L.filter(x => x.code && D.products.some(p => trn(p.code) === trn(x.code))).length; $("#piInfo").textContent = L.length ? `${L.length} ürün bulundu · ${L.length - up} yeni, ${up} güncellenecek` : ""; };
+      $("#piGo").onclick = () => { const L = parse(); if (!L.length) { $("#piMsg").textContent = "Yapıştırdığın metinde ürün bulamadım. Her ürün ayrı satırda olmalı."; return; }
+        L.forEach(x => { const ex = x.code && D.products.find(p => trn(p.code) === trn(x.code)); if (ex) Object.assign(ex, { name: x.name, cat: x.cat || ex.cat });
+          else D.products.push({ id: "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), code: x.code, name: x.name, cat: x.cat, opts: {}, unit: "ad" }); });
+        save(); closeSheet(); render(); toast("✓", `${L.length} ürün aktarıldı`, `Katalogda ${D.products.length} ürün var`); };
+    });
+  }
   function bossSettings() {
-    const seg = `<div class="seg seg3" role="group" aria-label="Sistem bölümleri">${[["akis", "Akışlar"], ["sablon", "Şablonlar"], ["modul", "Modüller"]].map(([k, l]) => `<button data-syst="${k}" aria-pressed="${sysTab === k}">${l}</button>`).join("")}</div>`;
+    const seg = `<div class="seg seg4" role="group" aria-label="Sistem bölümleri">${[["akis", "Akışlar"], ["urun", "Ürünler"], ["sablon", "Şablonlar"], ["modul", "Modüller"]].map(([k, l]) => `<button data-syst="${k}" aria-pressed="${sysTab === k}">${l}</button>`).join("")}</div>`;
     const flows = `      <section><div class="sec-h"><h2>İş akışların</h2></div>
         <p class="sm" style="margin:0">Uygulama sektöre göre değil, senin çalışma düzenine göre şekillenir. Aşamaları, sorumluları, onayları ve tercihleri sen belirlersin.</p>
         <button class="btn block xl" id="newFlow">${ico("plus")} Kendi akışını kur</button>
@@ -2073,7 +2177,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
         <div class="tgrid">${TEMPLATES.filter(t => !t.core).map(t => tplCard(t)).join("")}</div></section>
 `;
     const mods = `${systemMap()}${depotHtml()}<button class="btn line block" id="rebuild">Sistemi baştan kur</button>`;
-    return head(BIZ(), "Sistem") + `<main class="gut">${seg}${sysTab === "sablon" ? tpls : sysTab === "modul" ? mods : flows}</main>`;
+    return head(BIZ(), "Sistem") + `<main class="gut">${seg}${sysTab === "urun" ? productsHtml() : sysTab === "sablon" ? tpls : sysTab === "modul" ? mods : flows}</main>`;
   }
   // ---------- Modül Deposu ----------
   function recsFor(flows, jobs) {
@@ -2490,7 +2594,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
         <datalist id="custList">${[...new Set(D.jobs.map(j => j.customer))].map(c => `<option value="${esc(c)}">`).join("")}</datalist></div>
       <div><label class="sm" for="nTitle"><b>Sipariş adı</b></label><input class="in" id="nTitle" placeholder="Ör: 28 Elek projesi ya da Demir kapı" autocomplete="off"></div>
       <section class="kal"><div class="sec-h"><h2>Kalemler</h2><span class="sm" id="nSum">İsteğe bağlı</span></div>
-        <div class="seg seg3" role="group" aria-label="Kalem girişi"><button data-nim="paste" aria-pressed="true">Yapıştır</button><button data-nim="list" aria-pressed="false">Tek tek</button><button data-nim="photo" aria-pressed="false">Fotoğraf</button></div>
+        <div class="seg seg3" role="group" aria-label="Kalem girişi"><button data-nim="cat" aria-pressed="true">Katalog</button><button data-nim="paste" aria-pressed="false">Yapıştır</button><button data-nim="photo" aria-pressed="false">Fotoğraf</button></div>
         <div id="nIm"></div><div id="nItems"></div></section>
       <div id="nQtyBox"><label class="sm" for="nQty"><b>Miktar</b></label><input class="in" id="nQty" placeholder="Ör: 50 adet" autocomplete="off"></div>
       <div><label class="sm" for="nNote"><b>Dikkat notları</b> · her satır ayrı not, ekibin görev kartında kırmızı görünür</label><textarea class="in" id="nNote" rows="2" placeholder="Ör: Renk ve sokete dikkat"></textarea>
@@ -2513,7 +2617,36 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       $("#closeS").onclick = closeSheet;
       setTimeout(() => $("#nCust").focus(), 60);
       // kalem girişi: yapıştır, tek tek, fotoğraf
-      const ni = { mode: "paste", items: [], paper: null };
+      const ni = { mode: "cat", items: [], paper: null }, pk = { q: "", cat: "", open: null, pick: {}, qty: 1 };
+      const addItem = it => { const same = ni.items.find(x => trn(x.code) === trn(it.code) && trn(x.name) === trn(it.name) && trn(x.variant) === trn(it.variant));
+        if (same) same.qty = +same.qty + +it.qty; else ni.items.push(it); drawItems(); };
+      const inCart = p => ni.items.filter(x => x.pid === p.id).reduce((a, x) => a + +x.qty, 0);
+      const pickOf = p => { const pick = {}; Object.entries(p.opts || {}).forEach(([k, v]) => { if (v.length === 1) pick[k] = v[0]; }); return pick; };
+      const addFromPick = () => { const p = D.products.find(x => x.id === pk.open); if (!p) return;
+        const miss = Object.keys(p.opts || {}).filter(k => !pk.pick[k]); if (miss.length) { toast("✋", `Seç: ${miss.join(", ")}`, prodLabel(p)); return; }
+        const variant = Object.keys(p.opts || {}).map(k => pk.pick[k]).join(" · ");
+        addItem({ pid: p.id, code: p.code, name: p.name, variant, qty: pk.qty || 1, unit: p.unit || "ad" });
+        toast("✓", `${prodLabel(p)} × ${fmtQ(pk.qty || 1)}`, variant || "Eklendi"); pk.open = null; pk.q = ""; pk.qty = 1; pk.pick = {}; drawMode(); setTimeout(() => $("#pq")?.focus(), 30); };
+      const drawRes = () => { const box = $("#pres"); if (!box) return;
+        const use = prodUse(), freq = D.products.filter(p => use[p.id]).sort((a, b) => use[b.id] - use[a.id]);
+        const res = pk.q ? prodSearch(pk.q) : pk.cat === "_fav" ? freq : pk.cat ? D.products.filter(p => p.cat === pk.cat) : (freq.length ? freq : D.products);
+        const row = p => { const o = pk.open === p.id, n = inCart(p);
+          return `<div class="prow${o ? " open" : ""}"><button class="ph" data-pp="${p.id}" aria-expanded="${o}"><span class="itx"><b>${p.code ? `<span class="mono">${esc(p.code)}</span> ` : ""}${esc(p.name)}</b><span>${esc(p.cat || "")}${n ? ` · <span class="incart">sepette ${fmtQ(n)}</span>` : ""}</span></span><span class="padd">${ico(o ? "x" : "plus")}</span></button>
+          ${o ? `<div class="ppanel">${Object.entries(p.opts || {}).map(([k, vals]) => `<div class="popt"><span>${esc(k)}</span><div class="chips">${vals.map(v => `<button class="chip" data-po="${esc(k)}|${esc(v)}" aria-pressed="${pk.pick[k] === v}">${esc(v)}</button>`).join("")}</div></div>`).join("")}
+            <div class="popt"><span>Adet</span><div class="pqty"><button class="ed-b" data-pq="-1" aria-label="Azalt">−</button><input id="pqn" type="number" min="0" step="any" inputmode="decimal" value="${pk.qty}" aria-label="Adet"><button class="ed-b" data-pq="1" aria-label="Artır">+</button></div>
+              <div class="chips">${[5, 10, 25, 50, 100].map(n => `<button class="chip" data-pqs="${n}">${n}</button>`).join("")}</div></div>
+            <button class="btn dark block" data-padd>${ico("plus")} Ekle · ${fmtQ(pk.qty || 1)} ${esc(p.unit || "ad")}</button></div>` : ""}</div>`; };
+        box.innerHTML = !D.products.length ? `<div class="empty" style="margin-top:8px">Kataloğun henüz boş. Sistem › Ürünler'den Excel'den aktarabilirsin. Burada yazdığın ürünler de kataloğa eklenir.</div>${pk.q ? `<button class="pfree" data-pfree>${ico("plus")} “${esc(pk.q)}” kalemini ekle</button>` : ""}`
+          : `<div class="plist">${res.slice(0, 40).map(row).join("") || ""}${res.length > 40 ? `<div class="pmore">${res.length - 40} ürün daha · aramayı daralt</div>` : ""}${pk.q ? `<button class="pfree" data-pfree>${ico("plus")} Katalogda yok: “${esc(pk.q)}” serbest kalem olarak ekle</button>` : ""}</div>`;
+        const qn = $("#pqn"); if (qn) qn.oninput = () => { pk.qty = Math.max(0, parseFloat(qn.value) || 0); const b = box.querySelector("[data-padd]"); if (b) b.lastChild.textContent = ` Ekle · ${fmtQ(pk.qty || 1)} ${D.products.find(x => x.id === pk.open)?.unit || "ad"}`; };
+      };
+      // hızlı satır: "1576 siyah 4000 47" + Enter → kalem eklenir
+      const quick = () => { const toks = pk.q.trim().split(/\s+/); let qty = null;
+        if (toks.length > 1 && /^\d+([.,]\d+)?$/.test(toks[toks.length - 1])) qty = parseFloat(toks.pop().replace(",", "."));
+        const p = prodSearch(toks.join(" "))[0]; if (!p) return;
+        const pick = pickOf(p); Object.entries(p.opts || {}).forEach(([k, vals]) => { const m = (v, t) => { t = trn(t); if (t.length < 2) return false; return trn(v).split(" ").some(w => w === t || (w.startsWith(t) && !/^\d/.test(w.slice(t.length)) && (/\d$/.test(t) || t.length >= 3))); }; const hit = vals.find(v => toks.some(t => m(v, t))); if (hit) pick[k] = hit; });
+        pk.open = p.id; pk.pick = pick; pk.qty = qty || 1;
+        if (qty && Object.keys(p.opts || {}).every(k => pick[k])) addFromPick(); else { pk.q = toks.join(" "); drawMode(); } };
       const cat = prodCatalog(), prev = D.jobs.filter(j => j.items && j.items.length).sort((a, b) => b.createdAt - a.createdAt).slice(0, 3);
       const drawItems = () => {
         $("#nItems").innerHTML = ni.items.length ? `<div style="margin-top:10px">${ni.items.map((it, i) => `<div class="itr"><div class="stk"><input class="nm" data-nie="${i}:name" value="${esc((it.code ? it.code + " " : "") + it.name)}" aria-label="${i + 1}. kalem"><input data-nie="${i}:variant" value="${esc(it.variant)}" placeholder="Renk, ölçü, güç…" aria-label="${i + 1}. kalemin özelliği"></div>
@@ -2524,7 +2657,11 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       };
       const drawMode = () => {
         layer.querySelectorAll("[data-nim]").forEach(b => b.setAttribute("aria-pressed", b.dataset.nim === ni.mode));
-        $("#nIm").innerHTML = ni.mode === "paste" ? `<textarea class="in" id="nPaste" rows="5" style="margin-top:10px" placeholder="Tekliften, Excel'den ya da e-postadan kalemleri kopyalayıp buraya yapıştır.&#10;Ör: MRY 1576 MAGNET RAY SPOT (SİYAH KASA 4000K 20W)  47 ad"></textarea>
+        $("#nIm").innerHTML = ni.mode === "cat" ? `<div class="psearch">${ico("scan")}<input class="in" id="pq" value="${esc(pk.q)}" placeholder="Kod ya da ürün ara" autocomplete="off" enterkeyhint="done" aria-label="Katalogda ara"></div>
+            <div class="phint">Hızlı: <code>1576 siyah 4000 47</code> yazıp Enter'a bas</div>
+            ${D.products.length ? `<div class="chips pcats">${prodUse() && Object.keys(prodUse()).length ? `<button class="chip" data-pcat="_fav" aria-pressed="${pk.cat === "_fav"}">Sık kullanılan</button>` : ""}<button class="chip" data-pcat="" aria-pressed="${!pk.cat}">Tümü · ${D.products.length}</button>${[...new Set(D.products.map(p => p.cat).filter(Boolean))].map(c => `<button class="chip" data-pcat="${esc(c)}" aria-pressed="${pk.cat === c}">${esc(c)}</button>`).join("")}</div>` : ""}
+            <div id="pres"></div>`
+          : ni.mode === "paste" ? `<textarea class="in" id="nPaste" rows="5" style="margin-top:10px" placeholder="Tekliften, Excel'den ya da e-postadan kalemleri kopyalayıp buraya yapıştır.&#10;Ör: MRY 1576 MAGNET RAY SPOT (SİYAH KASA 4000K 20W)  47 ad"></textarea>
             <button class="btn line block" id="nParse" style="margin-top:8px">Kalemlere ayır</button>
             ${prev.length ? `<div class="chips" style="margin-top:8px">${prev.map(j => `<button class="chip" data-ncopy="${j.id}">Kopyala: #${j.id} ${esc(j.customer)}</button>`).join("")}</div>` : ""}`
           : ni.mode === "list" ? `<div class="addit" style="margin-top:10px"><input class="in full" id="niName" list="prodList" placeholder="Ürün kodu ya da adı" autocomplete="off"><datalist id="prodList">${cat.map(c => `<option value="${esc((c.code ? c.code + " " : "") + c.name)}">`).join("")}</datalist>
@@ -2539,10 +2676,18 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
           const add = () => { const v = nn.value.trim(); if (!v) { nn.focus(); return; } const [it] = parseItems(v + " " + ($("#niQty").value || 1)); it.variant = $("#niVar").value.trim() || it.variant;
             ni.items.push(it); nn.value = ""; $("#niVar").value = ""; $("#niQty").value = ""; drawItems(); nn.focus(); };
           $("#niAdd").onclick = add; $("#niQty").onkeydown = e => { if (e.key === "Enter") add(); }; }
+        const pq = $("#pq"); if (pq) { pq.oninput = () => { pk.q = pq.value; pk.open = null; drawRes(); }; pq.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); if (pk.open) addFromPick(); else quick(); } }; drawRes(); }
         const ph = $("#nPhoto"); if (ph) ph.onchange = () => ph.files[0] && readBig(ph.files[0], url => { ni.paper = url; drawMode(); });
       };
       $("#nIm").parentElement.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return;
         if (b.dataset.nim) { ni.mode = b.dataset.nim; drawMode(); }
+        if (b.dataset.pcat != null) { pk.cat = b.dataset.pcat; pk.q = ""; pk.open = null; drawMode(); }
+        if (b.dataset.pp) { const p = D.products.find(x => x.id === b.dataset.pp); if (pk.open === p.id) pk.open = null; else { pk.open = p.id; pk.pick = pickOf(p); pk.qty = 1; } drawRes(); }
+        if (b.dataset.po) { const [k, v] = b.dataset.po.split("|"); pk.pick[k] = v; drawRes(); }
+        if (b.dataset.pq) { pk.qty = Math.max(1, (+pk.qty || 0) + +b.dataset.pq); drawRes(); }
+        if (b.dataset.pqs) { pk.qty = +b.dataset.pqs; drawRes(); }
+        if (b.dataset.padd != null) addFromPick();
+        if (b.dataset.pfree != null) { const [it] = parseItems(pk.q); if (it) { addItem(it); toast("✓", `${(it.code ? it.code + " " : "") + it.name} × ${fmtQ(it.qty)}`, "Serbest kalem; sipariş kaydedilince kataloğa eklenir"); pk.q = ""; drawMode(); setTimeout(() => $("#pq")?.focus(), 30); } }
         if (b.dataset.nid) { ni.items.splice(+b.dataset.nid, 1); drawItems(); }
         if (b.dataset.ncopy) { const src = jobById(+b.dataset.ncopy); ni.items.push(...src.items.map(x => ({ ...x }))); if (!$("#nCust").value) $("#nCust").value = src.customer; drawItems(); toast("⧉", `${src.items.length} kalem kopyalandı`, `#${src.id} siparişinden`); } });
       $("#nItems").addEventListener("change", e => { const t = e.target.dataset.nie; if (!t) return; const [i, f] = t.split(":"), it = ni.items[+i];
@@ -2605,7 +2750,9 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
         const j = mkJob({ flowId: $("#nFlow").value, id: D.nextId++, title, customer, qty: $("#nQty").value.trim() || "1 adet", due: new Date(y, m - 1, d, 17).getTime(), at: 0, waiting: 0,
           price, cost: Math.round(price * .65), createdAt: Date.now(), owners, urgent: $("#nUrgent").checked, address: D.mods.fleet ? $("#nAddr").value.trim() : "" });
         if (!D.mods.fleet) { j.steps = j.steps.filter(s => s.type !== "delivery"); normalize(j); }
-        if (ni.items.length) j.items = ni.items.map(x => ({ ...x }));
+        if (ni.items.length) { j.items = ni.items.map(x => ({ ...x }));
+          j.items.forEach(it => { if (it.pid || D.products.some(p => (it.code && trn(p.code) === trn(it.code)) || trn(p.name) === trn(it.name))) return;
+            D.products.push({ id: "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), code: it.code || "", name: it.name, cat: "Yeni eklenen", opts: {}, unit: it.unit || "ad" }); }); }
         const wn = $("#nNote").value.split("\n").map(x => x.trim()).filter(Boolean); if (wn.length) j.warn = wn;
         if (ni.paper) j.paper = ni.paper;
         applyCreateRules(j, false);
@@ -2859,7 +3006,8 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
     document.querySelectorAll(".kcol.over").forEach(x => x.classList.remove("over")); if (c) moveJobTo(jobById(id), +c.dataset.col); else render(); };
   document.addEventListener("pointerup", endDrag); document.addEventListener("pointercancel", endDrag);
   document.addEventListener("input", e => {
-    const el = e.target; if (!el.dataset || !el.dataset.fin) return;
+    const el = e.target; if (el.id === "prq") { prodQ = el.value; const l = $("#prl"); if (l) l.innerHTML = prodRows(); return; }
+    if (!el.dataset || !el.dataset.fin) return;
     const [k, fid] = el.dataset.fin.split("|"), { s } = parseK(k); (s.vals = s.vals || {})[fid] = el.value; save(); formSync(k);
   });
   document.addEventListener("click", e => {
@@ -2882,6 +3030,9 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
     }
     if (d.jv) { jobView = d.jv; render(); return; }
     if (d.syst) { sysTab = d.syst; render(); window.scrollTo(0, 0); return; }
+    if (d.prod) { openProduct(d.prod); return; }
+    if (el.id === "prodNew") { openProduct(null); return; }
+    if (el.id === "prodImp") { openProdImport(); return; }
     if (d.sx != null && el.classList.contains("sx")) { closeSheet(); return; }
     if (d.allfeed != null) { sheet(`<div class="stack"><h2>Son hareketler</h2>${feedHtml(D.feed.slice().reverse().slice(0, 40))}</div>`); return; }
     if (d.kbf) { kbFlow = d.kbf; render(); return; }
