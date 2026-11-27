@@ -721,6 +721,13 @@ details.hist .feed { border: 0; border-top: 1px solid var(--line); border-radius
 .setup { background: var(--surface); border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line)); border-radius: var(--r-lg); padding: 14px; gap: 10px; }
 .setup .list { border: 0; box-shadow: none; } .setup .att { padding-left: 0; padding-right: 0; }
 .att:disabled { opacity: 1; cursor: default; }
+/* alt menü: ortada yükseltilmiş ＋ */
+.tab.tplus { color: var(--ink-2); }
+.tab.tplus .i { width: 54px; height: 54px; border-radius: 50%; background: var(--accent); color: var(--on-accent); margin-top: -22px; box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 38%, transparent); border: 3px solid var(--surface); }
+.tab.tplus .i svg { width: 26px; height: 26px; }
+.tab.tplus:active .i { transform: scale(.95); }
+.me-card { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 12px; align-items: center; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); }
+.me-card .cav2 { width: 48px; height: 48px; font-size: var(--t-md); }
 /* v2 düzeltmeleri: sonradan eklenen bileşenler yeni ölçüye */
 .kdrag { width: 36px; height: 40px; margin: -6px 0 -6px -6px; }
 .kcard { padding: 12px; } .kopen { font-size: var(--t-md); }
@@ -3704,6 +3711,10 @@ var qrcode = function() {
     return j;
   }
   function defaultOwner(skill) { const L = PEOPLE.length ? PEOPLE : PEOPLE_SEED; return (L.find(p => (p.skills || []).includes(skill)) || L.find(p => p.role === "ustabasi") || L.find(p => p.role === "patron") || L[0]).id; }
+  const QUICK_FLOW = { id: "_quick", hidden: true, ico: "⚡", name: "Hızlı görev", prefs: { sendBack: false, signReq: false, custNotify: false, custVisible: false, slaWarn: true }, rules: [], finalBy: null,
+    stages: [{ key: "q1", name: "Görev", skill: "patron", g: 0, type: "task", pub: "Görev", checklist: [], sla: 8, par: false, photo: false }] };
+  const ensureQuickFlow = () => { if (D && D.flows && !D.flows.some(f => f.id === "_quick")) D.flows.push(JSON.parse(JSON.stringify(QUICK_FLOW))); };
+  const visFlows = () => D.flows.filter(f => !f.hidden);
   const flowById = id => (D && D.flows.find(f => f.id === id)) || (D && D.flows[0]);
   const flowOf = j => flowById(j.flowId) || D.flows[0];
 
@@ -3988,7 +3999,7 @@ var qrcode = function() {
     const st = jobState(j), late = isLate(j), p = pct(j);
     return `<button class="jr" data-job="${j.id}">
       <div class="jr-h"><span class="t">${esc(j.title)}</span><span class="mono">#${j.id}</span></div>
-      <div class="jr-m">${esc(j.customer)}${j.items && j.items.length ? ` · ${j.items.length} kalem` : ""} · Termin ${esc(dayLabel(j.due))}${!j.done && etaOf(j) ? ` · Tahmini <b style="color:var(${SIM.res[j.id].risk ? "--bad" : "--ok"})">${esc(when(etaOf(j)))}</b>` : ""}</div>
+      <div class="jr-m">${j.quick ? "Hızlı görev" : esc(j.customer)}${j.items && j.items.length ? ` · ${j.items.length} kalem` : ""} · Termin ${esc(dayLabel(j.due))}${!j.done && etaOf(j) ? ` · Tahmini <b style="color:var(${SIM.res[j.id].risk ? "--bad" : "--ok"})">${esc(when(etaOf(j)))}</b>` : ""}</div>
       <div class="prog ${j.done ? "ok" : st.cls === "bad" || late ? "bad" : ""}"><i style="width:${p}%"></i></div>
       <div class="st"><span class="pill ${st.cls}">${esc(st.label)}</span>${late ? `<span class="pill bad">Gecikti</span>` : ""}${atRisk(j) ? `<span class="pill warn">Termin riski</span>` : ""}${j.urgent ? `<span class="pill acc">Acil</span>` : ""}<span class="pct">%${p}</span></div>
     </button>`;
@@ -4180,7 +4191,7 @@ var qrcode = function() {
 
   // ---------------- render ----------------
   function render() {
-    applyHours();
+    applyHours(); ensureQuickFlow();
     if (OB) return renderOb();
     document.body.classList.remove("ob");
     runEventRules(); SIM = simulate();
@@ -4193,16 +4204,19 @@ var qrcode = function() {
     if (p.joined === false) return renderJoin(p);
     const home = homeOf(me);
     if (home === "boss") return renderBoss();
-    const lbl = { foreman: "Panel", driver: "Teslimatlar" }[home] || "Görevlerim";
-    if (tab === "chat") { setNav(roleNav(lbl)); $("#app").innerHTML = chatList(); return; }
+    if (tab === "chat") { setNav(navItems()); $("#app").innerHTML = chatList(); return; }
+    if (home === "foreman" && tab === "isler") { setNav(navItems()); $("#app").innerHTML = bossJobs(); return; }
+    if (home === "foreman" && tab === "ekip" && can(me, "seeAll")) { setNav(navItems()); $("#app").innerHTML = bossTeam(); return; }
     if (tab === "pano" && home === "worker") return renderPool();
     if (home === "foreman") return renderForeman();
     if (home === "driver") return renderDriver();
     return renderWorker();
   }
-  function setNav(items, showFab) {
-    $("#nav").innerHTML = (items ? `<nav class="tabs" role="tablist">${items.map(([k, i, l]) => `<button class="tab" role="tab" data-tab="${k}" aria-selected="${tab === k}"><span class="i">${i}</span>${l}</button>`).join("")}</nav>` : "")
-      ;
+  function setNav(items) {
+    const sel = k => tab === k || (k === "more" && ["more", "rapor", "ekip", "ayar"].includes(tab) && homeOf(me) === "boss");
+    $("#nav").innerHTML = items ? `<nav class="tabs" aria-label="Ana menü">${items.map(([k, i, l]) => k === "plus"
+      ? `<button class="tab tplus" data-plus aria-label="Yeni oluştur"><span class="i">${i}</span>${l}</button>`
+      : `<button class="tab" data-tab="${k}" aria-current="${sel(k) ? "page" : "false"}" aria-selected="${sel(k)}"><span class="i">${i}</span>${l}</button>`).join("")}</nav>` : "";
   }
   const bellCount = id => D.feed.filter(f => f.to && f.to.includes(id) && f.at > Date.now() - 6 * HOUR).length;
 
@@ -4259,7 +4273,7 @@ var qrcode = function() {
     link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
     gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M4.2 7.5l2.1 1.2M17.7 15.3l2.1 1.2M4.2 16.5l2.1-1.2M17.7 8.7l2.1-1.2"/><circle cx="12" cy="12" r="7"/>' };
   // emoji used as event markers in data → one line icon + a tone, so every phone shows the same thing
-  const EMO = { "✅": ["check", "ok"], "✓": ["check", "ok"], "🎉": ["check", "ok"], "🏁": ["flag", "ok"], "➡️": ["arrow", "info"], "🆕": ["plus", "info"], "＋": ["plus", "info"],
+  const EMO = { "✅": ["check", "ok"], "✓": ["check", "ok"], "🎉": ["check", "ok"], "🏁": ["flag", "ok"], "➡️": ["arrow", "info"], "🆕": ["plus", "info"], "⚡": ["bolt", "info"], "＋": ["plus", "info"],
     "⚠️": ["alert", "bad"], "✋": ["alert", "warn"], "↩️": ["undo", "warn"], "↺": ["undo", ""], "🛠": ["tool", "ok"], "⚙️": ["gear", ""], "📋": ["grid", "warn"], "🙋": ["user", "info"],
     "👋": ["user", "info"], "👥": ["team", "info"], "↔️": ["move", "info"], "⚖": ["move", "info"], "🔁": ["move", "info"], "✍️": ["pen", ""], "📲": ["chat", ""], "🔥": ["bolt", "info"],
     "🎨": ["dot", "info"], "📷": ["camera", ""], "🎙": ["mic", ""], "🚚": ["truck", "info"], "📦": ["box", "info"], "▶️": ["play", "info"], "▣": ["scan", "ok"], "⇩": ["file", ""],
@@ -4288,12 +4302,20 @@ var qrcode = function() {
   const myThreads = () => D.chat.threads.filter(t => canSee(t, me));
   const unreadTotal = () => myThreads().reduce((a, t) => a + (unreadOf(t, me) ? 1 : 0), 0);
   const chatIcon = () => { const n = D.mods.chat ? unreadTotal() : 0; return ico("chat") + (n ? `<b class="tb">${n}</b>` : ""); };
-  function roleNav(label) {
-    const cu = me.startsWith("c:"), items = [["panel", ico(cu ? "box" : homeOf(me) === "driver" ? "truck" : "list"), label]];
-    if (!cu && homeOf(me) === "worker" && hasPool(me)) { const n = poolFor(me).length; items.push(["pano", ico("grid") + (n ? `<b class="tb">${n}</b>` : ""), "Pano"]); }
-    if (D.mods.chat && (!cu || D.mods.customers)) items.push(["chat", chatIcon(), cu ? "Mesajlar" : "Sohbet"]);
-    return items.length > 1 ? items : null;
+  const attnCount = () => D.jobs.filter(j => !j.done && (isLate(j) || j.steps.some(s => s.status === "blocked"))).length;
+  const badgeHtml = n => n ? `<b class="tb">${n > 99 ? "99+" : n}</b>` : "";
+  const canPlus = () => !me.startsWith("c:") && (can(me, "create") || can(me, "money") || can(me, "team"));
+  function navItems() {
+    const cu = me.startsWith("c:"), h = cu ? "cust" : homeOf(me), it = [], chat = (l = "Sohbet") => { if (D.mods.chat && (!cu || D.mods.customers)) it.push(["chat", chatIcon(), l]); };
+    const plus = () => { if (canPlus()) it.push(["plus", ico("plus"), "Yeni"]); };
+    if (h === "boss") { it.push(["panel", ico("home"), "Panel"], ["isler", ico("list") + badgeHtml(attnCount()), "İşler"]); plus(); chat(); it.push(["more", ico("grid"), "Daha fazla"]); }
+    else if (h === "foreman") { it.push(["panel", ico("home"), "Panel"], ["isler", ico("list") + badgeHtml(attnCount()), "İşler"]); plus(); chat(); if (can(me, "seeAll")) it.push(["ekip", ico("team"), "Ekip"]); }
+    else if (h === "driver") { it.push(["panel", ico("truck"), "Teslimatlar"]); chat(); }
+    else if (cu) { it.push(["panel", ico("box"), "Siparişlerim"]); chat("Mesajlar"); }
+    else { it.push(["panel", ico("list"), "Görevlerim"]); if (hasPool(me)) it.push(["pano", ico("grid") + badgeHtml(poolFor(me).length), "Pano"]); chat(); }
+    return it.length > 1 ? it : null;
   }
+  function roleNav() { return navItems(); }
   const whoName = by => by.startsWith("c:") ? by.slice(2) : first(by);
   const whoSub = by => by.startsWith("c:") ? "Müşteri" : person(by).title;
   function threadTitle(t) {
@@ -4395,18 +4417,64 @@ var qrcode = function() {
   }
   // ----- boss -----
   function renderBoss() {
-    if (tab === "rapor" && !D.mods.reports) tab = "panel";
-    const NAV = [["panel", ico("home"), "Panel"], ["isler", ico("list"), "İşler"], ...(D.mods.chat ? [["chat", chatIcon(), "Sohbet"]] : []), ...(can(me, "seeAll") ? [["ekip", ico("team"), "Ekip"]] : []),
-      ...(can(me, "reports") ? [["rapor", ico("chart"), "Raporlar"]] : []), ...(can(me, "flows") ? [["ayar", ico("grid"), "Sistem"]] : [])].filter(n => n[0] !== "rapor" || D.mods.reports);
-    if (!NAV.some(n => n[0] === tab)) tab = "panel";
-    setNav(NAV, false);
+    const ok = { panel: 1, isler: 1, more: 1, chat: D.mods.chat, ekip: can(me, "seeAll"), rapor: D.mods.reports && can(me, "reports"), ayar: can(me, "flows") };
+    if (!ok[tab]) tab = "panel";
+    setNav(navItems());
     const app = $("#app");
-    if (tab === "chat") app.innerHTML = chatList();
+    if (tab === "more") app.innerHTML = moreHtml();
+    else if (tab === "chat") app.innerHTML = chatList();
     else if (tab === "panel") app.innerHTML = bossPanel();
     else if (tab === "isler") app.innerHTML = bossJobs();
     else if (tab === "ekip") app.innerHTML = bossTeam();
     else if (tab === "rapor") app.innerHTML = bossReports();
     else app.innerHTML = bossSettings();
+  }
+  function moreHtml() {
+    const p = person(me), I = (ic, t, d, attr) => `<button class="att" ${attr}><span class="aic info">${ico(ic)}</span><span class="atx"><b>${t}</b><span>${d}</span></span><span class="chev">${ico("chev")}</span></button>`;
+    return head(BIZ(), "Daha fazla") + `<main class="gut">
+      <div class="me-card"><span class="cav2">${esc(p.name.split(" ").map(w => w[0]).slice(0, 2).join(""))}</span><div><b>${esc(p.name)}</b><div class="sm">${esc(grpOf(me).name)}${p.login ? ` · ${esc(p.login)} ile giriş` : ""}${p.email ? ` · ${esc(p.email)}` : ""}</div></div></div>
+      ${(D.mods.reports && can(me, "reports")) || can(me, "seeAll") ? `<section><h2>Yönetim</h2><div class="list">
+        ${D.mods.reports && can(me, "reports") ? I("chart", "Raporlar", "Zamanında teslim, aşama süreleri, tahsilat", 'data-tab="rapor"') : ""}
+        ${can(me, "seeAll") ? I("team", "Ekip ve yetkiler", `${PEOPLE.length} kişi · departmanlar ve yetki grupları`, 'data-tab="ekip"') : ""}</div></section>` : ""}
+      ${can(me, "flows") ? `<section><h2>Sistem</h2><div class="list">
+        ${I("list", "İş akışları ve şablonlar", `${visFlows().length} akış · ${TEMPLATES.length} hazır şablon`, 'data-sysgo="akis"')}
+        ${I("box", "Ürün kataloğu", `${D.products.length} ürün`, 'data-sysgo="urun"')}
+        ${I("user", "İşletme bilgileri", "Logo, firma bilgileri, KDV, mesai saatleri", 'data-sysgo="isletme"')}
+        ${I("grid", "Modüller", `${CATALOG.filter(m => D.mods[m.id]).length} modül açık`, 'data-sysgo="modul"')}</div></section>` : ""}
+      <section><h2>Bildirimler</h2><div class="list"><div class="set"><div><b>Mesai dışında sessiz</b><div class="sm">18:00–08:00 arası sohbet bildirimi gelmez; acil sorunlar hariç.</div></div><button class="sw" role="switch" aria-checked="${D.privacy.quiet}" data-priv="quiet" aria-label="Mesai dışında sessiz"></button></div></div></section>
+      <section><h2>Yardım</h2><div class="list">${I("chat", "Destek ve geri bildirim", "Takıldığın yeri ya da isteğini yaz", "data-support")}</div></section>
+    </main>`;
+  }
+  function openPlus() {
+    const A = [];
+    if (can(me, "create")) A.push(["quick", "Hızlı görev", "Akış seçmeden: kime, ne, ne zamana", "bolt"], ["job", "İş emri", "Müşteri siparişi: kalemler, aşamalar, termin", "list"]);
+    if (can(me, "money")) A.push(["quote", "Teklif", "Katalogdan fiyatlı teklif, WhatsApp'tan gönder", "money"]);
+    if (can(me, "create")) A.push(["cust", "Müşteri", "İletişim, adres ve vergi bilgisi", "user"]);
+    if (can(me, "team")) A.push(["person", "Çalışan davet et", "Telefonuna davet linki gider", "team"]);
+    sheet(`<div class="stack"><div><h2>Ne oluşturalım?</h2></div><div class="list">${A.map(([k, t, d, ic]) => `<button class="att" data-new="${k}"><span class="aic info">${ico(ic)}</span><span class="atx"><b>${t}</b><span>${d}</span></span><span class="chev">${ico("chev")}</span></button>`).join("")}</div></div>`);
+  }
+  function openQuick() {
+    ensureQuickFlow();
+    const ppl = PEOPLE.filter(p => p.id !== me || PEOPLE.length === 1); let who = (ppl.find(p => homeOf(p.id) === "worker") || ppl[0]).id;
+    const dv = k => { const d = new Date(sod() + k * DAY); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+    sheet(`<div class="stack"><div><div class="eyebrow">Hızlı görev</div><h2>Kime, ne, ne zamana?</h2><div class="sm">Tek adımlık işler için. Kişiye bildirim gider; bitirince sana haber gelir.</div></div>
+      <div><label class="sm" for="qkT"><b>Ne yapılacak</b></label><input class="in" id="qkT" placeholder="Ör: Kaya İnşaat'a numune götür" autocomplete="off"></div>
+      <div><div class="sm" style="margin-bottom:6px"><b style="color:var(--ink)">Kime</b></div><div class="chips">${ppl.map(p => `<button class="chip" data-qkw="${p.id}" aria-pressed="${p.id === who}">${esc(first(p.id))}${p.id === me ? " (sen)" : ""}</button>`).join("")}</div></div>
+      <div><div class="sm" style="margin-bottom:6px"><b style="color:var(--ink)">Ne zamana</b></div><div class="chips">${[["Bugün", 0], ["Yarın", 1], ["Bu hafta", Math.max(1, 6 - new Date().getDay())]].map(([l, k], i) => `<button class="chip" data-qkd="${dv(k)}" aria-pressed="${i === 0}">${l}</button>`).join("")}</div>
+        <input class="in" id="qkD" type="date" value="${dv(0)}" style="margin-top:8px" aria-label="Termin"></div>
+      <textarea class="in" id="qkN" rows="2" placeholder="Not (isteğe bağlı)"></textarea>
+      <label class="ed-checks"><label><input type="checkbox" id="qkU"> Acil</label></label>
+      <div class="sm err" id="qkM" role="alert"></div><button class="btn ok xl block" id="qkGo">Görevi ver</button></div>`, () => {
+      setTimeout(() => $("#qkT")?.focus(), 60);
+      layer.querySelectorAll("[data-qkw]").forEach(b => b.onclick = () => { who = b.dataset.qkw; layer.querySelectorAll("[data-qkw]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
+      layer.querySelectorAll("[data-qkd]").forEach(b => b.onclick = () => { $("#qkD").value = b.dataset.qkd; layer.querySelectorAll("[data-qkd]").forEach(x => x.setAttribute("aria-pressed", x === b)); });
+      $("#qkGo").onclick = () => { const t = $("#qkT").value.trim(); if (!t) { $("#qkM").textContent = "Ne yapılacağını yaz."; $("#qkT").focus(); return; }
+        const [y, m, d] = ($("#qkD").value || dv(0)).split("-").map(Number), flow = flowById("_quick");
+        const j = mkJob({ flow, id: D.nextId++, title: t, customer: "", qty: "1 görev", due: new Date(y, m - 1, d, WD_E).getTime(), at: 0, waiting: 0, createdAt: Date.now(), owners: { q1: who }, urgent: $("#qkU").checked });
+        j.quick = true; const n = $("#qkN").value.trim(); if (n) j.steps[0].detail = n; j.steps.forEach(s => { if (s.status === "ready") s.readyAt = Date.now(); });
+        D.jobs.push(j); notify(`${first(me)} hızlı görev verdi: ${t} · ${first(who)}`, "🆕", [who]); save(); closeSheet(); render();
+        toast("⚡", "Görev verildi", `${first(who)} · ${new Date(j.due).toLocaleDateString("tr-TR")}`); };
+    });
   }
   function head(eyebrow, title, bell) {
     return `<div class="top gut"><div style="min-width:0"><div class="eyebrow">${eyebrow}</div><h1>${title}</h1></div>${bell != null ? `<button class="bell" id="bell" aria-label="Bildirimler">${ico("bell")}${bell ? `<b>${bell}</b>` : ""}</button>` : ""}</div>`;
@@ -4594,7 +4662,7 @@ var qrcode = function() {
   }
   function boardHtml() {
     const f = flowById(kbFlow || D.defaultFlow), cols = kbCols(f), jobs = D.jobs.filter(j => !j.done && j.flowId === f.id), mv = can(me, "assign");
-    return `${D.flows.length > 1 ? `<div class="chips">${D.flows.map(x => `<button class="chip" data-kbf="${x.id}" aria-pressed="${x.id === f.id}">${x.ico} ${esc(x.name)} · ${D.jobs.filter(j => !j.done && j.flowId === x.id).length}</button>`).join("")}</div>` : ""}
+    return `${visFlows().length > 1 ? `<div class="chips">${visFlows().map(x => `<button class="chip" data-kbf="${x.id}" aria-pressed="${x.id === f.id}">${x.ico} ${esc(x.name)} · ${D.jobs.filter(j => !j.done && j.flowId === x.id).length}</button>`).join("")}</div>` : ""}
       <div class="kb" aria-label="${esc(f.name)} panosu">${cols.map((c, i) => { const cj = jobs.filter(j => colOf(j) === i).sort((a, b) => a.due - b.due);
         return `<div class="kcol" data-col="${i}"><div class="kh"><b>${esc(c.name)}</b><span class="pill mute">${cj.length}</span></div>${cj.map(j => kcard(j, mv)).join("") || `<div class="sm kempty">Boş</div>`}</div>`; }).join("")}</div>
       <p class="sm" style="margin:0">${mv ? "Kartı ⠿ tutamağından tutup başka sütuna bırakınca iş o aşamaya geçer ve ilgili kişilere bildirim gider. Karta dokununca ayrıntı açılır." : "Karta dokununca ayrıntı açılır."}</p>`;
@@ -4750,7 +4818,7 @@ var qrcode = function() {
     const onTime = done.filter(j => j.doneAt <= j.due + DAY).length;
     const avgDays = done.length ? done.reduce((a, j) => a + (j.doneAt - j.createdAt), 0) / done.length / DAY : 0;
     const rev = done.reduce((a, j) => a + j.price, 0), wc = done.filter(j => j.cost > 0), mRev = wc.reduce((a, j) => a + j.price, 0), mCost = wc.reduce((a, j) => a + j.cost, 0);
-    const repFlow = D.flows.slice().sort((a, b) => done.filter(j => j.flowId === b.id).length - done.filter(j => j.flowId === a.id).length)[0];
+    const repFlow = visFlows().slice().sort((a, b) => done.filter(j => j.flowId === b.id).length - done.filter(j => j.flowId === a.id).length)[0];
     const stageAvg = repFlow.stages.map(st => { const ds = done.map(j => j.steps.find(s => s.key === st.key)).filter(s => s && s.doneAt && s.readyAt);
       return { name: st.name, h: ds.length ? ds.reduce((a, s) => a + (s.doneAt - s.readyAt), 0) / ds.length / HOUR : 0 }; });
     const max = Math.max(...stageAvg.map(s => s.h), 1), top = stageAvg.reduce((a, b) => b.h > a.h ? b : a, stageAvg[0]);
@@ -4875,7 +4943,7 @@ var qrcode = function() {
     const flows = `      <section><div class="sec-h"><h2>İş akışların</h2></div>
         <p class="sm" style="margin:0">Uygulama sektöre göre değil, senin çalışma düzenine göre şekillenir. Aşamaları, sorumluları, onayları ve tercihleri sen belirlersin.</p>
         <button class="btn block xl" id="newFlow">${ico("plus")} Kendi akışını kur</button>
-        <div class="list">${D.flows.map(f => `<div class="set flowc"><div style="min-width:0"><b>${f.ico} ${esc(f.name)}</b>${f.id === D.defaultFlow ? ` <span class="pill ok">Varsayılan</span>` : ""}
+        <div class="list">${visFlows().map(f => `<div class="set flowc"><div style="min-width:0"><b>${f.ico} ${esc(f.name)}</b>${f.id === D.defaultFlow ? ` <span class="pill ok">Varsayılan</span>` : ""}
           <div class="flowline">${flowLine(f)}</div>
           <div class="sm" style="margin-top:4px">${D.jobs.filter(j => j.flowId === f.id && !j.done).length} aktif iş · ${f.stages.length} aşama${f.from ? ` · ${esc(f.from)} şablonundan` : ""}</div></div>
           <div style="display:grid;gap:6px"><button class="btn line" data-editflow="${f.id}">Düzenle</button>${f.id !== D.defaultFlow ? `<button class="chip" data-defflow="${f.id}">Varsayılan yap</button>` : ""}</div></div>`).join("")}</div></section>
@@ -4958,7 +5026,7 @@ var qrcode = function() {
     if (step === 1 && !wz) wz = { flow: null, tpl: null, mods: {} };
     if (step === 1) wz = { flow: null, tpl: null, mods: {} };
     if (step === 1.5) step = 1;
-    const flowsHtml = D.flows.map(f => `<button class="choice${wz.flow === f.id ? " sel" : ""}" data-wzflow="${f.id}"><span class="tico">${f.ico}</span><div style="min-width:0"><b>${esc(f.name)}</b><div class="sm">${f.stages.length} aşama · şu anki akışın</div></div></button>`).join("")
+    const flowsHtml = visFlows().map(f => `<button class="choice${wz.flow === f.id ? " sel" : ""}" data-wzflow="${f.id}"><span class="tico">${f.ico}</span><div style="min-width:0"><b>${esc(f.name)}</b><div class="sm">${f.stages.length} aşama · şu anki akışın</div></div></button>`).join("")
       + TEMPLATES.map(t => `<button class="choice${wz.tpl === t.id ? " sel" : ""}" data-wztpl="${t.id}"><span class="tico">${t.ico}</span><div style="min-width:0"><b>${esc(t.name)}</b><div class="sm">${esc(t.who)}</div></div></button>`).join("");
     const pickedFlows = () => wz.flow ? [flowById(wz.flow)] : wz.tpl ? [{ name: TEMPLATES.find(t => t.id === wz.tpl).name, prefs: { ...DEFAULT_PREFS, ...(TEMPLATES.find(t => t.id === wz.tpl).prefs || {}) }, stages: TEMPLATES.find(t => t.id === wz.tpl).stages }] : [];
     let body = "";
@@ -5034,7 +5102,7 @@ var qrcode = function() {
       <button class="choice" id="fromBlank"><span class="tico">✎</span><div><b>Sıfırdan kur</b><div class="sm">Boş bir akış. Aşamaları tek tek sen eklersin.</div></div></button>
       <button class="choice" id="fromTpl"><span class="tico">⧉</span><div><b>Şablondan başla</b><div class="sm">${TEMPLATES.length} hazır akıştan birini seç: 4 temel şablon ve ${TPL_GROUPS.length} sektör grubu. Kendine göre uyarla.</div></div></button>
       <div class="sm" style="font-weight:700;margin-top:4px">Mevcut bir akışı kopyala</div>
-      ${D.flows.map(f => `<button class="choice" data-copyflow="${f.id}"><span class="tico">${f.ico}</span><div style="min-width:0"><b>${esc(f.name)} kopyası</b><div class="flowline">${flowLine(f)}</div></div></button>`).join("")}
+      ${visFlows().map(f => `<button class="choice" data-copyflow="${f.id}"><span class="tico">${f.ico}</span><div style="min-width:0"><b>${esc(f.name)} kopyası</b><div class="flowline">${flowLine(f)}</div></div></button>`).join("")}
       <button class="btn ghost block" id="closeS">Vazgeç</button></div>`, () => {
       $("#closeS").onclick = closeSheet;
       $("#fromBlank").onclick = () => openFlowEditor({ blank: true });
@@ -5376,7 +5444,7 @@ var qrcode = function() {
   const qno = q => `TKL-${q.no}${q.rev ? ` · Rev.${q.rev}` : ""}`;
   const custOf = name => (D.customers || []).find(c => trn(c.name) === trn(name));
   const ensureCust = name => { if (!name) return null; let c = custOf(name); if (!c) { c = { id: "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), name }; (D.customers = D.customers || []).push(c); } return c; };
-  const custNames = () => [...new Set([...(D.customers || []).map(c => c.name), ...D.jobs.map(j => j.customer), ...(D.quotes || []).map(q => q.customer)])];
+  const custNames = () => [...new Set([...(D.customers || []).map(c => c.name), ...D.jobs.map(j => j.customer), ...(D.quotes || []).map(q => q.customer)])].filter(Boolean);
   const vatRate = () => (D.biz && D.biz.vat != null ? +D.biz.vat : 20);
   const grossOf = j => Math.round((j.price || 0) * (1 + vatRate() / 100));
   const paidOf = j => (j.payments || []).reduce((a, x) => a + (+x.amount || 0), 0);
@@ -5411,7 +5479,7 @@ var qrcode = function() {
         <div><span>KDV<select id="qVat" aria-label="KDV oranı">${[20, 10, 1, 0].map(v => `<option value="${v}"${(q0 ? q0.vat : vatRate()) === v ? " selected" : ""}>%${v}</option>`).join("")}</select></span><b id="tVat"></b></div><div class="g"><span>Genel toplam</span><b id="tAll"></b></div></div>
       <div class="grid2"><div><label class="sm" for="qValid"><b>Geçerlilik</b></label><input class="in" id="qValid" type="date" value="${dv(q0 ? new Date(q0.valid) : vd)}"></div>
         <div><label class="sm" for="qLead"><b>Teslim süresi (iş günü)</b></label><input class="in" id="qLead" type="number" min="1" inputmode="numeric" value="${q0 ? q0.lead : 10}"></div></div>
-      <div><label class="sm" for="qFlow"><b>Kabul edilince hangi akışla üretilsin?</b></label><select class="in" id="qFlow">${D.flows.map(f => `<option value="${f.id}"${(q0 ? q0.flowId || D.defaultFlow : D.defaultFlow) === f.id ? " selected" : ""}>${f.ico} ${esc(f.name)}</option>`).join("")}</select></div>
+      <div><label class="sm" for="qFlow"><b>Kabul edilince hangi akışla üretilsin?</b></label><select class="in" id="qFlow">${visFlows().map(f => `<option value="${f.id}"${(q0 ? q0.flowId || D.defaultFlow : D.defaultFlow) === f.id ? " selected" : ""}>${f.ico} ${esc(f.name)}</option>`).join("")}</select></div>
       <div><label class="sm" for="qPay"><b>Ödeme koşulu</b></label><input class="in" id="qPay" value="${esc(q0 ? q0.pay : (D.biz && D.biz.pay) || "%50 peşin, kalan teslimde")}" autocomplete="off"></div>
       <div><label class="sm" for="nNote"><b>Teklif notu</b></label><textarea class="in" id="nNote" rows="2" placeholder="Ör: Fiyatlara montaj dahil değildir">${esc(q0 ? q0.note || "" : "")}</textarea></div>
       <div class="sm err" id="nMsg" role="alert"></div>
@@ -5598,7 +5666,7 @@ var qrcode = function() {
     const dv = `${dueDef.getFullYear()}-${pad(dueDef.getMonth() + 1)}-${pad(dueDef.getDate())}`;
     sheet(`<div class="stack">
       <div><div class="eyebrow">Yeni iş emri #${D.nextId}</div><h2>Yeni iş oluştur</h2><div class="sm">İş, aşamalara bölünüp sorumlulara dağıtılır. İlk aşama bitince sıradakine otomatik bildirim gider.</div></div>
-      <div><label class="sm" for="nFlow"><b>İş akışı</b></label><select class="in" id="nFlow">${D.flows.map(f => `<option value="${f.id}"${f.id === D.defaultFlow ? " selected" : ""}>${f.ico} ${esc(f.name)} · ${f.stages.length} aşama</option>`).join("")}</select></div>
+      <div><label class="sm" for="nFlow"><b>İş akışı</b></label><select class="in" id="nFlow">${visFlows().map(f => `<option value="${f.id}"${f.id === D.defaultFlow ? " selected" : ""}>${f.ico} ${esc(f.name)} · ${f.stages.length} aşama</option>`).join("")}</select></div>
       <div><label class="sm" for="nCust"><b>Müşteri</b></label><input class="in" id="nCust" placeholder="Ör: Ahmet Bey" autocomplete="off" list="custList">
         <datalist id="custList">${custNames().map(c => `<option value="${esc(c)}">`).join("")}</datalist></div>
       <div><label class="sm" for="nTitle"><b>Sipariş adı</b></label><input class="in" id="nTitle" placeholder="Ör: 28 Elek projesi ya da Demir kapı" autocomplete="off"></div>
@@ -5975,6 +6043,10 @@ var qrcode = function() {
       return;
     }
     if (d.jv) { jobView = d.jv; render(); return; }
+    if (d.plus != null) { openPlus(); return; }
+    if (d.new) { const k = d.new; closeSheet(); if (k === "quick") openQuick(); else if (k === "job") openNewJob(); else if (k === "quote") openQuoteForm(null); else if (k === "cust") openCust(null); else if (k === "person") openPerson(null); return; }
+    if (d.sysgo) { tab = "ayar"; sysTab = d.sysgo; render(); window.scrollTo(0, 0); return; }
+    if (d.support != null) { toast("📲", "Destek", "Gerçek uygulamada buradan destek ekibine yazılır (prototipte gönderilmez)"); return; }
     if (d.setup) { const k = d.setup; if (k === "job") openNewJob(); else if (k === "team") openPerson(null); else if (k === "flow") openFlowEditor({ id: D.defaultFlow, back: "panel" });
       else if (k === "prod" || k === "biz") { tab = "ayar"; sysTab = k === "prod" ? "urun" : "isletme"; render(); window.scrollTo(0, 0); } else if (k === "close") { D.setupDone = true; save(); render(); } return; }
     if (d.tplg != null) { tplG = d.tplg; const l = $("#tgl"); if (l) l.innerHTML = tplRows(); document.querySelectorAll("[data-tplg]").forEach(b => b.setAttribute("aria-pressed", b.dataset.tplg === tplG)); return; }

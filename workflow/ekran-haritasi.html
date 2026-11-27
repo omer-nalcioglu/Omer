@@ -207,7 +207,7 @@ html { scroll-behavior: smooth; }
         <tr><td>Patron paneli</td><td>4 ekran boyu; uyarılar uzun paragraf; darboğaz grafiği ilk ekranda</td><td>Tek cümlelik durum özeti en üstte; dikkat listesi tıklanabilir satırlar, her iş bir kez; darboğaz radarı Raporlar'a taşındı; son hareketler 4 satır + Tümü</td></tr>
         <tr><td>Görev kartı</td><td>Emoji bilgiler yan yana sıkışık; ince çerçeve ile durum</td><td>Üstte durum şeridi (sarı bekliyor, mavi çalışıyor, kırmızı sorun); konum, teslim ve miktar alt alta ikonlu; 56 px ana düğme; araçlar 72 px kutular</td></tr>
         <tr><td>İş satırı</td><td>Numara başta, yüzde büyük, bilgiler etiketlerin arasında</td><td>Önce iş adı, numara sağda soluk; ikinci satırda müşteri ve termin; altta ilerleme ve durum</td></tr>
-        <tr><td>Alt menü</td><td>Küçük ikon, ince seçili rengi</td><td>64 px yükseklik; seçili sekmede ikon arkasında yumuşak hap; rozetler kırmızı ve çerçeveli</td></tr>
+        <tr><td>Alt menü</td><td>Küçük ikon, ince seçili rengi</td><td>64 px yükseklik; seçili sekmede ikon arkasında yumuşak hap; rozetler kırmızı ve çerçeveli; en fazla 5 sekme, ortada yükseltilmiş ＋ (Yeni) düğmesi; seyrek kullanılanlar Daha fazla'da</td></tr>
         <tr><td>Alt pencereler</td><td>Kapatmak için en alta kaydırmak gerekiyordu</td><td>Üstte sabit tutamak ve kapatma düğmesi</td></tr>
         <tr><td>Müşteri ekranı</td><td>7 aşama adı dar sütunlarda bölünüyordu</td><td>Etiketsiz ilerleme çubuğu + “Şu an: Teslimat · adım 6 / 7”</td></tr>
         <tr><td>Bildirimler</td><td>Her olayda farklı emoji</td><td>Olay türüne göre ikon ve renk: yeşil bitti, sarı dikkat, kırmızı sorun, mavi bilgi</td></tr>
@@ -318,7 +318,7 @@ html { scroll-behavior: smooth; }
       { n: "Başlangıç listesi", st: "have", goal: "Panelin başında beş adım: ilk iş, ekibi davet et, akışı gözden geçir, ürünleri ekle, logo ve firma bilgileri. Yapıldıkça kendiliğinden işaretlenir; istenirse gizlenir.", wf: [["bar", "Başlangıç · 2 / 5"], ["wb", "✓ İlk işini aç"], ["wb", "Ekibini davet et"], ["wb", "Akışını gözden geçir"], ["wb", "Ürünlerini ekle"], ["wb", "Logo ve firma bilgileri"]], acts: [["Ekibini davet et", "Çalışan ekle (ad, telefon, departman)"], ["İlk işini aç", "Yeni iş"], ["Ürünler / Firma", "Sistem"]] },
       { n: "Davet (çalışanın gördüğü)", st: "have", goal: "Çalışan WhatsApp ya da SMS ile gelen linke dokunur, “Katıl” der ve doğrudan Görevlerim ekranına düşer.", wf: [["bar", "Yılmaz Klima seni ekibe ekledi"], ["wb", "Görevin: Saha ekibi"], ["btn", "Katıl"]], acts: [["Katıl", "Görevlerim"]] },
     ] },
-    { id: "patron", name: "Patron", who: "İşletme sahibi, yönetici", nav: ["Panel", "İşler", "Sohbet", "Ekip", "Raporlar", "Sistem"], desc: "Her şeyi görür. İş açar, ekibi ve akışları yönetir. Sistemi kuran ve değiştiren tek kişidir.", screens: [
+    { id: "patron", name: "Patron", who: "İşletme sahibi, yönetici", nav: ["Panel", "İşler", "＋ Yeni", "Sohbet", "Daha fazla"], desc: "Her şeyi görür. İş açar, ekibi ve akışları yönetir. Sistemi kuran ve değiştiren tek kişidir.", screens: [
       { n: "Kontrol merkezi", tab: "Panel", st: "have", goal: "Telefon açmadan, işler nerede? Tek bakışta.", wf: [["bar", "Kontrol merkezi · 🔔"], ["kpi", "Aktif · Ekip · Geciken · Teslimat"], ["wb", "Bugün dikkat gerektirenler", "bad"], ["wb", "Darboğaz radarı", "mod"], ["list", "Devam eden işler"], ["btn", "＋ Yeni iş oluştur"], ["list", "Canlı akış"], ["nav"]], acts: [["Sayı kutuları", "İşler (filtreli)"], ["İş satırı", "İş detayı"], ["＋ Yeni iş", "Yeni iş"], ["🔔", "Bildirimler"]] },
       { n: "İşler · Pano görünümü", tab: "İşler", st: "have", goal: "Her aşama bir sütun, her iş bir kart. Kartı tutamağından sürükleyip başka sütuna bırakınca iş o aşamaya geçer, ilgililere bildirim gider.", wf: [["bar", "İş emirleri"], ["chips", "Pano · Liste"], ["wb", "Kesim · #1044 · ⠿ sürükle"], ["wb", "Kaynak · #1042 · Hüseyin + Okan"], ["nav"]], acts: [["Kartı sürükle", "İş o aşamaya taşınır"], ["Karta dokun", "İş detayı"]] },
       { n: "İşler", tab: "İşler", st: "have", goal: "Bütün iş emirleri, duruma göre süzülür.", wf: [["bar", "İş emirleri"], ["chips", "Aktif · Geciken · Sorunlu · Onay · Biten"], ["list", "İş: ilerleme, durum, termin"], ["list", "İş: ilerleme, durum, termin"], ["btn", "＋ Yeni iş oluştur"], ["nav"]], acts: [["İş satırı", "İş detayı"], ["＋ Yeni iş", "Yeni iş"]] },
@@ -341,7 +341,7 @@ html { scroll-behavior: smooth; }
       ["Modül kartı", "Ne ekler, nerede görünür, neyi gerektirir. Ekle ya da çıkar."],
       ["Bildirimler", "Sana gelenler, en yenisi üstte. Her satır ilgili işe götürür."],
     ] },
-    { id: "ustabasi", name: "Ustabaşı", who: "Atölye şefi, ekip lideri", nav: ["Panel", "Sohbet"], desc: "Takılan işleri çözer, onay verir, yükü dengeler. Patronun sahadaki eli.", screens: [
+    { id: "ustabasi", name: "Ustabaşı", who: "Atölye şefi, ekip lideri", nav: ["Panel", "İşler", "＋ Yeni", "Sohbet", "Ekip"], desc: "Takılan işleri çözer, onay verir, yükü dengeler. Patronun sahadaki eli.", screens: [
       { n: "Ustabaşı paneli", tab: "Panel", st: "have", goal: "Önce sorunlar, sonra onaylar, sonra ekibin yükü.", wf: [["bar", "Günaydın Kadir Usta · 🔔"], ["wb", "Sorun bildirimleri", "bad"], ["two", "Çözüldü | Başkasına ata"], ["list", "Onay bekleyenler"], ["list", "Ekip yükü"], ["list", "Üretimdeki işler"], ["nav"]], acts: [["Çözüldü, devam", "Sorumluya bildirim"], ["Onayla", "Sıradaki aşama"], ["İş satırı", "İş detayı"]] },
     ] },
     { id: "calisan", name: "Çalışan", who: "Usta, üretim, kontrol, depo", nav: ["Görevlerim", "Pano", "Sohbet"], desc: "Yalnızca kendine düşen işi görür. Ekranın tamamı üç şey içindir: başla, bitir, sorun bildir.", screens: [
@@ -417,6 +417,9 @@ html { scroll-behavior: smooth; }
 
   const MODS = [
     ["Ekip sohbeti", "İşe özel sohbet, kanallar, duyurular, birebir mesaj", "Her rolde Sohbet sekmesi, iş detayı"],
+    ["Alt menü ve ＋", "Rol başına en fazla 5 sekme; ortada ＋ ile hızlı görev, iş emri, teklif, müşteri, çalışan davet; İşler ve Sohbet'te rozet", "Patron: Panel · İşler · ＋ · Sohbet · Daha fazla"],
+    ["Hızlı görev", "Akış seçmeden tek adımlık görev: kime, ne, ne zamana; bitince haber gelir", "＋ › Hızlı görev"],
+    ["Daha fazla", "Profil, Raporlar, Ekip ve yetkiler, akışlar, ürünler, işletme, modüller, bildirim tercihi, destek", "Patron alt menüsü"],
     ["Akıllı termin", "Tahmini bitiş, termin riski, darboğaz radarı", "Kontrol merkezi, Yeni iş, İş detayı"],
     ["Kural motoru", "“Eğer… ise… yap” otomasyonları", "Akış düzenleyici"],
     ["Saha ve teslimat", "Şoför rolü, teslimat aşaması, imza ve fotoğraf", "Şoför ekranları, Akış düzenleyici"],
