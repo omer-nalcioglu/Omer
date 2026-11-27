@@ -521,6 +521,36 @@ label.sm b, .stack > div > .sm b { color: var(--ink); }
 .crew .dn { color: var(--ok); font-weight: 700; }
 .sw[disabled] { opacity: .5; }
 .cnum { width: 76px; padding: 8px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); text-align: right; }
+/* ---------- bileşen kuralları (v2.1): yeni ekranlar bunları kullanır, kendi ölçüsünü yazmaz ---------- */
+.err { color: var(--bad); font-weight: 500; } .err:empty { display: none; }
+.sheet .stack > div:first-child > h2, .track h2 { font-size: var(--t-xl); letter-spacing: -.02em; line-height: 1.2; }
+.sheet .stack > div:first-child > .sm { margin-top: 4px; }
+.pr > div, .set > div, .th > div, .rec > div, .att > span { min-width: 0; }
+.seg.seg3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* dokunma geri bildirimi ve hareket */
+.btn, .chip, .kpi, .tool, .tcard, .choice, .mcard, .kcard, .sw, .seg button { transition: transform .12s ease, background-color .15s, border-color .15s, box-shadow .15s, color .15s; }
+.kpi:active, .tool:active, .tcard:active, .choice:active, .mcard:active, .chip:active { transform: scale(.97); }
+.sheet { animation: up .34s cubic-bezier(.2, .9, .25, 1); }
+.toast { animation: drop .3s cubic-bezier(.2, .9, .25, 1); }
+.list, .kpi, .task, .feed, .hero, .tcard, .mcard, .track, .radar, .bars, .tbl-wrap, .sysmap, .wk { box-shadow: 0 1px 2px rgba(15, 20, 25, .04), 0 2px 6px rgba(15, 20, 25, .03); }
+/* son 7 gün kartı: uygulamanın patron yerine yaptıkları */
+.wk { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); overflow: hidden; }
+.wk > div { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+.wk > div:last-child { border-bottom: 0; }
+.wk b { font-size: var(--t-2xl); font-weight: 700; letter-spacing: -.03em; color: var(--accent); font-variant-numeric: tabular-nums; text-align: center; }
+.wk span { font-size: var(--t-sm); color: var(--ink-2); }
+/* akış düzenleyici: aşama özeti + açılır ayrıntılar */
+details.ed-more { border-top: 1px solid var(--line); padding-top: 8px; }
+details.ed-more > summary { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 44px; cursor: pointer; }
+details.ed-more > summary::-webkit-details-marker { display: none; }
+details.ed-more > summary .sum { font-size: var(--t-sm); color: var(--ink-2); min-width: 0; }
+details.ed-more > summary .more { flex: none; display: inline-flex; align-items: center; gap: 4px; font-size: var(--t-sm); font-weight: 600; color: var(--accent); }
+details.ed-more > summary .more svg { width: 18px; height: 18px; transition: transform .15s; }
+details.ed-more[open] > summary .more svg { transform: rotate(90deg); }
+.ed-body { display: grid; gap: 10px; padding-top: 6px; }
+.ed-top { grid-template-columns: 28px minmax(0, 1fr); }
+.ed-acts { display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: 6px; } .ed-acts .ed-b { font-size: var(--t-sm); padding: 0 8px; }
+.set.flowc { grid-template-columns: minmax(0, 1fr); } .set.flowc > div:last-child { display: flex !important; flex-wrap: wrap; gap: 8px; }
 /* v2 düzeltmeleri: sonradan eklenen bileşenler yeni ölçüye */
 .kdrag { width: 36px; height: 40px; margin: -6px 0 -6px -6px; }
 .kcard { padding: 12px; } .kopen { font-size: var(--t-md); }
@@ -1298,14 +1328,14 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       <label class="f">Adın soyadın<input class="in" id="obName" value="${esc(o.name)}" autocomplete="name" placeholder="Ör: Ayten Yılmaz"></label>
       <label class="f">Telefon numaran<input class="in" id="obPhone" value="${esc(o.phone)}" inputmode="tel" autocomplete="tel" placeholder="0532 123 45 67"></label>
       ${o.codeSent ? `<label class="f">SMS kodu<input class="in mono" id="obCode" inputmode="numeric" maxlength="4" autocomplete="one-time-code" placeholder="••••"></label><div class="sm">Prototipte SMS gitmez; herhangi 4 rakam yaz.</div>` : ""}
-      <div class="sm" id="obMsg" style="color:var(--bad)"></div>
+      <div class="sm err" id="obMsg" role="alert"></div>
       <button class="btn xl block" data-ob="${o.codeSent ? "login" : "code"}">${o.codeSent ? "Giriş yap" : "Kod gönder"}</button>`;
     if (o.step === 2) h = `<div class="ob-top"><h2>İşletmen</h2>${quit}</div>
       <label class="f">İşletmenin adı<input class="in" id="obBiz" value="${esc(o.biz)}" placeholder="Ör: Yılmaz Klima"></label>
       <label class="f">Ne iş yapıyorsun?<input class="in" id="obWhat" value="${esc(o.what)}" placeholder="Ör: Klima montajı yapıyoruz"></label>
       <div class="chips">${OB_EX.map(x => `<button class="chip" data-obex="${esc(x)}">${esc(x)}</button>`).join("")}</div>
       <div class="sm">Cevabına göre sana uygun bir iş akışı önereceğiz. Sonra istediğin gibi değiştirirsin.</div>
-      <div class="sm" id="obMsg" style="color:var(--bad)"></div>
+      <div class="sm err" id="obMsg" role="alert"></div>
       <button class="btn xl block" data-ob="biz">Devam</button>`;
     if (o.step === 3) { const alt = [...new Set([o.guess, ...CORE_IDS])];
       h = `<div class="ob-top"><h2>İşin böyle ilerliyor mu?</h2>${quit}</div>
@@ -1316,7 +1346,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
           <div class="chips"><button class="chip" data-obap="${i}" aria-pressed="${x.type === "approval"}">✓ Onay adımı</button>${x.type === "approval" ? `<button class="chip" data-obcu="${i}" aria-pressed="${!!x.cust}">Müşteri onaylar</button>` : ""}${x.par && i ? `<span class="sm" style="align-self:center">∥ öncekiyle aynı anda</span>` : ""}</div></div>`).join("")}</div>
       <div class="obwho"><b style="font-size:.9rem">Aşama ekle</b><div class="chips">${QUICK.filter(q => !o.stages.some(x => lower(x.name) === lower(q))).map(q => `<button class="chip" data-obq="${esc(q)}">＋ ${esc(q)}</button>`).join("")}</div>
         <div class="add" style="grid-template-columns:minmax(0,1fr) auto"><input id="obNew" placeholder="Başka bir aşama yaz" aria-label="Yeni aşama adı"><button class="btn dark" data-ob="add">Ekle</button></div></div>
-      <div class="sm" id="obMsg" style="color:var(--bad)"></div>
+      <div class="sm err" id="obMsg" role="alert"></div>
       <button class="btn xl block" data-ob="flow">Bu akışla devam</button>`; }
     if (o.step === 4) h = `<div class="ob-top"><h2>Bunu kim yapıyor?</h2>${quit}</div>
       <p class="sm" style="margin:0">Her aşamaya bir kişi seç. Eklediğin kişiye davet linki gider, uygulama indirmesi gerekmez. Boş bıraktıkların sende kalır.</p>
@@ -1325,7 +1355,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
         ${o.adding === i ? `<div class="add"><input id="obPn" placeholder="Ad soyad" aria-label="Ad soyad" autocomplete="off"><input id="obPp" placeholder="Telefon" inputmode="tel" aria-label="Telefon" autocomplete="off"><button class="btn dark" data-ob="addp">Ekle</button></div>` : ""}</div>`).join("")}
       <div class="obwho" style="border-color:var(--accent)"><b>İşin bittiğini kim onaylar?</b><span class="sm">Son aşama bitince iş, bu kişi “Tamamlandı” deyene kadar kapanmaz. Eksik görürse geri gönderir.</span>
         <div class="chips"><button class="chip" data-obf="me" aria-pressed="${o.finalBy === "me"}">Ben</button>${o.team.map((t, ti) => `<button class="chip" data-obf="${ti}" aria-pressed="${o.finalBy === ti}">${esc(t.name.split(" ")[0])}</button>`).join("")}<button class="chip" data-obf="cust" aria-pressed="${o.finalBy === "cust"}">Müşteri</button><button class="chip" data-obf="none" aria-pressed="${o.finalBy === "none"}">Kimse</button></div></div>
-      <div class="sm" id="obMsg" style="color:var(--bad)"></div>
+      <div class="sm err" id="obMsg" role="alert"></div>
       <button class="btn xl block" data-ob="team">${o.team.some((t, ti) => Object.values(o.who).includes(ti)) ? "Davetleri gönder" : "Devam"}</button>`;
     if (o.step === 5) { const used = o.team.filter((t, ti) => Object.values(o.who).includes(ti));
       h = `<div class="ob-top"><h2>${used.length ? "Davetler gitti" : "Ekip sonra eklenebilir"}</h2>${quit}</div>
@@ -1341,7 +1371,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       <label class="f">Müşteri<input class="in" id="obCust" value="${esc(o.cust)}" placeholder="Ör: Ahmet Bey"></label>
       <label class="f">Termin<input class="in" id="obDue" type="date" value="${esc(o.due)}"></label>
       <section><h2 style="font-size:1rem">Akış ve sorumlular</h2><div class="list obsum" style="padding:4px 14px">${o.stages.map((x, i) => `<div><span>${i + 1}. ${esc(x.name)}</span><b>${esc(obWho(o, i) || o.name.split(" ")[0] + " (sen)")}</b></div>`).join("")}${o.finalBy !== "none" ? `<div><span>✓ Tamamlanma onayı</span><b>${esc(o.finalBy === "me" ? o.name.split(" ")[0] + " (sen)" : o.finalBy === "cust" ? "Müşteri" : o.team[o.finalBy].name)}</b></div>` : ""}</div></section>
-      <div class="sm" id="obMsg" style="color:var(--bad)"></div>
+      <div class="sm err" id="obMsg" role="alert"></div>
       <button class="btn ok xl block" data-ob="go">İşi oluştur ve dağıt</button>`;
     $("#app").innerHTML = `<main class="gut ob">${prog}${h}</main>`;
     const keep = (id, k) => { const el = $("#" + id); if (el) el.oninput = () => o[k] = el.value; };
@@ -1660,8 +1690,18 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       <section><div class="sec-h"><h2>Devam eden işler</h2><button class="link" data-goto="isler:aktif">Tümü</button></div>
         <div class="list">${active.sort((a, b) => order(a) - order(b)).slice(0, 5).map(jobRow).join("")}</div>
         ${can(me, "create") ? `<button class="btn block" id="newJob">${ico("plus")} Yeni iş oluştur</button>` : ""}</section>
+      ${weekHtml()}
       <section><div class="sec-h"><h2>Son hareketler</h2><button class="link" data-allfeed>Tümü</button></div>${feedHtml(D.feed.slice().reverse().slice(0, 4))}</section>
     </main>`;
+  }
+  function weekHtml() {
+    const wk = Date.now() - 7 * DAY, hand = D.jobs.reduce((a, j) => a + j.steps.filter(s => s.doneAt && s.doneAt > wk && s.doneAt <= Date.now()).length, 0);
+    const doneJ = D.jobs.filter(j => j.done && j.doneAt > wk), cust = D.feed.filter(f => f.at > wk && /^Müşteriye mesaj/.test(f.text)).length;
+    if (!hand && !doneJ.length) return "";
+    return `<section><div class="sec-h"><h2>Son 7 gün</h2><span class="sm">Senin yerine yapılanlar</span></div><div class="wk">
+      ${hand ? `<div><b>${hand}</b><span>aşama devri kendiliğinden yapıldı; sıradaki kişiye kimse aramadan bildirim gitti</span></div>` : ""}
+      ${doneJ.length ? `<div><b>${doneJ.length}</b><span>iş tamamlandı · %${Math.round(doneJ.filter(j => j.doneAt <= j.due + DAY).length / doneJ.length * 100)} zamanında</span></div>` : ""}
+      ${D.mods.customers && cust ? `<div><b>${cust}</b><span>müşteri bilgilendirmesi otomatik gitti</span></div>` : ""}</div></section>`;
   }
   function feedHtml(items) {
     if (!items.length) return `<div class="empty">Henüz hareket yok.</div>`;
@@ -1811,7 +1851,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
           <div style="min-width:0;display:flex;gap:8px;align-items:center">${avatar(p.id)}<div style="min-width:0"><b>${esc(p.name)}</b><div class="sm">${loadOf(p.id)} açık · ${queuedOf(p.id)} sırada</div></div></div>
           ${on && st.mode === "split" ? `<label class="sm" style="display:flex;gap:4px;align-items:center"><input class="cnum" type="number" min="0" inputmode="numeric" data-cn="${p.id}" value="${st.split[p.id]?.n ?? 0}" aria-label="${esc(first(p.id))} payı">${esc(unit)}</label>` : ""}</div>`; }).join("")}</div>
       ${st.mode === "split" ? `<div class="sm" style="${sum !== total ? "color:var(--bad);font-weight:600" : ""}">Dağıtılan ${sum} / ${total} ${esc(unit)}${sum !== total ? " · toplam tutmuyor" : " ✓"}</div>` : ""}`}
-      <div class="sm" id="crMsg" style="color:var(--bad)"></div>
+      <div class="sm err" id="crMsg" role="alert"></div>
       <button class="btn ok xl block" id="crSave">Kaydet</button><button class="btn ghost block" id="closeS">Vazgeç</button></div>`, () => {
       const again = () => openCrew(jid, key, st);
       $("#closeS").onclick = () => openJob(jid);
@@ -1861,7 +1901,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
   const COLORS = ["#2a64c9", "#0f766e", "#c2410c", "#b45309", "#be185d", "#4d7c0f", "#475569", "#0e7490", "#7c3aed", "#1d4ed8"];
   function openGroup(k) {
     const g = D.groups[k], core = ["patron", "yonetici", "ustabasi", "calisan", "sofor"].includes(k);
-    sheet(`<div class="stack"><div><div class="eyebrow">Yetki grubu</div><h2 style="font-size:1.4rem">${esc(g.name)}</h2>
+    sheet(`<div class="stack"><div><div class="eyebrow">Yetki grubu</div><h2>${esc(g.name)}</h2>
         <div class="sm">${membersOf(k).map(p => esc(first(p.id))).join(", ") || "Bu grupta henüz kimse yok. Çalışanın kartından gruba ekleyebilirsin."}</div></div>
       ${g.locked ? `<div class="note info"><b>Patronun yetkileri değiştirilemez</b><span>Böylece kimse yanlışlıkla işletme sahibini sistemin dışında bırakamaz.</span></div>` : `
       <div><label class="sm" for="gName"><b>Grubun adı</b></label><input class="in" id="gName" value="${esc(g.name)}" autocomplete="off"></div>
@@ -1879,13 +1919,13 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
   function openPerson(id) {
     const p = id ? person(id) : { id: null, name: "", title: "", role: "uretim", skills: [] };
     const sk = new Set(p.skills || []);
-    sheet(`<div class="stack"><div><div class="eyebrow">${id ? "Çalışan" : "Yeni çalışan"}</div><h2 style="font-size:1.4rem">${id ? esc(p.name) : "Çalışan ekle"}</h2>
+    sheet(`<div class="stack"><div><div class="eyebrow">${id ? "Çalışan" : "Yeni çalışan"}</div><h2>${id ? esc(p.name) : "Çalışan ekle"}</h2>
         <div class="sm">${id ? "Departmanları değiştir, işler buna göre dağıtılır." : "Çalışan uygulamayı ücretsiz indirir, davet linkiyle katılır."}</div></div>
       ${id ? "" : `<div><label class="sm" for="pName"><b>Ad soyad</b></label><input class="in" id="pName" autocomplete="off" placeholder="Ör: Serkan Aksoy"></div>`}
       <div><label class="sm" for="pTitle"><b>Unvan</b></label><input class="in" id="pTitle" value="${esc(p.title)}" placeholder="Ör: Döşemeci" autocomplete="off"></div>
       ${p.role === "patron" ? "" : `<div><label class="sm" for="pGrp"><b>Yetki grubu</b></label><select class="in" id="pGrp">${Object.entries(D.groups).filter(([k, g]) => !g.locked && (k !== "sofor" || D.mods.fleet)).map(([k, g]) => `<option value="${k}"${grpKey(p) === k ? " selected" : ""}>${esc(g.name)} · ${HOME_TXT[g.home] || "Görevlerim"}</option>`).join("")}</select><div class="sm" style="margin-top:4px">Ne görebileceğini ve yapabileceğini grup belirler. Grupları Ekip › Yetkiler'den düzenlersin.</div></div>`}
       <div><div class="sm" style="font-weight:700;margin-bottom:6px">Departmanlar</div><div class="chips">${Object.entries(D.depts).map(([k, v]) => `<button class="chip" data-dep="${k}" aria-pressed="${sk.has(k)}">${esc(v)}</button>`).join("")}</div></div>
-      <div class="sm" id="pMsg" style="color:var(--bad)"></div>
+      <div class="sm err" id="pMsg" role="alert"></div>
       <button class="btn ok xl block" id="pSave">${id ? "Kaydet" : "Ekle ve davet gönder"}</button><button class="btn ghost block" id="closeS">Vazgeç</button></div>`, () => {
       $("#closeS").onclick = closeSheet;
       layer.querySelectorAll("[data-dep]").forEach(b => b.onclick = () => { const k = b.dataset.dep; sk.has(k) ? sk.delete(k) : sk.add(k); b.setAttribute("aria-pressed", sk.has(k)); });
@@ -1943,24 +1983,25 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
         ${topF && topF[1] > 1 ? `<div class="sm">En sık sapma: <b>${esc(topF[0])}</b> (${topF[1]} kez).</div>` : ""}` : `<div class="empty">Tolerans dışı değer yok 👍</div>`}
     </section>`;
   }
+  let sysTab = "akis";
   function bossSettings() {
-    return head(BIZ(), "Sistemin") + `<main class="gut">
-      ${systemMap()}
-      <button class="btn block xl" id="rebuild">Sistemi baştan kur</button>
-      ${depotHtml()}
-      <section><div class="sec-h"><h2>İş akışların</h2></div>
+    const seg = `<div class="seg seg3" role="group" aria-label="Sistem bölümleri">${[["akis", "Akışlar"], ["sablon", "Şablonlar"], ["modul", "Modüller"]].map(([k, l]) => `<button data-syst="${k}" aria-pressed="${sysTab === k}">${l}</button>`).join("")}</div>`;
+    const flows = `      <section><div class="sec-h"><h2>İş akışların</h2></div>
         <p class="sm" style="margin:0">Uygulama sektöre göre değil, senin çalışma düzenine göre şekillenir. Aşamaları, sorumluları, onayları ve tercihleri sen belirlersin.</p>
-        <button class="btn block xl" id="newFlow">＋ Kendi akışını kur</button>
-        <div class="list">${D.flows.map(f => `<div class="set"><div style="min-width:0"><b>${f.ico} ${esc(f.name)}</b>${f.id === D.defaultFlow ? ` <span class="pill ok">Varsayılan</span>` : ""}
+        <button class="btn block xl" id="newFlow">${ico("plus")} Kendi akışını kur</button>
+        <div class="list">${D.flows.map(f => `<div class="set flowc"><div style="min-width:0"><b>${f.ico} ${esc(f.name)}</b>${f.id === D.defaultFlow ? ` <span class="pill ok">Varsayılan</span>` : ""}
           <div class="flowline">${flowLine(f)}</div>
           <div class="sm" style="margin-top:4px">${D.jobs.filter(j => j.flowId === f.id && !j.done).length} aktif iş · ${f.stages.length} aşama${f.from ? ` · ${esc(f.from)} şablonundan` : ""}</div></div>
           <div style="display:grid;gap:6px"><button class="btn line" data-editflow="${f.id}">Düzenle</button>${f.id !== D.defaultFlow ? `<button class="chip" data-defflow="${f.id}">Varsayılan yap</button>` : ""}</div></div>`).join("")}</div></section>
-      <section><h2>Şablon galerisi</h2><p class="sm" style="margin:0">Temel şablonlar işin türüne göre hazırlandı, her sektöre uyar. Önizle, aşamaların adını ve sırasını kendi işine göre değiştir.</p>
+`;
+    const tpls = `      <section><h2>Şablon galerisi</h2><p class="sm" style="margin:0">Temel şablonlar işin türüne göre hazırlandı, her sektöre uyar. Önizle, aşamaların adını ve sırasını kendi işine göre değiştir.</p>
         <div class="cat-h" style="margin-top:4px">Her işe uyan temel şablonlar</div>
         <div class="tgrid">${TEMPLATES.filter(t => t.core).map(t => tplCard(t)).join("")}</div>
         <div class="cat-h" style="margin-top:8px">Sektör örnekleri</div>
         <div class="tgrid">${TEMPLATES.filter(t => !t.core).map(t => tplCard(t)).join("")}</div></section>
-    </main>`;
+`;
+    const mods = `${systemMap()}${depotHtml()}<button class="btn line block" id="rebuild">Sistemi baştan kur</button>`;
+    return head(BIZ(), "Sistem") + `<main class="gut">${seg}${sysTab === "sablon" ? tpls : sysTab === "modul" ? mods : flows}</main>`;
   }
   // ---------- Modül Deposu ----------
   function recsFor(flows, jobs) {
@@ -2015,7 +2056,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
     const dependents = CATALOG.filter(x => (x.requires || []).includes(id) && D.mods[x.id]);
     const needs = (m.requires || []).filter(r => !D.mods[r]);
     sheet(`<div class="stack">
-      <div class="th"><span class="mi big">${ico(m.ico)}</span><div><div class="eyebrow">${esc(m.cat)} modülü</div><h2 style="font-size:1.4rem">${esc(m.name)}</h2></div></div>
+      <div class="th"><span class="mi big">${ico(m.ico)}</span><div><div class="eyebrow">${esc(m.cat)} modülü</div><h2>${esc(m.name)}</h2></div></div>
       <p style="margin:0">${esc(m.desc)}</p>
       ${rec ? `<div class="note info"><b>Neden senin için?</b><span>${esc(rec)}.</span></div>` : ""}
       <section><h2>Sistemine ne ekler</h2><div class="list">${m.adds.map(a => `<div class="set" style="grid-template-columns:1fr"><span>＋ ${esc(a)}</span></div>`).join("")}</div></section>
@@ -2040,16 +2081,16 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       + TEMPLATES.map(t => `<button class="choice${wz.tpl === t.id ? " sel" : ""}" data-wztpl="${t.id}"><span class="tico">${t.ico}</span><div style="min-width:0"><b>${esc(t.name)}</b><div class="sm">${esc(t.who)}</div></div></button>`).join("");
     const pickedFlows = () => wz.flow ? [flowById(wz.flow)] : wz.tpl ? [{ name: TEMPLATES.find(t => t.id === wz.tpl).name, prefs: { ...DEFAULT_PREFS, ...(TEMPLATES.find(t => t.id === wz.tpl).prefs || {}) }, stages: TEMPLATES.find(t => t.id === wz.tpl).stages }] : [];
     let body = "";
-    if (step === 1) body = `<div><div class="eyebrow">1 / 3 · İş akışın</div><h2 style="font-size:1.4rem">İşin nasıl ilerliyor?</h2><div class="sm">Sistem bu akışın etrafında kurulur.</div></div><div class="wzlist">${flowsHtml}</div>
+    if (step === 1) body = `<div><div class="eyebrow">1 / 3 · İş akışın</div><h2>İşin nasıl ilerliyor?</h2><div class="sm">Sistem bu akışın etrafında kurulur.</div></div><div class="wzlist">${flowsHtml}</div>
       <button class="btn xl block" id="wzNext"${wz.flow || wz.tpl ? "" : " disabled"}>Devam</button>`;
     if (step === 2) { const rec = recsFor(pickedFlows(), wz.flow ? D.jobs.filter(j => j.flowId === wz.flow) : []);
       if (!wz.touched) { wz.mods = {}; CATALOG.forEach(m => wz.mods[m.id] = !!rec[m.id]); }
-      body = `<div><div class="eyebrow">2 / 3 · Modüller</div><h2 style="font-size:1.4rem">Akışına göre seçtiklerimiz</h2><div class="sm">İşaretlileri öneriyoruz. İstediğini ekle ya da çıkar.</div></div>
+      body = `<div><div class="eyebrow">2 / 3 · Modüller</div><h2>Akışına göre seçtiklerimiz</h2><div class="sm">İşaretlileri öneriyoruz. İstediğini ekle ya da çıkar.</div></div>
         <div class="list">${CATALOG.map(m => `<div class="set"><div style="min-width:0;display:flex;gap:10px;align-items:center"><span class="mi">${ico(m.ico)}</span><div style="min-width:0"><b>${esc(m.name)}</b><div class="sm">${esc(rec[m.id] || m.desc)}</div></div></div><button class="sw" role="switch" aria-checked="${!!wz.mods[m.id]}" data-wzmod="${m.id}" aria-label="${esc(m.name)}"></button></div>`).join("")}</div>
         <div class="grid2"><button class="btn ghost" id="wzBack">Geri</button><button class="btn" id="wzNext">Devam</button></div>`; }
     if (step === 3) { CATALOG.forEach(m => (m.requires || []).forEach(r => { if (wz.mods[m.id]) wz.mods[r] = true; }));
       const f = pickedFlows()[0], n = CATALOG.filter(m => wz.mods[m.id]).length;
-      body = `<div><div class="eyebrow">3 / 3 · Hazır</div><h2 style="font-size:1.4rem">Sistemin böyle olacak</h2></div>
+      body = `<div><div class="eyebrow">3 / 3 · Hazır</div><h2>Sistemin böyle olacak</h2></div>
         <div class="sysmap"><div class="core"><span class="mi">${ico("core")}</span><div><b>Çekirdek + ${esc(f.name)}</b><div class="sm">${f.stages.length} aşama · ${n} modül</div></div></div>
           <div class="blocks">${CATALOG.filter(m => wz.mods[m.id]).map(m => `<span class="mblock"><span class="mi">${ico(m.ico)}</span><span>${esc(m.name)}</span></span>`).join("")}</div>
           <div class="roles">${screensByRole(wz.mods).map(([r, sc]) => `<div><b>${r}</b><span>${sc.map(esc).join(" · ")}</span></div>`).join("")}</div></div>
@@ -2097,7 +2138,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
     const t = TEMPLATES.find(x => x.id === id), S = tplStats(t), pr = { ...DEFAULT_PREFS, ...(t.prefs || {}) };
     const missing = [...new Set(t.stages.map(x => x.dept))].filter(n => !Object.values(D.depts).some(v => lower(v) === lower(n)) || !deptPeople(Object.entries(D.depts).find(([, v]) => lower(v) === lower(n))?.[0]).length);
     sheet(`<div class="stack">
-      <div class="th"><span class="tico" style="width:52px;height:52px;font-size:1.6rem">${t.ico}</span><div><div class="eyebrow">Şablon</div><h2 style="font-size:1.45rem">${esc(t.name)}</h2></div></div>
+      <div class="th"><span class="tico" style="width:52px;height:52px;font-size:1.6rem">${t.ico}</span><div><div class="eyebrow">Şablon</div><h2>${esc(t.name)}</h2></div></div>
       <p style="margin:0">${esc(t.desc)}</p><div class="sm">Kimler için: ${esc(t.who)}</div>
       <div class="grid3"><div class="kpi"><div class="v" style="font-size:1.5rem">${S.n}</div><div class="l">aşama</div></div><div class="kpi"><div class="v" style="font-size:1.5rem">${S.depts}</div><div class="l">departman</div></div><div class="kpi"><div class="v" style="font-size:1.5rem">${fmtH(S.total)}</div><div class="l">hedef süre</div></div></div>
       ${stageGraph(t.stages, x => x.dept)}
@@ -2108,7 +2149,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       <button class="btn ghost block" id="closeS">Kapat</button></div>`, () => { $("#closeS").onclick = closeSheet; });
   }
   function openStartChooser() {
-    sheet(`<div class="stack"><div><div class="eyebrow">Kendi akışını kur</div><h2 style="font-size:1.4rem">Nereden başlamak istersin?</h2></div>
+    sheet(`<div class="stack"><div><div class="eyebrow">Kendi akışını kur</div><h2>Nereden başlamak istersin?</h2></div>
       <button class="choice" id="fromBlank"><span class="tico">✎</span><div><b>Sıfırdan kur</b><div class="sm">Boş bir akış. Aşamaları tek tek sen eklersin.</div></div></button>
       <button class="choice" id="fromTpl"><span class="tico">⧉</span><div><b>Şablondan başla</b><div class="sm">Her işe uyan 4 temel şablondan ya da sektör örneklerinden birini seç, kendine göre uyarla.</div></div></button>
       <div class="sm" style="font-weight:700;margin-top:4px">Mevcut bir akışı kopyala</div>
@@ -2116,7 +2157,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       <button class="btn ghost block" id="closeS">Vazgeç</button></div>`, () => {
       $("#closeS").onclick = closeSheet;
       $("#fromBlank").onclick = () => openFlowEditor({ blank: true });
-      $("#fromTpl").onclick = () => { closeSheet(); tab = "ayar"; render(); document.querySelector(".tgrid")?.scrollIntoView({ behavior: "smooth", block: "start" }); };
+      $("#fromTpl").onclick = () => { closeSheet(); tab = "ayar"; sysTab = "sablon"; render(); document.querySelector(".tgrid")?.scrollIntoView({ behavior: "smooth", block: "start" }); };
     });
   }
 
@@ -2146,7 +2187,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       rules: [{ id: newKey(), cond: "urgent", act: "front", on: true }, { id: newKey(), cond: "sla_over", act: "notify_foreman", on: true }],
       stages: t.stages.map(x => ({ key: newKey(), name: x.name, skill: deptKey(x.dept), type: (x.type === "delivery" && !D.mods.fleet) || (x.type === "pack" && !D.mods.scan) ? "task" : x.type, par: x.par, sla: x.sla, photo: x.photo, pub: x.pub, checklist: [...x.checklist], cust: !!x.cust })) };
   }
-  let edOpenF = new Set();
+  let edOpenF = new Set(), edOpen = new Set();
   function formEd(st, i) {
     const fs = st.form || [], open = edOpenF.has(st.key);
     const fed = (f, fi) => { const a = `${i}:${fi}`;
@@ -2169,7 +2210,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       else if (src.tpl) draft = fromTemplate(TEMPLATES.find(t => t.id === src.tpl));
       else draft = { id: null, ico: "⭐", name: "", prefs: { ...DEFAULT_PREFS }, stages: [] };
       draft.stages.forEach(x => { if (typeof x.checklist === "string") x.checklist = x.checklist ? [x.checklist] : []; });
-      edOpenF = new Set();
+      edOpenF = new Set(); edOpen = new Set();
     }
     const ownerOpts = st => Object.entries(D.depts).filter(([k]) => k !== "sofor" || D.mods.fleet).map(([k, v]) => `<option value="d:${k}"${!st.fixed && st.skill === k ? " selected" : ""}>${esc(v)} (${deptPeople(k).length} kişi)</option>`).join("")
       + `<option value="new">＋ Yeni departman…</option><optgroup label="Sabit kişi">${PEOPLE.map(p => `<option value="p:${p.id}"${st.fixed === p.id ? " selected" : ""}>👤 ${esc(p.name)}</option>`).join("")}</optgroup>`;
@@ -2178,9 +2219,9 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
     const rows = draft.stages.map((st, i) => {
       const empty = !st.fixed && !deptPeople(st.skill).length;
       return `<div class="ed-row${st.par && i ? " par" : ""}">
-      <div class="ed-top"><span class="ed-n">${i + 1}</span><input data-i="${i}" data-f="name" value="${esc(st.name)}" placeholder="Aşama adı (ör: Boya)" aria-label="${i + 1}. aşamanın adı">
-        <button class="ed-b" data-mv="${i}:-1" aria-label="Yukarı"${i === 0 ? " disabled" : ""}>↑</button><button class="ed-b" data-mv="${i}:1" aria-label="Aşağı"${i === draft.stages.length - 1 ? " disabled" : ""}>↓</button>
-        <button class="ed-b del" data-del="${i}" aria-label="Sil">✕</button></div>
+      <div class="ed-top"><span class="ed-n">${i + 1}</span><input data-i="${i}" data-f="name" value="${esc(st.name)}" placeholder="Aşama adı (ör: Boya)" aria-label="${i + 1}. aşamanın adı"></div>
+      <details class="ed-more" data-edk="${esc(st.key)}"${edOpen.has(st.key) ? " open" : ""}><summary><span class="sum">${esc([st.fixed ? person(st.fixed).name : deptName(st.skill), TYPES[st.type] || "İş", st.sla ? "hedef " + fmtH(st.sla) : "", st.assign === "pool" ? "panoya" : "", st.mode === "together" ? "birlikte" : st.mode === "split" ? "bölüşerek" : "", st.photo ? "fotoğraf şart" : "", st.checklist.length ? st.checklist.length + " kontrol maddesi" : ""].filter(Boolean).join(" · "))}</span><span class="more">Ayrıntılar${ico("chev")}</span></summary><div class="ed-body">
+      <div class="ed-acts"><button class="ed-b" data-mv="${i}:-1"${i === 0 ? " disabled" : ""}>↑ Yukarı</button><button class="ed-b" data-mv="${i}:1"${i === draft.stages.length - 1 ? " disabled" : ""}>↓ Aşağı</button><button class="ed-b del" data-del="${i}">Aşamayı sil</button></div>
       <div class="ed-two"><label class="sm">Kim yapar<select data-i="${i}" data-f="owner">${ownerOpts(st)}</select></label>
         <label class="sm">Aşama tipi<select data-i="${i}" data-f="type">${Object.entries(TYPES).filter(([k]) => (k !== "delivery" || D.mods.fleet) && (k !== "pack" || D.mods.scan)).map(([k, v]) => `<option value="${k}"${st.type === k ? " selected" : ""}>${TYPE_ICON[k]} ${v}</option>`).join("")}</select></label></div>
       <div class="newdept" data-nd="${i}" hidden><input class="in" placeholder="Departman adı (ör: Döşeme)" aria-label="Yeni departman adı"><button class="btn dark" data-ndok="${i}">Ekle</button></div>
@@ -2193,10 +2234,11 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       <div class="ed-checks">${i ? `<label><input type="checkbox" data-i="${i}" data-f="par"${st.par ? " checked" : ""}> Öncekiyle aynı anda yürüsün</label>` : ""}
         <label><input type="checkbox" data-i="${i}" data-f="photo"${st.photo ? " checked" : ""}> Bitirmek için fotoğraf şart</label></div>
       ${D.mods.forms && ["task", "approval"].includes(st.type) ? formEd(st, i) : ""}
+      </div></details>
     </div>`; }).join("");
     const title = draft.id ? "Akışı düzenle" : edSrc.tpl ? `${draft.from} şablonundan` : edSrc.copy ? "Akış kopyası" : "Sıfırdan akış";
     sheet(`<div class="stack">
-      <div><div class="eyebrow">${esc(title)}</div><h2 style="font-size:1.4rem">${draft.id ? esc(draft.name) : "Kendi akışını kur"}</h2>
+      <div><div class="eyebrow">${esc(title)}</div><h2>${draft.id ? esc(draft.name) : "Kendi akışını kur"}</h2>
         <div class="sm">Aşamaları işletmendeki gerçek sıraya diz. Değişiklikler yeni işlere uygulanır, devam eden işler etkilenmez.</div></div>
       <div class="ed-name"><select id="edIco" aria-label="Simge">${FICONS.map(x => `<option${x === draft.ico ? " selected" : ""}>${x}</option>`).join("")}</select><input class="in" id="edName" value="${esc(draft.name)}" placeholder="Akışın adı (ör: Kapı üretimi)" aria-label="Akışın adı"></div>
       ${draft.stages.length ? `<section><h2>Önizleme</h2><div class="preview" aria-live="polite">${stageGraph(draft.stages.filter(x => x.name.trim()), x => x.fixed ? person(x.fixed).name : deptName(x.skill))}</div></section>` : ""}
@@ -2221,7 +2263,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
             .map(([c, v, a, l]) => `<button class="chip" data-rp="${c}|${v ?? ""}|${a}">⚡ ${l}</button>`).join("")}</div>
         </div></section>` : ""}
       <section><h2>Akış tercihleri</h2><div class="list">${PREF_TEXT.filter(([k]) => (k !== "signReq" || D.mods.fleet) && (!k.startsWith("cust") || D.mods.customers)).map(([k, n, dsc]) => `<div class="set"><div><b>${n}</b><div class="sm">${dsc}</div></div><button class="sw" role="switch" aria-checked="${!!draft.prefs[k]}" data-dpref="${k}" aria-label="${n}"></button></div>`).join("")}</div></section>
-      <div class="sm" id="edMsg" style="color:var(--bad)"></div>
+      <div class="sm err" id="edMsg" role="alert"></div>
       <div class="grid2"><button class="btn ghost" id="edCancel">Vazgeç</button><button class="btn ok" id="edSave">${draft.id ? "Kaydet" : "Akışı oluştur"}</button></div>
     </div>`, () => {
       const redraw = () => openFlowEditor(edSrc, true);
@@ -2253,7 +2295,8 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
         else { st[f] = el.value; refresh(); }
       }));
       layer.querySelectorAll("[data-ndok]").forEach(b => b.onclick = () => { const i = +b.dataset.ndok, v = layer.querySelector(`[data-nd="${i}"] input`).value.trim(); if (!v) return;
-        const st = draft.stages[i]; delete st.fixed; st.skill = deptKey(v); save(); redraw(); toast("🏷", `${v} departmanı eklendi`, "Ekip sekmesinden çalışan atayabilirsin"); });
+        const st = draft.stages[i]; delete st.fixed; st.skill = deptKey(v); edOpen.add(st.key); save(); redraw(); toast("🏷", `${v} departmanı eklendi`, "Ekip sekmesinden çalışan atayabilirsin"); });
+      layer.querySelectorAll("details.ed-more").forEach(dt => dt.addEventListener("toggle", () => dt.open ? edOpen.add(dt.dataset.edk) : edOpen.delete(dt.dataset.edk)));
       layer.querySelectorAll("[data-ftog]").forEach(b => b.onclick = () => { const k = b.dataset.ftog; edOpenF.has(k) ? edOpenF.delete(k) : edOpenF.add(k); redraw(); });
       layer.querySelectorAll("[data-fadd]").forEach(b => b.onclick = () => { const [i, kind] = b.dataset.fadd.split(":"), st = draft.stages[+i];
         (st.form = st.form || []).push({ id: newKey(), label: "", kind, req: kind !== "text", ...(kind === "choice" ? { opts: [], bad: [] } : {}), ...(kind === "yesno" ? { failNo: true } : {}) }); redraw();
@@ -2275,8 +2318,8 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       layer.querySelectorAll("[data-dpref]").forEach(b => b.onclick = () => { const k = b.dataset.dpref; draft.prefs[k] = !draft.prefs[k]; b.setAttribute("aria-checked", draft.prefs[k]); });
       layer.querySelectorAll("[data-mv]").forEach(b => b.onclick = () => { const [i, d] = b.dataset.mv.split(":").map(Number), a = draft.stages; [a[i], a[i + d]] = [a[i + d], a[i]]; a[0].par = false; redraw(); });
       layer.querySelectorAll("[data-del]").forEach(b => b.onclick = () => { draft.stages.splice(+b.dataset.del, 1); if (draft.stages[0]) draft.stages[0].par = false; redraw(); });
-      layer.querySelectorAll("[data-quick]").forEach(b => b.onclick = () => { draft.stages.push(quickStage(b.dataset.quick)); redraw(); });
-      $("#edAdd").onclick = () => { draft.stages.push({ key: newKey(), name: "", skill: "yonetim", type: "task", pub: "", checklist: [], sla: 8, photo: false, par: false }); redraw();
+      layer.querySelectorAll("[data-quick]").forEach(b => b.onclick = () => { const qs = quickStage(b.dataset.quick); draft.stages.push(qs); edOpen.add(qs.key); redraw(); });
+      $("#edAdd").onclick = () => { const nk = newKey(); edOpen.add(nk); draft.stages.push({ key: nk, name: "", skill: "yonetim", type: "task", pub: "", checklist: [], sla: 8, photo: false, par: false }); redraw();
         const ins = layer.querySelectorAll('[data-f="name"]'); ins[ins.length - 1].focus(); };
       $("#edCancel").onclick = closeSheet;
       $("#edSave").onclick = () => {
@@ -2318,7 +2361,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
         </div>`).join("")}</div></div>`;
     }).join("");
     sheet(`<div class="stack">
-      <div><div class="eyebrow">İş emri #${j.id} · ${esc(flowOf(j).ico)} ${esc(flowOf(j).name)}</div><h2 style="font-size:1.45rem">${esc(j.title)}</h2>
+      <div><div class="eyebrow">İş emri #${j.id} · ${esc(flowOf(j).ico)} ${esc(flowOf(j).name)}</div><h2>${esc(j.title)}</h2>
         <div class="sm">${esc(j.customer)} · ${esc(j.qty)} · Termin ${esc(when(j.due))}</div>
         <div class="chips" style="margin-top:8px"><span class="pill ${jobState(j).cls}">${esc(jobState(j).label)}</span>${isLate(j) ? `<span class="pill bad">Gecikme mevcut</span>` : ""}<span class="pill mute">%${pct(j)}</span></div></div>
       ${!j.done && etaOf(j) ? `<div class="note ${SIM.res[j.id].risk ? "" : "info"}"><b>Tahmini bitiş: ${esc(when(etaOf(j)))}</b><span>${SIM.res[j.id].risk ? `Termin ${esc(when(j.due))}. Mevcut kuyruğa göre yaklaşık ${fmtH((etaOf(j) - j.due) / HOUR)} geç kalıyor.` : `Termine ${fmtH((j.due - etaOf(j)) / HOUR)} pay var.`} Hesap, ekiplerin şu anki iş sırasına ve hedef sürelere göre yapılır.</span></div>` : ""}
@@ -2365,7 +2408,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
     const dueDef = new Date(sod() + 7 * DAY);
     const dv = `${dueDef.getFullYear()}-${pad(dueDef.getMonth() + 1)}-${pad(dueDef.getDate())}`;
     sheet(`<div class="stack">
-      <div><div class="eyebrow">Yeni iş emri #${D.nextId}</div><h2 style="font-size:1.4rem">Yeni iş oluştur</h2><div class="sm">İş, aşamalara bölünüp sorumlulara dağıtılır. İlk aşama bitince sıradakine otomatik bildirim gider.</div></div>
+      <div><div class="eyebrow">Yeni iş emri #${D.nextId}</div><h2>Yeni iş oluştur</h2><div class="sm">İş, aşamalara bölünüp sorumlulara dağıtılır. İlk aşama bitince sıradakine otomatik bildirim gider.</div></div>
       <div><label class="sm" for="nFlow"><b>İş akışı</b></label><select class="in" id="nFlow">${D.flows.map(f => `<option value="${f.id}"${f.id === D.defaultFlow ? " selected" : ""}>${f.ico} ${esc(f.name)} · ${f.stages.length} aşama</option>`).join("")}</select></div>
       <div class="grid2" style="grid-template-columns:minmax(0,2fr) minmax(0,1fr)">
         <div><label class="sm" for="nTitle"><b>Ürün / iş</b></label><input class="in" id="nTitle" placeholder="Ör: Demir kapı" autocomplete="off"></div>
@@ -2384,7 +2427,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
         <div id="nStages"></div>
         <div id="nWarn"></div>
       </div>
-      <div class="sm" id="nMsg" style="color:var(--bad)"></div>
+      <div class="sm err" id="nMsg" role="alert"></div>
       <button class="btn ok xl block" id="nGo">İş emrini oluştur ve dağıt</button>
       <button class="btn ghost block" id="closeS">Vazgeç</button>
     </div>`, () => {
@@ -2646,7 +2689,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       ${visible.map(j => { const PUB = pubsOf(j), si = stageIdx(j), del = j.steps.find(s => s.type === "delivery") || { status: "locked" };
         const eta = j.done ? `Teslim edildi · ${when(j.doneAt)}` : del.status === "working" ? `Yolda · tahmini varış ${hm(Date.now() + 40 * MIN)}` : `Tahmini teslim: ${when(j.due)}`;
         return `<div class="track"><div class="task-top"><span class="wo">SİPARİŞ #${j.id}</span>${j.done ? `<span class="pill ok">Teslim edildi</span>` : del.status === "working" ? `<span class="pill acc">Yolda</span>` : `<span class="pill info">${esc(PUB[Math.min(si, PUB.length - 1)])}</span>`}</div>
-          <div><h2 style="font-size:1.25rem">${esc(j.title)}</h2><div class="sm">${esc(j.qty)}</div></div>
+          <div><h2>${esc(j.title)}</h2><div class="sm">${esc(j.qty)}</div></div>
           <div class="eta">${esc(eta)}</div>
           <div class="tsteps" style="grid-template-columns:repeat(${PUB.length},minmax(0,1fr))">${PUB.map((n, i) => `<div class="ts ${i < si ? "on" : i === si ? "cur" : ""}"><i></i>${esc(n)}</div>`).join("")}</div>
           <div class="sm">${j.done ? "Bütün adımlar tamamlandı" : `Şu an: <b style="color:var(--ink)">${esc(PUB[Math.min(si, PUB.length - 1)])}</b> · adım ${Math.min(si + 1, PUB.length)} / ${PUB.length}`}</div>
@@ -2715,6 +2758,7 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
       return;
     }
     if (d.jv) { jobView = d.jv; render(); return; }
+    if (d.syst) { sysTab = d.syst; render(); window.scrollTo(0, 0); return; }
     if (d.sx != null && el.classList.contains("sx")) { closeSheet(); return; }
     if (d.allfeed != null) { sheet(`<div class="stack"><h2>Son hareketler</h2>${feedHtml(D.feed.slice().reverse().slice(0, 40))}</div>`); return; }
     if (d.kbf) { kbFlow = d.kbf; render(); return; }

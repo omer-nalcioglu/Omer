@@ -152,7 +152,7 @@ html { scroll-behavior: smooth; }
   </header>
 
   <section id="tasarim" class="dl">
-    <div class="sec-head"><div class="eyebrow">Görünüm kuralları · v2</div><h2>Tasarım dili</h2>
+    <div class="sec-head"><div class="eyebrow">Görünüm kuralları · v2.1</div><h2>Tasarım dili</h2>
       <p class="muted">Uygulama atölyede, şantiyede, arabada ve güneş altında, çoğu zaman tek elle ve acele içinde kullanılıyor. Tasarım dili bu koşullara göre baştan kuruldu. Prototip birebir bu kurallarla çiziliyor; gerçek uygulamada da aynı değerler kullanılmalı.</p></div>
     <div class="measure">
       <div class="mm"><div class="n"><s>34</s>0</div><span>Patron, usta ve şoför ekranlarındaki emoji sayısı. Hepsi tek bir çizgi ikon setiyle değiştirildi; akışlara kullanıcının seçtiği simgeler kaldı.</span></div>
@@ -181,6 +181,26 @@ html { scroll-behavior: smooth; }
       <div class="card"><h3>Düzen kuralları</h3>
         <p style="font-size:.92rem"><b>Önce özet, sonra ayrıntı.</b> Her panel tek cümlelik durumla başlar ("2 iş gecikmede, 1 işte sorun var").<br><b>Önce dikkat gerektiren.</b> Sorunlu ve geciken işler en üstte; her satır doğrudan işe götürür, her iş bir kez görünür.<br><b>Bir kartta bir karar.</b> Görev kartında yalnızca o an yapılacak tek büyük düğme vardır.<br><b>Ayrıntı alttan açılır.</b> Her pencerenin üstünde kapatma düğmesi; kapatınca kaldığın yere dönersin.<br><b>Durum hem renk hem şekil.</b> Etiketlerde renkli nokta + yazı; renk körü kullanıcı da ayırt eder.</p></div>
     </div>
+    <div class="card"><h3>Yeni ekran eklerken: yalnızca bu 14 bileşen</h3>
+      <p class="muted" style="font-size:.9rem">Her ekran bu parçalardan kurulur; yeni bir özellik kendi rengini, boyutunu ya da aralığını yazmaz. Böylece uygulama büyüdükçe görünüm dağılmaz ve gerçek uygulamaya geçerken her parça bir kez kodlanır.</p>
+      <div class="tbl" style="box-shadow:none"><table>
+        <thead><tr><th>Bileşen</th><th>Ne için</th><th>Kural</th></tr></thead>
+        <tbody>
+          <tr><td>Sayfa başlığı</td><td>Her sekmenin tepesi</td><td>Üst etiket + 28 px başlık + sağda en fazla bir ikon düğme</td></tr>
+          <tr><td>Durum özeti</td><td>Panelin ilk satırı</td><td>Tek cümle; renk en kötü duruma göre (yeşil, sarı, kırmızı)</td></tr>
+          <tr><td>Sayı kutusu</td><td>Özet sayılar</td><td>İkili ızgara; dokununca süzülmüş listeye gider</td></tr>
+          <tr><td>Liste</td><td>Benzer satırlar</td><td>Tek kart içinde, satırlar arası ince çizgi; satır en az 64 px</td></tr>
+          <tr><td>Satır türleri</td><td>İş, kişi, uyarı, ayar, sohbet</td><td>Solda ikon/avatar, ortada başlık + alt bilgi, sağda tek öğe (etiket, anahtar ya da ok)</td></tr>
+          <tr><td>Görev kartı</td><td>Çalışana düşen iş</td><td>Üstte durum şeridi, bilgiler ikonlu ve alt alta, en altta tek 56 px ana düğme</td></tr>
+          <tr><td>Durum etiketi</td><td>Bir şeyin durumu</td><td>Renkli nokta + kısa yazı; yalnızca durum renkleri</td></tr>
+          <tr><td>Düğme</td><td>Eylem</td><td>Ana (mavi), onay (yeşil), çizgili, sessiz; ekranda tek ana düğme</td></tr>
+          <tr><td>Seçim</td><td>Seçenekler</td><td>2–3 seçenek: bölmeli seçici; daha fazlası: yuvarlak çipler</td></tr>
+          <tr><td>Alan</td><td>Form girişi</td><td>Üstte etiket, 48 px yükseklik, hata mesajı altında kırmızı</td></tr>
+          <tr><td>Açılır ayrıntı</td><td>Seyrek ayarlar</td><td>Özet satırı + “Ayrıntılar”; sık kullanılan ayar dışarıda kalır</td></tr>
+          <tr><td>Alt pencere</td><td>Ayrıntı ve formlar</td><td>Üstte tutamak ve kapatma; başlık 22 px; ana düğme en altta</td></tr>
+          <tr><td>Not kutusu</td><td>Açıklama, uyarı</td><td>Mavi bilgi, sarı dikkat; en fazla iki satır</td></tr>
+          <tr><td>Boş durum ve bildirim</td><td>Liste boşken, eylemden sonra</td><td>Boşken ne olacağını söyler; bildirim ikon + başlık + tek satır</td></tr>
+        </tbody></table></div></div>
     <div class="tbl"><table>
       <thead><tr><th>Alan</th><th>Önce</th><th>Şimdi</th></tr></thead>
       <tbody>
@@ -191,6 +211,9 @@ html { scroll-behavior: smooth; }
         <tr><td>Alt pencereler</td><td>Kapatmak için en alta kaydırmak gerekiyordu</td><td>Üstte sabit tutamak ve kapatma düğmesi</td></tr>
         <tr><td>Müşteri ekranı</td><td>7 aşama adı dar sütunlarda bölünüyordu</td><td>Etiketsiz ilerleme çubuğu + “Şu an: Teslimat · adım 6 / 7”</td></tr>
         <tr><td>Bildirimler</td><td>Her olayda farklı emoji</td><td>Olay türüne göre ikon ve renk: yeşil bitti, sarı dikkat, kırmızı sorun, mavi bilgi</td></tr>
+        <tr><td>Sistem sekmesi</td><td>Akışlar, şablonlar ve modüller alt alta, çok uzun</td><td>Üç bölmeli seçici: Akışlar · Şablonlar · Modüller</td></tr>
+        <tr><td>Akış düzenleyici</td><td>Her aşamada 10'dan fazla alan açık</td><td>Aşama adı ve tek satırlık özet; ayarlar “Ayrıntılar” altında, yeni eklenen aşama açık gelir</td></tr>
+        <tr><td>Değer</td><td>Uygulamanın yaptığı iş görünmüyordu</td><td>Patron panelinde “Son 7 gün”: kendiliğinden yapılan devirler, tamamlanan işler, giden müşteri bilgilendirmeleri</td></tr>
         <tr><td>Prototip bandı</td><td>Uygulamanın parçası gibi görünüyordu</td><td>Koyu ve ince; uygulamadan açıkça ayrı</td></tr>
       </tbody></table></div>
   </section>
