@@ -1,7 +1,7 @@
 <title>Workflow</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&family=JetBrains+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap">
 <style>
 /* ==========================================================================
    Workflow tasarım dili v2 · sahada kullanım için
@@ -10,55 +10,58 @@
    (mavi = dokunulabilir, yeşil = bitti/iyi, sarı = bekliyor/dikkat, kırmızı = durdu/gecikti) · tek ikon seti · 4px ızgara
    ========================================================================== */
 :root {
-  /* zemin ve yüzey: soğuk, hafif mavi eğilimli griler; güneşte parlamasın diye saf beyaz yalnızca kartlarda */
-  --bg: #eceff3;
+  /* Yumuşak tasarım dili v3: açık lila zemin, beyaz kartlar, çivit vurgu, yuvarlak köşeler */
+  --bg: #f4f5fb;
   --surface: #ffffff;
-  --surface-2: #f3f5f8;
-  --sunk: #e3e7ed;
-  --ink: #0f1419;
-  --ink-2: #3f4854;
-  --ink-3: #59626e;
-  --line: #d9dee5;
-  --line-2: #c3cad4;
-  /* tek vurgu: iş mavisi, yalnızca dokunulabilir öğelerde */
-  --accent: #1d4ed8;
-  --accent-2: #1a3fae;
+  --surface-2: #f6f7fc;
+  --sunk: #eceef6;
+  --ink: #111827;
+  --ink-2: #4b5563;
+  --ink-3: #5b6474;
+  --line: #e5e7f0;
+  --line-2: #d3d6e4;
+  /* tek vurgu: çivit; yalnızca dokunulabilir öğelerde ve "benim" mesajlarımda */
+  --accent: #4f46e5;
+  --accent-2: #3730a3;
   --on-accent: #ffffff;
-  --accent-soft: #e5ecfd;
-  /* durum renkleri: metin olarak beyaz zeminde en az 4.5:1 */
-  --ok: #0b7a4b;
-  --ok-soft: #dff3e8;
-  --warn: #965a00;
-  --warn-soft: #fcefd6;
-  --bad: #c0291b;
-  --bad-soft: #fde6e3;
+  --accent-soft: #eef0ff;
+  --accent-line: #c7c9f9;
+  /* durum renkleri: beyaz zeminde metin olarak en az 4.5:1 */
+  --ok: #15803d;
+  --ok-soft: #dcfce7;
+  --warn: #92400e;
+  --warn-soft: #fef3c7;
+  --bad: #b91c1c;
+  --bad-soft: #fee2e2;
   --info: var(--accent);
   --info-soft: var(--accent-soft);
-  --band: #14181e;
-  --band-ink: #dfe3ea;
-  --shadow: 0 1px 2px rgba(15, 20, 25, .06);
-  --shadow-lg: 0 10px 30px rgba(15, 20, 25, .16);
+  --band: #14161f;
+  --band-ink: #dfe2ee;
+  --shadow: 0 1px 2px rgba(17, 24, 39, .05);
+  --shadow-md: 0 10px 26px rgba(79, 70, 229, .12);
+  --shadow-lg: 0 -12px 36px rgba(17, 24, 39, .14);
   /* ölçüler */
-  --r-sm: 8px; --r: 12px; --r-lg: 16px; --r-xl: 24px;
+  --r-sm: 10px; --r: 14px; --r-lg: 20px; --r-xl: 24px;
   --tap: 48px; --tap-lg: 56px;
-  --t-xs: .75rem; --t-sm: .875rem; --t-md: 1rem; --t-lg: 1.125rem; --t-xl: 1.375rem; --t-2xl: 1.75rem; --t-3xl: 2.25rem;
-  --display: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --text: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --t-xs: .75rem; --t-sm: .875rem; --t-md: 1rem; --t-lg: 1.125rem; --t-xl: 1.375rem; --t-2xl: 1.875rem; --t-3xl: 2.25rem;
+  --display: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --text: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --ease: cubic-bezier(.2, .8, .2, 1);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0c0e11; --surface: #161a1f; --surface-2: #1d2228; --sunk: #0a0c0e; --ink: #eef1f4; --ink-2: #b7bec8; --ink-3: #8a93a0; --line: #2a3038; --line-2: #3a424d;
-    --accent: #8cadff; --accent-2: #a9c2ff; --on-accent: #0a1022; --accent-soft: #1a2442;
-    --ok: #4fd39c; --ok-soft: #0f2a1e; --warn: #f2b65c; --warn-soft: #2d2311; --bad: #ff8b7c; --bad-soft: #361915;
-    --band: #050607; --band-ink: #c9ced8; --shadow: 0 1px 2px rgba(0, 0, 0, .5); --shadow-lg: 0 10px 30px rgba(0, 0, 0, .6); color-scheme: dark;
+    --bg: #0f1117; --surface: #171a23; --surface-2: #1d2130; --sunk: #0b0d12; --ink: #eef0f6; --ink-2: #b8bdcc; --ink-3: #959bad; --line: #2a2f3d; --line-2: #3a4152;
+    --accent: #a5b4fc; --accent-2: #c7d2fe; --on-accent: #1e1b4b; --accent-soft: #23254a; --accent-line: #3f4380;
+    --ok: #4ade80; --ok-soft: #10291a; --warn: #fbbf24; --warn-soft: #2c2210; --bad: #fca5a5; --bad-soft: #351616;
+    --band: #07080b; --band-ink: #c9cdd8; --shadow: 0 1px 2px rgba(0, 0, 0, .5); --shadow-md: 0 10px 26px rgba(0, 0, 0, .45); --shadow-lg: 0 -12px 36px rgba(0, 0, 0, .6); color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0c0e11; --surface: #161a1f; --surface-2: #1d2228; --sunk: #0a0c0e; --ink: #eef1f4; --ink-2: #b7bec8; --ink-3: #8a93a0; --line: #2a3038; --line-2: #3a424d;
-  --accent: #8cadff; --accent-2: #a9c2ff; --on-accent: #0a1022; --accent-soft: #1a2442;
-  --ok: #4fd39c; --ok-soft: #0f2a1e; --warn: #f2b65c; --warn-soft: #2d2311; --bad: #ff8b7c; --bad-soft: #361915;
-  --band: #050607; --band-ink: #c9ced8; --shadow: 0 1px 2px rgba(0, 0, 0, .5); --shadow-lg: 0 10px 30px rgba(0, 0, 0, .6); color-scheme: dark;
+  --bg: #0f1117; --surface: #171a23; --surface-2: #1d2130; --sunk: #0b0d12; --ink: #eef0f6; --ink-2: #b8bdcc; --ink-3: #959bad; --line: #2a2f3d; --line-2: #3a4152;
+  --accent: #a5b4fc; --accent-2: #c7d2fe; --on-accent: #1e1b4b; --accent-soft: #23254a; --accent-line: #3f4380;
+  --ok: #4ade80; --ok-soft: #10291a; --warn: #fbbf24; --warn-soft: #2c2210; --bad: #fca5a5; --bad-soft: #351616;
+  --band: #07080b; --band-ink: #c9cdd8; --shadow: 0 1px 2px rgba(0, 0, 0, .5); --shadow-md: 0 10px 26px rgba(0, 0, 0, .45); --shadow-lg: 0 -12px 36px rgba(0, 0, 0, .6); color-scheme: dark;
 }
 
 /* ---------- temel ---------- */
@@ -820,6 +823,101 @@ main.ob { display: grid; gap: 16px; padding-block: 20px 48px; }
 .soon { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .84rem; color: var(--ink-2); }
 .wzlist { display: grid; gap: 8px; max-height: 52vh; overflow-y: auto; }
 .choice.sel { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+/* ==========================================================================
+   Yumuşak tasarım dili v3 · bileşen katmanı
+   Kural: yuvarlak (14/20/24), yumuşak gölge yalnız öne çıkan kartta, çivit yalnız eylemde.
+   Hareket: ekrana girişte kısa yükselme, pencere alttan kayar, bildirim üstten düşer,
+   tikler çizilir, canlı nokta nabız atar. Hepsi 0.2–0.6 sn; "hareketi azalt" açıksa kapanır.
+   ========================================================================== */
+@keyframes sf-rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes sf-inL { from { opacity: 0; transform: translate(-8px, 8px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes sf-inR { from { opacity: 0; transform: translate(8px, 8px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes sf-live { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); } 70% { box-shadow: 0 0 0 7px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+@keyframes sf-pop { 0% { transform: scale(0); } 70% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@keyframes sf-grow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes sf-draw { from { stroke-dashoffset: 30; } to { stroke-dashoffset: 0; } }
+body { font-feature-settings: normal; letter-spacing: -.003em; }
+h1 { font-weight: 800; letter-spacing: -.02em; }
+h2 { font-weight: 700; letter-spacing: -.01em; }
+.eyebrow { font-weight: 700; letter-spacing: .08em; color: var(--ink-2); }
+.top { padding-block: 28px 6px; }
+.bell { border-radius: var(--r); }
+/* kartlar */
+.list, .kpi, .hero, .me-card, .tk-opt, .empty { border-radius: var(--r-lg); }
+.hero { box-shadow: var(--shadow); }
+.hero.bad { background: linear-gradient(135deg, var(--bad-soft), var(--surface) 70%); }
+.hero.warn { background: linear-gradient(135deg, var(--warn-soft), var(--surface) 70%); }
+.hero.ok { background: linear-gradient(135deg, var(--ok-soft), var(--surface) 70%); }
+.kpi .v { font-weight: 800; letter-spacing: -.03em; }
+.kpi.bad .v { color: var(--bad); }
+.jr .t { font-weight: 700; }
+.jr, .att, .set, .pr { border-color: color-mix(in srgb, var(--line) 75%, var(--surface)); }
+.task { border-radius: var(--r-xl); box-shadow: var(--shadow-md); }
+.task::before { display: none; }
+.task.working { border-color: var(--accent-line); }
+.task.blocked { border-color: color-mix(in srgb, var(--bad) 40%, var(--line)); }
+.task h3 { font-weight: 800; }
+.wo { font-family: var(--text); font-weight: 700; letter-spacing: .06em; color: var(--ink-2); }
+.timer { font-family: var(--display); font-weight: 800; letter-spacing: -.02em; }
+.tool { border-radius: var(--r); }
+.note { border-radius: var(--r); }
+.pcard, .kcol, .kcard { border-radius: var(--r); }
+.kcard { box-shadow: var(--shadow); }
+.gstep.cur .dotn { animation: sf-live 2s ease-out infinite; }
+/* durum etiketleri: "yapılıyor" nabız atar */
+.pill { font-weight: 700; }
+.pill.acc { background: var(--accent-soft); color: var(--accent-2); padding-left: 8px; }
+.pill.acc::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex: none; animation: sf-live 2s ease-out infinite; }
+.prog { height: 6px; border-radius: 999px; }
+.prog i { border-radius: 999px; transform-origin: 0 50%; }
+#app.enter .prog i { animation: sf-grow .9s .15s both var(--ease); }
+/* düğmeler ve seçiciler */
+.btn { border-radius: var(--r); font-weight: 700; transition: transform .12s, background .2s, color .2s, box-shadow .2s; }
+.btn.xl { border-radius: 18px; }
+.btn:not(.line):not(.ghost):not(.dark):not(:disabled) { box-shadow: 0 8px 20px color-mix(in srgb, var(--accent) 22%, transparent); }
+.btn.ok:not(:disabled) { box-shadow: 0 8px 20px color-mix(in srgb, var(--ok) 24%, transparent); }
+.btn:active:not(:disabled), .chip:active, .tool:active, .att:active, .jr:active, .kpi:active, .tck:active { transform: scale(.97); }
+.chip { border-color: var(--line); font-weight: 600; transition: background .2s, color .2s, border-color .2s, transform .12s; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.seg { border-radius: 16px; background: var(--sunk); border-color: var(--line); }
+.seg button { border-radius: 12px; transition: background .2s, color .2s; }
+.seg button[aria-pressed="true"] { box-shadow: var(--shadow); }
+.in, textarea, select.in { border-radius: var(--r); background: var(--surface); }
+.in:focus, textarea:focus, select:focus { box-shadow: 0 0 0 4px var(--accent-soft); }
+.sw[aria-checked="true"] { background: var(--accent); }
+.tck { border-radius: var(--r); }
+.tck[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent-line); }
+.tck[aria-pressed="true"] .bx { background: var(--accent); border-color: var(--accent); border-radius: 50%; }
+.tck .bx { border-radius: 50%; }
+.tck[aria-pressed="true"] .bx svg path { stroke-dasharray: 30; animation: sf-draw .35s both ease-out; }
+/* alt menü: düz beyaz, seçili sekme lila kapsül, ortada yuvarlak-kare ＋ */
+nav.tabs { background: color-mix(in srgb, var(--surface) 94%, transparent); border-top-color: var(--line); }
+.tab { font-weight: 600; color: var(--ink-2); }
+.tab[aria-selected="true"] { color: var(--accent-2); font-weight: 800; }
+.tab[aria-selected="true"] .i { background: var(--accent-soft); color: var(--accent); }
+.tab.tplus .i { width: 54px; height: 54px; border-radius: 18px; margin-top: -22px; border: 0; background: var(--accent); color: var(--on-accent); box-shadow: 0 10px 24px color-mix(in srgb, var(--accent) 38%, transparent); }
+#app.enter ~ #nav .tb, #nav .tb.new { animation: sf-pop .4s both var(--ease); }
+/* pencere ve bildirim */
+.scrim { background: rgba(17, 18, 32, .42); }
+.sheet { border-radius: 28px 28px 0 0; }
+.toast { border-radius: var(--r-lg); box-shadow: 0 14px 34px rgba(17, 24, 39, .22); }
+/* sohbet: yuvarlak baloncuklar, mesajlar kayarak gelir */
+.bub { border-radius: 20px 20px 20px 6px; padding: 11px 14px; font-size: .95rem; line-height: 1.45; }
+.msg.me .bub { border-radius: 20px 20px 6px 20px; }
+.cvm > .msg:last-child { animation: sf-inL .35s both var(--ease); }
+.cvm > .msg.me:last-child { animation-name: sf-inR; }
+.msys, .dsep { border-radius: 999px; padding: 5px 12px; font-weight: 600; background: var(--sunk); border-color: transparent; }
+.cvh { padding-block: 12px; }
+.cvrow .in { border-radius: 999px; background: var(--surface-2); }
+/* ekrana giriş: yalnız sekme ya da kişi değişince, kartlar sırayla yükselir */
+#app.enter .top, #app.enter main > * { animation: sf-rise .5s both var(--ease); }
+#app.enter main > *:nth-child(2) { animation-delay: .05s; } #app.enter main > *:nth-child(3) { animation-delay: .1s; }
+#app.enter main > *:nth-child(4) { animation-delay: .15s; } #app.enter main > *:nth-child(n+5) { animation-delay: .2s; }
+/* giriş ekranı */
+.ob-logo { border-radius: 18px; box-shadow: 0 12px 28px color-mix(in srgb, var(--accent) 35%, transparent); }
+.ob-hero h1 { font-weight: 800; letter-spacing: -.03em; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 
 <div class="band"><div class="band-in gut">
@@ -4228,7 +4326,9 @@ var qrcode = function() {
     if (home === "driver") return renderDriver();
     return renderWorker();
   }
+  let enterKey = "";
   function setNav(items) {
+    const ek = `${me}|${tab}|${jobView}`; if (ek !== enterKey) { enterKey = ek; const a = $("#app"); if (a) { a.classList.remove("enter"); void a.offsetWidth; a.classList.add("enter"); clearTimeout(setNav.t); setNav.t = setTimeout(() => a.classList.remove("enter"), 800); } }
     const sel = k => tab === k || (k === "more" && ["more", "rapor", "ekip", "ayar"].includes(tab) && homeOf(me) === "boss");
     $("#nav").innerHTML = items ? `<nav class="tabs" aria-label="Ana menü">${items.map(([k, i, l]) => k === "plus"
       ? `<button class="tab tplus" data-plus aria-label="Yeni oluştur"><span class="i">${i}</span>${l}</button>`
