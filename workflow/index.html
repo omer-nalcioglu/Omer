@@ -3304,7 +3304,152 @@ var qrcode = function() {
       stages: [T("Sipariş", "Müşteri hizmetleri", "task", { sla: 30 * MN, pub: "Sipariş alındı" }), T("Ödeme kontrolü", "Muhasebe", "task", { sla: 30 * MN, pub: "Onaylandı" }),
         T("Toplama", "Depo ve sevkiyat", "task", { sla: 2, pub: "Hazırlanıyor" }), T("Paketleme", "Depo ve sevkiyat", "pack", { sla: 2, pub: "Paketlendi" }),
         T("Kargoya teslim", "Şoför", "delivery", { sla: 24, pub: "Kargoda" })] },
+    // ---- yeni sektörler ----
+    // Üretim
+    { id: "aydinlatma", grp: "Üretim", ico: "💡", name: "Aydınlatma üretimi", desc: "Kalemli siparişten sevkiyata: malzeme, gövde, montaj ve kablolama, ışık testi, etiketli ambalaj.", who: "Armatür, spot, LED ve aydınlatma üreticisi",
+      stages: [T("Sipariş onayı", "Patron", "approval", { sla: 4, pub: "Sipariş alındı", cl: ["Renk ve soket bilgisi net", "Termin uygun"] }), T("Malzeme toplama", "Depo ve sevkiyat", "task", { sla: 4, pub: "Hazırlanıyor", cl: ["Gövde, LED, driver hazır"] }),
+        T("Gövde hazırlık", "Üretim", "task", { sla: 8, pub: "Üretimde" }), T("Montaj ve kablolama", "Montaj", "task", { sla: 12, pub: "Üretimde", cl: ["Soket ve kablo doğru", "Renk sıcaklığı doğru"] }),
+        T("Işık testi", "Kalite kontrol", "approval", { sla: 2, pub: "Test ediliyor", cl: ["Yanma testi", "Renk sıcaklığı", "Kasa rengi"] }), T("Ambalaj ve etiket", "Depo ve sevkiyat", "pack", { sla: 4, pub: "Paketleniyor", cl: ["Etiket kalemle eşleşiyor"] }),
+        T("Sevkiyat", "Şoför", "delivery", { sla: 8 })] },
+    { id: "matbaa", grp: "Üretim", ico: "🖨️", name: "Matbaa ve baskı", desc: "Dosyadan teslime: tasarım, müşteri prova onayı, baskı, kesim ve cilt, kontrol.", who: "Matbaa, dijital baskı, ambalaj ve etiket baskı",
+      stages: [T("Sipariş ve dosya", "Müşteri hizmetleri", "task", { sla: 2, pub: "Sipariş alındı", cl: ["Ölçü, adet, kağıt cinsi"] }), T("Grafik hazırlık", "Tasarım", "task", { sla: 8, pub: "Tasarım" }),
+        T("Prova onayı", "Patron", "approval", { sla: 24, pub: "Provanız onayda", cust: true, cl: ["Müşteri provayı onayladı"] }), T("Kalıp ve ön hazırlık", "Baskı", "task", { sla: 4, pub: "Baskıya hazırlanıyor" }),
+        T("Baskı", "Baskı", "task", { sla: 8, photo: true, pub: "Baskıda" }), T("Kesim ve cilt", "Mücellit", "task", { sla: 6, pub: "Son işlemler" }), T("Kalite kontrol", "Kalite kontrol", "approval", { sla: 2, cl: ["Renk", "Kesim payı", "Adet"] }),
+        T("Paketleme ve teslim", "Depo ve sevkiyat", "task", { sla: 4, pub: "Teslime hazır" })] },
+    { id: "gida", grp: "Üretim", ico: "🥖", name: "Gıda üretimi", desc: "Hammadde kontrolünden etiketli teslime: hijyen ve son kullanma kontrolü dahil.", who: "Fırın, unlu mamul, şarküteri, gıda atölyesi",
+      stages: [T("Sipariş", "Müşteri hizmetleri", "task", { sla: 1, pub: "Sipariş alındı" }), T("Hammadde kontrolü", "Depo ve sevkiyat", "task", { sla: 2, cl: ["Son kullanma tarihleri", "Soğuk zincir"] }),
+        T("Hazırlık", "Üretim", "task", { sla: 3, pub: "Hazırlanıyor" }), T("Pişirme / üretim", "Üretim", "task", { sla: 4, pub: "Üretimde" }), T("Soğutma ve paketleme", "Paketleme", "task", { sla: 2 }),
+        T("Etiket ve hijyen kontrolü", "Kalite kontrol", "approval", { sla: 1, cl: ["Etiket ve SKT", "Gramaj", "Hijyen"] }), T("Teslimat", "Şoför", "delivery", { sla: 4 })] },
+    { id: "cam", grp: "Üretim", ico: "🪟", name: "PVC, alüminyum ve cam", desc: "Keşiften montaja: profil kesim ve kaynak, cam siparişi beklenirken aksesuar, yerinde montaj.", who: "PVC doğrama, alüminyum, cam balkon",
+      stages: [T("Keşif ve ölçü", "Teknik / ölçüm", "task", { sla: 24, photo: true, pub: "Ölçü alındı" }), T("Teklif onayı", "Patron", "approval", { sla: 48, pub: "Onayınız bekleniyor", cust: true }),
+        T("Profil kesim", "Üretim", "task", { sla: 8, pub: "Üretimde" }), T("Cam siparişi", "Satın alma", "wait", { par: true, sla: 72, pub: "Cam bekleniyor" }), T("Kaynak ve birleştirme", "Üretim", "task", { sla: 8, pub: "Üretimde" }),
+        T("Aksesuar ve cam takma", "Montaj", "task", { sla: 6 }), T("Kalite kontrol", "Kalite kontrol", "approval", { sla: 2 }), T("Yerinde montaj", "Montaj", "task", { sla: 8, photo: true, pub: "Montaj", cl: ["Silikon", "Ayar", "Temizlik"] })] },
+    { id: "kuyum", grp: "Üretim", ico: "💍", name: "Kuyumcu ve takı atölyesi", desc: "Özel siparişten teslime: tasarım onayı, döküm, mıhlama ve cila.", who: "Kuyumcu, takı ve mücevher atölyesi",
+      stages: [T("Sipariş ve ölçü", "Satış", "task", { sla: 1, pub: "Sipariş alındı", cl: ["Ayar ve gram", "Ölçü"] }), T("Tasarım onayı", "Patron", "approval", { sla: 48, pub: "Tasarım onayınızda", cust: true }),
+        T("Döküm", "Atölye", "task", { sla: 24, pub: "Üretimde" }), T("Tesviye ve taş mıhlama", "Atölye", "task", { sla: 16, pub: "Üretimde" }), T("Cila", "Atölye", "task", { sla: 4 }),
+        T("Kontrol ve tartım", "Patron", "approval", { sla: 2, photo: true, cl: ["Gram", "Ayar damgası"] }), T("Teslim", "Satış", "task", { sla: 24, pub: "Teslime hazır" })] },
+    { id: "mermer", grp: "Üretim", ico: "🪨", name: "Mermer ve tezgah", desc: "Ölçüden montaja: şablon, CNC kesim, kenar ve cila, yerinde montaj.", who: "Mermer, granit, çimstone tezgah atölyesi",
+      stages: [T("Ölçü ve şablon", "Teknik / ölçüm", "task", { sla: 24, photo: true, pub: "Ölçü alındı" }), T("Müşteri onayı", "Patron", "approval", { sla: 48, pub: "Onayınız bekleniyor", cust: true, cl: ["Renk ve kenar tipi onaylandı"] }),
+        T("Plaka kesim", "Üretim", "task", { sla: 8, pub: "Üretimde" }), T("Kenar ve cila", "Üretim", "task", { sla: 8 }), T("Kalite kontrol", "Kalite kontrol", "approval", { sla: 2 }),
+        T("Yerinde montaj", "Montaj", "task", { sla: 6, photo: true, pub: "Montaj" })] },
+    { id: "plastik", grp: "Üretim", ico: "🧪", name: "Plastik ve kalıp üretimi", desc: "Sipariş onayından sevkiyata: kalıp hazırlık, enjeksiyon, çapak alma, kontrol.", who: "Plastik enjeksiyon, kalıphane, fason üretim",
+      stages: [T("Sipariş onayı", "Patron", "approval", { sla: 4, pub: "Sipariş alındı" }), T("Hammadde ve kalıp hazırlık", "Kalıphane", "task", { sla: 8, pub: "Hazırlanıyor" }),
+        T("Enjeksiyon", "Üretim", "task", { sla: 24, pub: "Üretimde", cl: ["İlk numune onaylandı"] }), T("Çapak alma ve montaj", "Üretim", "task", { sla: 8 }), T("Kalite kontrol", "Kalite kontrol", "approval", { sla: 4, cl: ["Ölçü", "Renk", "Adet"] }),
+        T("Paketleme", "Depo ve sevkiyat", "pack", { sla: 4, pub: "Paketleniyor" }), T("Sevkiyat", "Şoför", "delivery", { sla: 8 })] },
+    // Hizmet ve saha
+    { id: "klima", grp: "Hizmet ve saha", ico: "❄️", name: "Klima ve beyaz eşya servisi", desc: "Arızadan ödemeye: randevu, yerinde tespit, parça beklenirken müşteri bilgisi, onarım.", who: "Klima, kombi ve beyaz eşya servisi",
+      stages: [T("Talep ve randevu", "Müşteri hizmetleri", "task", { sla: 2, pub: "Randevunuz alındı", cl: ["Adres", "Cihaz marka ve model"] }), T("Yerinde tespit", "Teknik servis", "task", { sla: 24, photo: true, pub: "Teknisyen yolda" }),
+        T("Fiyat onayı", "Müşteri hizmetleri", "approval", { sla: 4, pub: "Onayınız bekleniyor", cust: true }), T("Parça temini", "Satın alma", "wait", { sla: 48, pub: "Parça bekleniyor" }),
+        T("Onarım / montaj", "Teknik servis", "task", { sla: 4, photo: true, pub: "Onarımda", cl: ["Gaz basıncı", "Test çalıştırma"] }), T("Ödeme", "Muhasebe", "task", { sla: 24, pub: "Tamamlandı" })] },
+    { id: "elektrik", grp: "Hizmet ve saha", ico: "🔌", name: "Elektrik ve tesisat", desc: "Keşiften teste: teklif onayı, malzeme temini, uygulama ve kontrol.", who: "Elektrik, sıhhi tesisat, doğalgaz firması",
+      stages: [T("Talep", "Müşteri hizmetleri", "task", { sla: 2, pub: "Talebiniz alındı" }), T("Keşif", "Usta", "task", { sla: 24, photo: true, pub: "Keşif" }), T("Teklif onayı", "Patron", "approval", { sla: 48, pub: "Onayınız bekleniyor", cust: true }),
+        T("Malzeme temini", "Satın alma", "wait", { sla: 24, pub: "Malzeme bekleniyor" }), T("Uygulama", "Usta", "task", { sla: 16, photo: true, pub: "Uygulamada" }), T("Test ve kontrol", "Ustabaşı / yönetim", "approval", { sla: 2, cl: ["Kaçak akım", "Basınç testi"] }),
+        T("Ödeme", "Muhasebe", "task", { sla: 24, pub: "Tamamlandı" })] },
+    { id: "peyzaj", grp: "Hizmet ve saha", ico: "🌿", name: "Peyzaj ve bahçe", desc: "Keşiften bakım planına: proje onayı, fide temini, uygulama ve kontrol.", who: "Peyzaj, bahçe bakımı, çim ve sulama",
+      stages: [T("Keşif", "Peyzaj ekibi", "task", { sla: 24, photo: true }), T("Proje ve teklif onayı", "Patron", "approval", { sla: 48, pub: "Onayınız bekleniyor", cust: true }),
+        T("Fide ve malzeme", "Satın alma", "wait", { sla: 48, pub: "Malzeme bekleniyor" }), T("Uygulama", "Peyzaj ekibi", "task", { sla: 24, photo: true, pub: "Uygulamada" }), T("Sulama kurulumu", "Teknik ekip", "task", { par: true, sla: 8 }),
+        T("Kontrol", "Ustabaşı / yönetim", "approval", { sla: 2 }), T("Ödeme", "Muhasebe", "task", { sla: 24, pub: "Tamamlandı" })] },
+    { id: "guvenlik", grp: "Hizmet ve saha", ico: "📹", name: "Güvenlik ve kamera sistemleri", desc: "Keşiften devreye almaya: proje, cihaz tedariki, kurulum ve kullanıcı eğitimi.", who: "Kamera, alarm, geçiş kontrol firması",
+      stages: [T("Keşif", "Teknik ekip", "task", { sla: 24, photo: true }), T("Proje ve teklif onayı", "Patron", "approval", { sla: 48, pub: "Onayınız bekleniyor", cust: true }), T("Cihaz tedariki", "Satın alma", "wait", { sla: 48, pub: "Cihazlar bekleniyor" }),
+        T("Kablolama ve kurulum", "Teknik ekip", "task", { sla: 16, photo: true, pub: "Kurulumda" }), T("Devreye alma ve eğitim", "Teknik ekip", "task", { sla: 4, cl: ["Kayıt testi", "Mobil erişim", "Kullanıcı eğitimi"] }),
+        T("Ödeme", "Muhasebe", "task", { sla: 24, pub: "Tamamlandı" })] },
+    { id: "nakliyat", grp: "Hizmet ve saha", ico: "🚛", name: "Evden eve nakliyat", desc: "Ekspertizden yerleştirmeye: paketleme, yükleme, taşıma ve kurulum.", who: "Evden eve nakliyat, ofis taşıma",
+      stages: [T("Talep", "Müşteri hizmetleri", "task", { sla: 2, pub: "Talebiniz alındı" }), T("Ekspertiz", "Ekspertiz", "task", { sla: 24, photo: true }), T("Teklif onayı", "Patron", "approval", { sla: 48, pub: "Onayınız bekleniyor", cust: true }),
+        T("Paketleme", "Taşıma ekibi", "task", { sla: 8, photo: true, pub: "Paketleniyor" }), T("Yükleme", "Taşıma ekibi", "task", { sla: 4, pub: "Yükleniyor" }), T("Taşıma", "Şoför", "delivery", { sla: 8, pub: "Yolda" }),
+        T("Yerleştirme ve kurulum", "Taşıma ekibi", "task", { sla: 6, photo: true, pub: "Yerleştiriliyor" }), T("Ödeme", "Muhasebe", "task", { sla: 24, pub: "Tamamlandı" })] },
+    { id: "asansor", grp: "Hizmet ve saha", ico: "🛗", name: "Asansör ve bakım servisi", desc: "Periyodik bakımdan rapora: kontrol listesi, arıza, parça bekleme ve test.", who: "Asansör, jeneratör, bina teknik bakım",
+      stages: [T("Bakım planı", "Ustabaşı / yönetim", "task", { sla: 24, pub: "Bakım planlandı" }), T("Periyodik kontrol", "Teknik servis", "task", { sla: 4, photo: true, cl: ["Halat", "Fren", "Kapı kilitleri", "Acil durum"] }),
+        T("Parça temini", "Satın alma", "wait", { sla: 72, pub: "Parça bekleniyor" }), T("Onarım", "Teknik servis", "task", { sla: 6 }), T("Test ve rapor", "Ustabaşı / yönetim", "approval", { sla: 4, cl: ["Test sürüşü", "Bakım raporu imzalandı"] })] },
+    // Otomotiv
+    { id: "kaporta", grp: "Otomotiv", ico: "🚙", name: "Kaporta ve boya", desc: "Ekspertizden teslime: sigorta onayı beklenirken söküm, kaporta, boya ve montaj.", who: "Kaporta, boya, hasar onarım servisi",
+      stages: [T("Araç kabul ve ekspertiz", "Servis danışmanı", "task", { sla: 2, photo: true, pub: "Aracınız kabul edildi" }), T("Sigorta onayı", "Servis danışmanı", "wait", { sla: 72, pub: "Sigorta onayı bekleniyor" }),
+        T("Söküm", "Kaporta", "task", { sla: 4 }), T("Kaporta", "Kaporta", "task", { sla: 16, photo: true, pub: "Onarımda" }), T("Boya", "Boya", "task", { sla: 16, photo: true, pub: "Boyada" }),
+        T("Montaj ve cila", "Kaporta", "task", { sla: 6 }), T("Son kontrol", "Servis danışmanı", "approval", { sla: 1, cl: ["Renk tonu", "Boşluk ayarları"] }), T("Teslim ve ödeme", "Servis danışmanı", "task", { sla: 2, pub: "Teslime hazır" })] },
+    { id: "detayli", grp: "Otomotiv", ico: "🧼", name: "Oto kuaför ve detaylı temizlik", desc: "Kabulden teslime: dış ve iç temizlik aynı anda, cila ve kaplama, kontrol.", who: "Oto kuaför, detaylı temizlik, seramik kaplama",
+      stages: [T("Araç kabul", "Danışma", "task", { sla: 1, photo: true, pub: "Aracınız alındı", cl: ["Hasar fotoğrafları", "Değerli eşya"] }), T("Dış temizlik", "Yıkama", "task", { sla: 2, pub: "İşlemde" }),
+        T("İç temizlik", "İç detay", "task", { par: true, sla: 3, pub: "İşlemde" }), T("Cila ve kaplama", "Detay", "task", { sla: 4, photo: true }), T("Kontrol", "Danışma", "approval", { sla: 1 }), T("Teslim", "Danışma", "task", { sla: 1, pub: "Teslime hazır" })] },
+    // Ticaret
+    { id: "toptan", grp: "Ticaret", ico: "🏬", name: "Toptan satış ve bayi", desc: "Siparişten faturaya: stok ve cari limit kontrolü, toplama, barkodlu paketleme, sevkiyat.", who: "Toptancı, distribütör, bayi ağı",
+      stages: [T("Sipariş", "Satış", "task", { sla: 2, pub: "Sipariş alındı" }), T("Stok kontrolü", "Depo ve sevkiyat", "task", { sla: 2 }), T("Cari limit onayı", "Muhasebe", "approval", { par: true, sla: 4 }),
+        T("Toplama", "Depo ve sevkiyat", "task", { sla: 4, pub: "Hazırlanıyor" }), T("Paketleme", "Depo ve sevkiyat", "pack", { sla: 2, pub: "Paketlendi" }), T("Sevkiyat", "Şoför", "delivery", { sla: 24, pub: "Yolda" }),
+        T("Fatura", "Muhasebe", "task", { sla: 24 })] },
+    { id: "magaza", grp: "Ticaret", ico: "🛍️", name: "Mağaza özel sipariş", desc: "Müşteri isteğinden teslime: kapora, tedarikçi siparişi, mal kabul ve haber verme.", who: "Mağaza, butik, perakende",
+      stages: [T("Sipariş ve kapora", "Satış", "task", { sla: 1, pub: "Siparişiniz alındı", cl: ["Kapora alındı", "Ürün ve beden net"] }), T("Tedarikçiye sipariş", "Satın alma", "task", { sla: 4 }),
+        T("Ürün bekleniyor", "Satın alma", "wait", { sla: 120, pub: "Ürün yolda" }), T("Mal kabul ve kontrol", "Depo", "task", { sla: 4, photo: true }), T("Müşteriye haber ver", "Satış", "task", { sla: 2, pub: "Ürününüz geldi" }),
+        T("Teslim ve ödeme", "Satış", "task", { sla: 72, pub: "Teslim edildi" })] },
+    { id: "ihracat", grp: "Ticaret", ico: "🌍", name: "İhracat siparişi", desc: "Proformadan tahsilata: üretim ya da temin, kalite, gümrük evrakı, yükleme ve takip.", who: "İhracatçı, dış ticaret firması",
+      stages: [T("Proforma onayı", "Dış ticaret", "approval", { sla: 72, pub: "Proforma onayınızda", cust: true }), T("Üretim / temin", "Üretim", "task", { sla: 120, pub: "Hazırlanıyor" }),
+        T("Kalite kontrol", "Kalite kontrol", "approval", { sla: 8 }), T("Paketleme", "Depo ve sevkiyat", "pack", { sla: 8, pub: "Paketleniyor" }), T("Gümrük evrakı", "Dış ticaret", "task", { par: true, sla: 16, cl: ["Fatura", "Çeki listesi", "Menşe"] }),
+        T("Yükleme", "Depo ve sevkiyat", "task", { sla: 4, photo: true, pub: "Yüklendi" }), T("Yolda", "Dış ticaret", "wait", { sla: 336, pub: "Yolda" }), T("Tahsilat", "Muhasebe", "task", { sla: 72 })] },
+    // Yeme içme ve konaklama
+    { id: "catering", grp: "Yeme içme ve konaklama", ico: "🍱", name: "Catering ve organizasyon yemeği", desc: "Talepten ödemeye: menü onayı, alım, hazırlık, servis kurulumu ve toplama.", who: "Catering, toplu yemek, organizasyon mutfağı",
+      stages: [T("Talep", "Satış", "task", { sla: 2, pub: "Talebiniz alındı", cl: ["Kişi sayısı", "Tarih ve adres"] }), T("Menü ve teklif onayı", "Patron", "approval", { sla: 48, pub: "Menü onayınızda", cust: true }),
+        T("Malzeme alımı", "Satın alma", "task", { sla: 24 }), T("Hazırlık", "Mutfak", "task", { sla: 8 }), T("Pişirme", "Mutfak", "task", { sla: 6 }), T("Servis ve kurulum", "Servis", "task", { sla: 6, photo: true, pub: "Servis" }),
+        T("Toplama", "Servis", "task", { sla: 3 }), T("Ödeme", "Muhasebe", "task", { sla: 24, pub: "Tamamlandı" })] },
+    { id: "pastane", grp: "Yeme içme ve konaklama", ico: "🎂", name: "Pastane özel sipariş", desc: "Tasarımdan teslime: müşteri onayı, pişirme, süsleme ve fotoğraflı kontrol.", who: "Pastane, butik pasta, tatlıcı",
+      stages: [T("Sipariş ve tasarım", "Satış", "task", { sla: 2, pub: "Siparişiniz alındı", cl: ["Kişi sayısı", "Tat ve süsleme", "Teslim saati"] }), T("Tasarım onayı", "Patron", "approval", { sla: 24, pub: "Tasarım onayınızda", cust: true }),
+        T("Hazırlık", "Mutfak", "task", { sla: 4 }), T("Pişirme", "Mutfak", "task", { sla: 3, pub: "Hazırlanıyor" }), T("Süsleme", "Süsleme", "task", { sla: 4, photo: true }), T("Kontrol", "Patron", "approval", { sla: 1 }),
+        T("Teslim", "Satış", "task", { sla: 4, pub: "Teslime hazır" })] },
+    { id: "otel", grp: "Yeme içme ve konaklama", ico: "🏨", name: "Otel oda hazırlığı", desc: "Çıkıştan hazır odaya: temizlik, teknik ve minibar aynı anda, kat şefi kontrolü.", who: "Otel, pansiyon, apart",
+      prefs: { signReq: false, custNotify: false, custVisible: false },
+      stages: [T("Çıkış yapıldı", "Resepsiyon", "task", { sla: 30 * MN }), T("Oda temizliği", "Kat hizmetleri", "task", { sla: 1, photo: true, cl: ["Çarşaf ve havlu", "Banyo", "Zemin"] }),
+        T("Teknik kontrol", "Teknik", "task", { par: true, sla: 1 }), T("Minibar", "Kat hizmetleri", "task", { par: true, sla: 15 * MN }), T("Kat şefi kontrolü", "Kat şefi", "approval", { sla: 30 * MN }), T("Oda hazır", "Resepsiyon", "task", { sla: 15 * MN })] },
+    // Sağlık ve güzellik
+    { id: "dis", grp: "Sağlık ve güzellik", ico: "🦷", name: "Diş protez laboratuvarı", desc: "Ölçüden teslime: model, altyapı, klinik provası beklenirken, porselen ve kontrol.", who: "Diş protez laboratuvarı",
+      stages: [T("Ölçü kabul", "Kabul", "task", { sla: 2, pub: "Ölçü alındı", cl: ["Hekim ve hasta", "Renk"] }), T("Model", "Teknisyen", "task", { sla: 8 }), T("Altyapı", "Teknisyen", "task", { sla: 16 }),
+        T("Klinik provası", "Kabul", "wait", { sla: 72, pub: "Provada" }), T("Porselen", "Teknisyen", "task", { sla: 16 }), T("Kontrol", "Laboratuvar sorumlusu", "approval", { sla: 2, photo: true }),
+        T("Teslim", "Kurye", "task", { sla: 8, pub: "Teslim edildi" })] },
+    { id: "optik", grp: "Sağlık ve güzellik", ico: "👓", name: "Optik gözlük siparişi", desc: "Reçeteden teslime: çerçeve seçimi, cam siparişi beklenirken, montaj ve kontrol.", who: "Optik mağazası",
+      stages: [T("Reçete ve ölçü", "Satış", "task", { sla: 1, pub: "Siparişiniz alındı", cl: ["Reçete değerleri", "Göz bebeği mesafesi"] }), T("Cam siparişi", "Satış", "task", { sla: 2 }),
+        T("Cam bekleniyor", "Satış", "wait", { sla: 72, pub: "Camlar bekleniyor" }), T("Montaj", "Atölye", "task", { sla: 2 }), T("Kontrol", "Optisyen", "approval", { sla: 1 }), T("Teslim", "Satış", "task", { sla: 48, pub: "Teslime hazır" })] },
+    { id: "guzellik", grp: "Sağlık ve güzellik", ico: "💇", name: "Kuaför ve güzellik salonu", desc: "Randevudan memnuniyete: karşılama, hizmet, ödeme ve sonraki randevu.", who: "Kuaför, berber, güzellik salonu, spa",
+      prefs: { signReq: false, custNotify: true, custVisible: false },
+      stages: [T("Randevu", "Resepsiyon", "task", { sla: 1, pub: "Randevunuz alındı" }), T("Karşılama", "Resepsiyon", "task", { sla: 15 * MN }), T("Hizmet", "Uzman", "task", { sla: 2, photo: true }),
+        T("Ödeme", "Resepsiyon", "task", { sla: 15 * MN }), T("Sonraki randevu", "Resepsiyon", "task", { sla: 24, cl: ["Memnuniyet soruldu"] })] },
+    // Ofis ve profesyonel hizmet
+    { id: "ajans", grp: "Ofis ve profesyonel hizmet", ico: "🎨", name: "Reklam ve tasarım ajansı", desc: "Brief'ten teslime: teklif ve konsept onayı, üretim, revizyon ve fatura.", who: "Reklam, tasarım, sosyal medya ajansı",
+      stages: [T("Brief", "Müşteri temsilcisi", "task", { sla: 8, pub: "Brief alındı" }), T("Teklif onayı", "Patron", "approval", { sla: 48, pub: "Teklif onayınızda", cust: true }), T("Konsept", "Tasarım", "task", { sla: 24 }),
+        T("Konsept onayı", "Müşteri temsilcisi", "approval", { sla: 48, pub: "Konsept onayınızda", cust: true }), T("Üretim", "Tasarım", "task", { sla: 40, pub: "Üretimde" }), T("İç kontrol", "Kreatif direktör", "approval", { sla: 4 }),
+        T("Teslim", "Müşteri temsilcisi", "task", { sla: 4, pub: "Teslim edildi" }), T("Fatura", "Muhasebe", "task", { sla: 24 })] },
+    { id: "yazilim", grp: "Ofis ve profesyonel hizmet", ico: "💻", name: "Yazılım ve web projesi", desc: "Talepten desteğe: analiz, teklif, geliştirme, test, müşteri kabulü ve yayın.", who: "Yazılım evi, web ajansı, bilişim firması",
+      stages: [T("Talep", "Proje yöneticisi", "task", { sla: 8 }), T("Analiz", "Analist", "task", { sla: 24 }), T("Teklif onayı", "Patron", "approval", { sla: 72, pub: "Teklif onayınızda", cust: true }),
+        T("Geliştirme", "Geliştirici", "task", { sla: 160, pub: "Geliştirmede" }), T("Test", "Test", "task", { sla: 24, pub: "Testte" }), T("Müşteri kabulü", "Proje yöneticisi", "approval", { sla: 72, pub: "Kabul testinizde", cust: true }),
+        T("Yayın", "Geliştirici", "task", { sla: 8, pub: "Yayında" })] },
+    { id: "muhasebe", grp: "Ofis ve profesyonel hizmet", ico: "📊", name: "Muhasebe bürosu (aylık)", desc: "Evraktan beyannameye: müşteriden evrak beklenirken kayıt, kontrol ve tahakkuk.", who: "Mali müşavir, muhasebe bürosu",
+      prefs: { signReq: false, custNotify: true },
+      stages: [T("Evrak bekleniyor", "Müşteri temsilcisi", "wait", { sla: 120, pub: "Evraklarınız bekleniyor" }), T("Kayıt", "Muhasebe", "task", { sla: 16, pub: "Kayıtta" }), T("Kontrol", "Mali müşavir", "approval", { sla: 4 }),
+        T("Beyanname", "Muhasebe", "task", { sla: 8, pub: "Beyanname hazırlanıyor" }), T("Tahakkuk gönderimi", "Müşteri temsilcisi", "task", { sla: 4, pub: "Tamamlandı" })] },
+    { id: "hukuk", grp: "Ofis ve profesyonel hizmet", ico: "⚖️", name: "Hukuk bürosu dosyası", desc: "Görüşmeden sonuca: vekalet ve ücret, dilekçe, kontrol, dosyalama ve duruşma takibi.", who: "Avukatlık bürosu, hukuk danışmanlığı",
+      prefs: { signReq: false, custNotify: false },
+      stages: [T("Görüşme", "Avukat", "task", { sla: 24 }), T("Vekalet ve ücret", "Patron", "approval", { sla: 48, cust: true, pub: "Vekalet bekleniyor" }), T("Dilekçe hazırlığı", "Avukat", "task", { sla: 40 }),
+        T("Kontrol", "Kıdemli avukat", "approval", { sla: 8 }), T("Dosyalama", "Katip", "task", { sla: 8 }), T("Duruşma takibi", "Avukat", "wait", { sla: 720 }), T("Sonuç bildirimi", "Avukat", "task", { sla: 24 })] },
+    { id: "mimarlik", grp: "İnşaat ve emlak", ico: "📐", name: "Mimarlık ve iç mimarlık", desc: "Keşiften teslime: konsept onayı, uygulama projesi, ruhsat beklenirken, uygulama kontrolü.", who: "Mimarlık ve iç mimarlık ofisi",
+      stages: [T("Keşif ve rölöve", "Mimar", "task", { sla: 24, photo: true }), T("Konsept", "Mimar", "task", { sla: 40 }), T("Konsept onayı", "Patron", "approval", { sla: 72, pub: "Onayınız bekleniyor", cust: true }),
+        T("Uygulama projesi", "Mimar", "task", { sla: 80 }), T("Ruhsat ve izinler", "Mimar", "wait", { sla: 240, pub: "İzin süreci" }), T("Uygulama kontrolü", "Şantiye şefi", "task", { sla: 160, photo: true, pub: "Uygulamada" }),
+        T("Teslim", "Patron", "approval", { sla: 24, pub: "Teslim" })] },
+    // Lojistik
+    { id: "kurye", grp: "Lojistik", ico: "🛵", name: "Kurye ve dağıtım", desc: "Siparişten tahsilata: kuryeye atama, teslim alma, yolda takibi ve imza.", who: "Kurye, paket dağıtım, şehir içi lojistik",
+      prefs: { signReq: true },
+      stages: [T("Sipariş alındı", "Operasyon", "task", { sla: 15 * MN, pub: "Siparişiniz alındı" }), T("Kuryeye atama", "Operasyon", "task", { sla: 15 * MN }), T("Teslim alma", "Şoför", "task", { sla: 1, photo: true, pub: "Kurye aldı" }),
+        T("Teslimat", "Şoför", "delivery", { sla: 2, pub: "Yolda" }), T("Tahsilat", "Muhasebe", "task", { sla: 24 })] },
+    // Eğitim ve etkinlik
+    { id: "egitim", grp: "Eğitim ve etkinlik", ico: "🎓", name: "Kurs ve eğitim kaydı", desc: "Başvurudan sertifikaya: seviye tespiti, kayıt ve ödeme, sınıf atama.", who: "Kurs, dershane, eğitim kurumu",
+      prefs: { signReq: false },
+      stages: [T("Başvuru", "Danışma", "task", { sla: 4, pub: "Başvurunuz alındı" }), T("Seviye tespiti", "Eğitmen", "task", { sla: 48 }), T("Kayıt ve ödeme", "Danışma", "task", { sla: 24, pub: "Kayıt" }),
+        T("Sınıf atama", "Eğitim koordinatörü", "task", { sla: 24, pub: "Sınıfınız belli oldu" }), T("Eğitim", "Eğitmen", "task", { sla: 720, pub: "Eğitimde" }), T("Sertifika", "Danışma", "task", { sla: 48, pub: "Tamamlandı" })] },
+    { id: "etkinlik", grp: "Eğitim ve etkinlik", ico: "🎉", name: "Düğün ve etkinlik organizasyonu", desc: "Görüşmeden ödemeye: teklif onayı, rezervasyonlar, dekor ve kurulum aynı anda, etkinlik günü.", who: "Organizasyon, düğün, kurumsal etkinlik",
+      stages: [T("Görüşme", "Planlama", "task", { sla: 24 }), T("Teklif onayı", "Patron", "approval", { sla: 72, pub: "Teklif onayınızda", cust: true }), T("Mekan ve tedarikçi rezervasyonu", "Planlama", "wait", { sla: 168, pub: "Rezervasyonlar" }),
+        T("Dekor hazırlığı", "Dekor", "task", { sla: 48 }), T("Ses ve ışık", "Teknik", "task", { par: true, sla: 8 }), T("Kurulum", "Saha ekibi", "task", { sla: 8, photo: true, pub: "Kurulum" }),
+        T("Etkinlik", "Planlama", "task", { sla: 8, pub: "Etkinlik günü" }), T("Toplama", "Saha ekibi", "task", { sla: 6 }), T("Ödeme", "Muhasebe", "task", { sla: 24, pub: "Tamamlandı" })] },
+    // Tarım
+    { id: "tarim", grp: "Tarım", ico: "🌾", name: "Tarım ürünü sevkiyatı", desc: "Hasattan sevkiyata: ayıklama ve kalibre, paketleme, soğuk hava, sevk.", who: "Çiftlik, sera, meyve ve sebze üreticisi",
+      stages: [T("Sipariş ve hasat planı", "Planlama", "task", { sla: 24 }), T("Hasat", "Tarla ekibi", "task", { sla: 16, photo: true }), T("Ayıklama ve kalibre", "Pakethane", "task", { sla: 8 }),
+        T("Paketleme", "Pakethane", "pack", { sla: 8 }), T("Soğuk hava", "Depo", "wait", { sla: 24 }), T("Kalite kontrol", "Kalite kontrol", "approval", { sla: 2, cl: ["Kalibre", "Brix / olgunluk", "Etiket"] }),
+        T("Sevkiyat", "Şoför", "delivery", { sla: 24 })] },
   ];
+  const TPL_GROUPS = ["Üretim", "Hizmet ve saha", "Otomotiv", "Ticaret", "Yeme içme ve konaklama", "Sağlık ve güzellik", "Ofis ve profesyonel hizmet", "İnşaat ve emlak", "Lojistik", "Eğitim ve etkinlik", "Tarım"];
+  const TPL_OLD_GRP = { metal: "Üretim", mobilya: "Üretim", tekstil: "Üretim", servis: "Otomotiv", insaat: "İnşaat ve emlak", emlak: "İnşaat ve emlak", lojistik: "Lojistik", restoran: "Yeme içme ve konaklama", temizlik: "Hizmet ve saha", eticaret: "Ticaret" };
+  TEMPLATES.forEach(t => { if (!t.grp) t.grp = t.core ? "Temel" : TPL_OLD_GRP[t.id] || "Diğer"; });
   const QUICK = ["Sipariş", "Onay", "Ölçüm", "Üretim", "Montaj", "Kalite kontrol", "Paketleme", "Teslimat", "Ödeme"];
   const fmtH = h => h == null ? "—" : h < 1 ? `${Math.round(h * 60)} dk` : h < 48 ? `${+h.toFixed(1)} sa`.replace(".", ",") : `${+(h / 24).toFixed(1)} gün`.replace(".", ",");
   // ---- Modül Deposu: building blocks a business snaps onto the core (jobs + flow engine + team) ----
@@ -3916,12 +4061,20 @@ var qrcode = function() {
   // ---------- Kurulum: a business sets up its own system in about two minutes ----------
   let OB = null;
   const CORE_IDS = ["gorev", "uretim", "hizmet", "gonderim"];
-  const OB_EX = ["Klima montajı yapıyoruz", "Demir kapı imal ediyoruz", "Online kıyafet satıyoruz", "Oto servisiz", "Mobilya üretiyoruz", "Ofis temizliği yapıyoruz"];
+  const OB_EX = ["Klima montajı yapıyoruz", "Demir kapı imal ediyoruz", "Matbaa işi yapıyoruz", "Pasta siparişi alıyoruz", "Reklam ajansıyız", "Online kıyafet satıyoruz"];
   function guessTpl(what) {
     const l = lower(what || "");
-    const SECT = [["servis", /oto|araç|araba|lastik|kaporta/], ["mobilya", /mobilya|dolap|marangoz|ahşap/], ["metal", /metal|demir|çelik|kaynak|korkuluk/],
-      ["insaat", /inşaat|tadilat|müteahhit|şantiye/], ["lojistik", /lojistik|nakliye|taşımacılık/], ["tekstil", /tekstil|konfeksiyon|dikim|terzi|kıyafet üret/],
-      ["restoran", /restoran|kafe|lokanta/], ["emlak", /emlak|gayrimenkul/], ["temizlik", /temizlik|ilaçlama/], ["eticaret", /e-?ticaret|online|internetten|pazaryeri/]];
+    const SECT = [["toptan", /toptan|bayi|distribütör/], ["ihracat", /ihracat|dış ticaret|yurt ?dışı/], ["kurye", /kurye|paket dağıtım/], ["aydinlatma", /aydınlatma|armatür|\bled\b|lamba|avize|\bspot/], ["matbaa", /matbaa|ofset|dijital baskı|etiket bas|ambalaj bas|baskı yap|baskı işi/], ["pastane", /pasta|tatlı/],
+      ["catering", /catering|toplu yemek|yemek hizmet/], ["gida", /gıda|fırın|ekmek|unlu mamul|şarküteri|konserve|peynir|süt ürün/], ["kuyum", /kuyum|takı|mücevher|altın|gümüş/],
+      ["cam", /pvc|alüminyum|doğrama|cam balkon|pencere/], ["mermer", /mermer|granit|tezgah|çimstone/], ["plastik", /plastik|enjeksiyon|kalıp/], ["mobilya", /mobilya|dolap|marangoz|ahşap/],
+      ["metal", /metal|demir|çelik|kaynak|korkuluk|kepenk|kapı/], ["klima", /klima|kombi|beyaz eşya|petek/], ["elektrik", /elektrik|tesisat|sıhhi|doğalgaz/], ["peyzaj", /peyzaj|bahçe|çim|fidan|çiçek/],
+      ["guvenlik", /kamera|alarm|güvenlik sistem|geçiş kontrol/], ["nakliyat", /evden eve|nakliyat|ofis taşıma/], ["asansor", /asansör|jeneratör/], ["detayli", /oto kuaför|detaylı temizlik|seramik kaplama|oto yıkama/],
+      ["kaporta", /kaporta|oto boya|hasar onarım/], ["servis", /(^|\s)oto(\s|$)|otomobil|otomotiv|oto servis|araç|araba|lastik/],
+      ["otel", /otel|pansiyon|apart|konaklama/], ["restoran", /restoran|kafe|lokanta|cafe/], ["dis", /diş|protez/], ["optik", /optik|gözlük/], ["guzellik", /kuaför|berber|güzellik|spa|tırnak|cilt bakım/],
+      ["mimarlik", /mimar/], ["ajans", /ajans|grafik|sosyal medya|reklam/], ["yazilim", /yazılım|web sitesi|uygulama geliştir|bilişim/], ["muhasebe", /muhasebe|mali müşavir|smmm/], ["hukuk", /hukuk|avukat/],
+      ["egitim", /kurs|eğitim|okul|dershane|etüt/], ["etkinlik", /düğün|etkinlik|organizasyon|nişan/], ["tarim", /tarım|sera|meyve|sebze|hasat|çiftlik/],
+      ["insaat", /inşaat|tadilat|müteahhit|şantiye/], ["lojistik", /lojistik|nakliye|taşımacılık/], ["tekstil", /tekstil|konfeksiyon|dikim|terzi|kıyafet üret/], ["emlak", /emlak|gayrimenkul/],
+      ["temizlik", /temizli|ilaçlama/], ["magaza", /mağaza|butik|perakende|dükkan/], ["eticaret", /e-?ticaret|online|internetten|pazaryeri/]];
     const CORE = [["hizmet", /montaj|tamir|servis|bakım|tesisat|kurulum|klima|badana|elektrik/], ["gonderim", /satış|satıyor|mağaza|toptan|dağıtım|kargo|market/],
       ["uretim", /imal|üret|atölye|kapı|matbaa|pasta|fırın|cam|döküm|baskı/]];
     for (const [id, re] of SECT) if (re.test(l)) return id;
@@ -3931,8 +4084,8 @@ var qrcode = function() {
   const obStages = id => TEMPLATES.find(t => t.id === id).stages.map(x => ({ name: x.name, type: ["approval", "wait"].includes(x.type) ? x.type : "task", par: !!x.par, sla: x.sla, photo: x.photo, pub: x.pub, checklist: [...(x.checklist || [])], cust: !!x.cust }));
   // ---------- kurulum: giriş (Google / Apple / e-posta) + tek ekranlık işletme formu ----------
   function obPrevHtml() {
-    const o = OB; if (!o.what.trim()) return `<div class="sm">Ne iş yaptığını yazınca sana uygun iş akışını burada göstereceğiz.</div>`;
-    const t = TEMPLATES.find(x => x.id === guessTpl(o.what)), gs = []; t.stages.forEach((x, i) => { if (x.par && i) gs[gs.length - 1].push(x.name); else gs.push([x.name]); });
+    const o = OB; if (!o.what.trim() && !o.tplPick) return `<div class="sm">Ne iş yaptığını yazınca sana uygun iş akışını burada göstereceğiz.</div>`;
+    const t = TEMPLATES.find(x => x.id === (o.tplPick || guessTpl(o.what))), gs = []; t.stages.forEach((x, i) => { if (x.par && i) gs[gs.length - 1].push(x.name); else gs.push([x.name]); });
     return `<div class="sm"><b style="color:var(--ink)">${t.ico} ${esc(t.name)}</b> akışını öneriyoruz · ${t.stages.length} aşama</div>
       <div class="flowline">${gs.map(g => `<span class="s">${g.map(esc).join(" ∥ ")}</span>`).join(" → ")}</div><div class="sm">Aşamaları sonra istediğin gibi değiştirirsin.</div>`;
   }
@@ -3965,12 +4118,14 @@ var qrcode = function() {
       <label class="f">Ne iş yapıyorsun?<input class="in" id="obWhat" value="${esc(o.what)}" placeholder="Ör: Klima montajı yapıyoruz" autocomplete="off"></label>
       <div class="chips">${OB_EX.map(x => `<button class="chip" data-obex="${esc(x)}">${esc(x)}</button>`).join("")}</div>
       <div class="obprev" id="obPrev">${obPrevHtml()}</div>
+      <label class="f">Önerilen akış uymadıysa seç<select class="in" id="obTpl"><option value="">${TEMPLATES.length} şablondan önerileni kullan</option>${["Temel", ...TPL_GROUPS].map(g => `<optgroup label="${esc(g)}">${TEMPLATES.filter(t => t.grp === g).map(t => `<option value="${t.id}"${o.tplPick === t.id ? " selected" : ""}>${t.ico} ${esc(t.name)}</option>`).join("")}</optgroup>`).join("")}</select></label>
       <div class="sm err" id="obMsg" role="alert"></div>
       <button class="btn xl block" data-ob="done">Kurulumu bitir</button>
       <p class="sm" style="margin:0;text-align:center">Ekibini, ürünlerini ve ilk işini sonra panelden eklersin.</p>`;
     $("#app").innerHTML = `<main class="gut ob">${prog}${h}</main>`;
     const keep = (id, k) => { const el = $("#" + id); if (el) el.oninput = () => { o[k] = el.value; if (k === "what") $("#obPrev").innerHTML = obPrevHtml(); }; };
     keep("obName", "name"); keep("obBiz", "biz"); keep("obWhat", "what"); keep("obMail", "email");
+    const ts = $("#obTpl"); if (ts) ts.onchange = () => { o.tplPick = ts.value; $("#obPrev").innerHTML = obPrevHtml(); };
     const enter = (id, a) => { const el = $("#" + id); if (el) el.onkeydown = e => { if (e.key === "Enter") obAct(a); }; };
     enter("obMail", "ecode"); enter("obCode", "elogin"); enter("obWhat", "done");
     (o.step === 2 && !o.name ? $("#obName") : o.step === 2 ? $("#obBiz") : $("#obCode") || $("#obMail"))?.focus();
@@ -3988,10 +4143,10 @@ var qrcode = function() {
     if (a === "ecode") { const v = ($("#obMail")?.value || "").trim(); if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return obMsg("Geçerli bir e-posta adresi yaz (ör: ayten@firma.com)."); o.email = v; o.codeSent = true; renderOb(); return; }
     if (a === "elogin") { if (($("#obCode")?.value || "").replace(/\D/g, "").length !== 6) return obMsg("E-postana gelen 6 haneli kodu yaz."); o.provider = null; return obGo(2); }
     if (a === "done") { if (!o.name.trim()) { obMsg("Adını yaz."); $("#obName").focus(); return; } if (!o.biz.trim()) { obMsg("İşletmenin adını yaz."); $("#obBiz").focus(); return; }
-      if (!o.what.trim()) { obMsg("Ne iş yaptığını birkaç kelimeyle yaz; akışını buna göre kuracağız."); $("#obWhat").focus(); return; } finishOb(); }
+      if (!o.what.trim() && !o.tplPick) { obMsg("Ne iş yaptığını birkaç kelimeyle yaz ya da listeden bir akış seç."); $("#obWhat").focus(); return; } finishOb(); }
   }
   function finishOb() {
-    const o = OB, tp = TEMPLATES.find(t => t.id === guessTpl(o.what)), w = o.what.trim(), depts = { patron: "Patron" }, dk = {};
+    const o = OB, tp = TEMPLATES.find(t => t.id === (o.tplPick || guessTpl(o.what))), w = o.what.trim() || tp.name, depts = { patron: "Patron" }, dk = {};
     const keyOf = name => { if (name === "Patron") return "patron"; if (!dk[name]) { dk[name] = "d" + (Object.keys(dk).length + 1); depts[dk[name]] = name; } return dk[name]; };
     const stages = tp.stages.map((x, i) => ({ key: "a" + (i + 1), name: x.name, skill: keyOf(x.dept), type: x.type === "pack" || x.type === "delivery" ? "task" : x.type, par: !!x.par && i > 0, sla: x.sla || 8,
       photo: !!x.photo, pub: x.pub || x.name, checklist: [...(x.checklist || [])], cust: !!x.cust }));
@@ -4008,7 +4163,7 @@ var qrcode = function() {
     toast("🎉", `${D.biz.name} hazır`, "Başlangıç listesindeki adımlarla devam et");
   }
   function startOb(canQuit) {
-    OB = { step: 0, canQuit, name: "", email: "", provider: null, emailOpen: false, codeSent: false, biz: "", what: "" };
+    OB = { step: 0, canQuit, name: "", email: "", provider: null, emailOpen: false, codeSent: false, biz: "", what: "", tplPick: "" };
     renderOb(); window.scrollTo(0, 0);
   }
   function renderJoin(p) {
@@ -4636,7 +4791,21 @@ var qrcode = function() {
         ${topF && topF[1] > 1 ? `<div class="sm">En sık sapma: <b>${esc(topF[0])}</b> (${topF[1]} kez).</div>` : ""}` : `<div class="empty">Tolerans dışı değer yok 👍</div>`}
     </section>`;
   }
-  let sysTab = "akis", prodQ = "";
+  let sysTab = "akis", prodQ = "", tplQ = "", tplG = "";
+  const tplRows = () => { const q = trn(tplQ);
+    const L = TEMPLATES.filter(t => { if (t.core || (tplG && t.grp !== tplG)) return false; if (!q) return true;
+      const words = trn(`${t.name} ${t.who} ${t.desc} ${t.grp} ${t.stages.map(x => x.name).join(" ")}`).split(" "); return q.split(" ").every(w => words.some(x => x.startsWith(w))); });
+    if (!L.length) return `<div class="empty">“${esc(tplQ)}” için şablon yok. Temel şablonlardan biriyle başla; aşamaları kendi işine göre değiştirirsin.</div>`;
+    const G = tplG || q ? [[tplG || `${L.length} sonuç`, L]] : TPL_GROUPS.map(g => [g, L.filter(t => t.grp === g)]).filter(x => x[1].length);
+    return G.map(([g, ts]) => `<div class="cat-h" style="margin-top:8px">${esc(g)} · ${ts.length}</div><div class="tgrid">${ts.map(tplCard).join("")}</div>`).join(""); };
+  function tplGalleryHtml() {
+    return `<section><h2>Şablon galerisi</h2><p class="sm" style="margin:0">${TEMPLATES.length} hazır akış, ${TPL_GROUPS.length} sektör grubunda. Önizle, beğenirsen aşamaların adını ve sırasını kendi işine göre değiştir.</p>
+      <div class="cat-h" style="margin-top:4px">Her işe uyan temel şablonlar</div><div class="tgrid">${TEMPLATES.filter(t => t.core).map(tplCard).join("")}</div>
+      <div class="cat-h" style="margin-top:8px">Sektöre göre</div>
+      <div class="psearch" style="margin-top:0">${ico("search")}<input class="in" id="tq" value="${esc(tplQ)}" placeholder="Sektör ya da iş ara: matbaa, diş, ajans…" autocomplete="off" aria-label="Şablon ara"></div>
+      <div class="chips pcats" style="margin:0">${["", ...TPL_GROUPS].map(g => `<button class="chip" data-tplg="${esc(g)}" aria-pressed="${tplG === g}">${g ? esc(g) : "Tümü"}</button>`).join("")}</div>
+      <div id="tgl">${tplRows()}</div></section>`;
+  }
   function bizHtml() {
     const b = D.biz || (D.biz = {}), F = (k, l, ph, t = "text") => `<div><label class="sm" for="bz_${k}"><b>${l}</b></label><input class="in" id="bz_${k}" type="${t}" value="${esc(b[k] ?? "")}" placeholder="${esc(ph)}" autocomplete="off"></div>`;
     return `<section><div class="sec-h"><h2>İşletme bilgileri</h2></div><p class="sm" style="margin:0">Teklif ve sipariş formlarının üstünde, müşteriye giden mesajlarda kullanılır.</p>
@@ -4711,12 +4880,7 @@ var qrcode = function() {
           <div class="sm" style="margin-top:4px">${D.jobs.filter(j => j.flowId === f.id && !j.done).length} aktif iş · ${f.stages.length} aşama${f.from ? ` · ${esc(f.from)} şablonundan` : ""}</div></div>
           <div style="display:grid;gap:6px"><button class="btn line" data-editflow="${f.id}">Düzenle</button>${f.id !== D.defaultFlow ? `<button class="chip" data-defflow="${f.id}">Varsayılan yap</button>` : ""}</div></div>`).join("")}</div></section>
 `;
-    const tpls = `      <section><h2>Şablon galerisi</h2><p class="sm" style="margin:0">Temel şablonlar işin türüne göre hazırlandı, her sektöre uyar. Önizle, aşamaların adını ve sırasını kendi işine göre değiştir.</p>
-        <div class="cat-h" style="margin-top:4px">Her işe uyan temel şablonlar</div>
-        <div class="tgrid">${TEMPLATES.filter(t => t.core).map(t => tplCard(t)).join("")}</div>
-        <div class="cat-h" style="margin-top:8px">Sektör örnekleri</div>
-        <div class="tgrid">${TEMPLATES.filter(t => !t.core).map(t => tplCard(t)).join("")}</div></section>
-`;
+    const tpls = tplGalleryHtml();
     const mods = `${systemMap()}${depotHtml()}<button class="btn line block" id="rebuild">Sistemi baştan kur</button>`;
     return head(BIZ(), "Sistem") + `<main class="gut">${seg}${sysTab === "urun" ? productsHtml() : sysTab === "isletme" ? bizHtml() : sysTab === "modul" ? mods : flows + tpls}</main>`;
   }
@@ -4868,7 +5032,7 @@ var qrcode = function() {
   function openStartChooser() {
     sheet(`<div class="stack"><div><div class="eyebrow">Kendi akışını kur</div><h2>Nereden başlamak istersin?</h2></div>
       <button class="choice" id="fromBlank"><span class="tico">✎</span><div><b>Sıfırdan kur</b><div class="sm">Boş bir akış. Aşamaları tek tek sen eklersin.</div></div></button>
-      <button class="choice" id="fromTpl"><span class="tico">⧉</span><div><b>Şablondan başla</b><div class="sm">Her işe uyan 4 temel şablondan ya da sektör örneklerinden birini seç, kendine göre uyarla.</div></div></button>
+      <button class="choice" id="fromTpl"><span class="tico">⧉</span><div><b>Şablondan başla</b><div class="sm">${TEMPLATES.length} hazır akıştan birini seç: 4 temel şablon ve ${TPL_GROUPS.length} sektör grubu. Kendine göre uyarla.</div></div></button>
       <div class="sm" style="font-weight:700;margin-top:4px">Mevcut bir akışı kopyala</div>
       ${D.flows.map(f => `<button class="choice" data-copyflow="${f.id}"><span class="tico">${f.ico}</span><div style="min-width:0"><b>${esc(f.name)} kopyası</b><div class="flowline">${flowLine(f)}</div></div></button>`).join("")}
       <button class="btn ghost block" id="closeS">Vazgeç</button></div>`, () => {
@@ -5785,6 +5949,7 @@ var qrcode = function() {
   document.addEventListener("pointerup", endDrag); document.addEventListener("pointercancel", endDrag);
   document.addEventListener("input", e => {
     const el = e.target;
+    if (el.id === "tq") { tplQ = el.value; const l = $("#tgl"); if (l) l.innerHTML = tplRows(); return; }
     if (el.id === "jq") { jobQ = el.value; render(); const i = $("#jq"); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } return; }
     if (el.id === "cq") { custQ = el.value; const l = $("#cl"); if (l) l.innerHTML = custRows(); return; }
     if (el.id === "prq") { prodQ = el.value; const l = $("#prl"); if (l) l.innerHTML = prodRows(); return; }
@@ -5812,6 +5977,7 @@ var qrcode = function() {
     if (d.jv) { jobView = d.jv; render(); return; }
     if (d.setup) { const k = d.setup; if (k === "job") openNewJob(); else if (k === "team") openPerson(null); else if (k === "flow") openFlowEditor({ id: D.defaultFlow, back: "panel" });
       else if (k === "prod" || k === "biz") { tab = "ayar"; sysTab = k === "prod" ? "urun" : "isletme"; render(); window.scrollTo(0, 0); } else if (k === "close") { D.setupDone = true; save(); render(); } return; }
+    if (d.tplg != null) { tplG = d.tplg; const l = $("#tgl"); if (l) l.innerHTML = tplRows(); document.querySelectorAll("[data-tplg]").forEach(b => b.setAttribute("aria-pressed", b.dataset.tplg === tplG)); return; }
     if (d.syst) { sysTab = d.syst; render(); window.scrollTo(0, 0); return; }
     if (d.prod) { openProduct(d.prod); return; }
     if (el.id === "prodNew") { openProduct(null); return; }
